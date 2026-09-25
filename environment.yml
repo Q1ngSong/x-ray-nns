@@ -1,0 +1,17 @@
+name: xraynns
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - "torch>=2.3,<3"
+      - "transformers>=4.45,<6"
+      - "numpy>=1.26,<3"
+      - "Pillow>=10,<13"
+      - "safetensors>=0.4,<1"
+      - "pytest>=8,<10"
+
+# Install the local package separately from the project root:
+# python -m pip install -e ".[clip]"

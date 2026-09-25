@@ -1,0 +1,48 @@
+# DCLH-generated indexes and audit reports
+.codegraph/
+codegraph.json
+
+# Models live in models/: downloaded weights and custom-model code stay local.
+# Only models/README.md, which states the layout, is tracked.
+/models/*
+!/models/README.md
+
+# Recorded traces: every run goes to runs/<model>/<run>/ and none of it is tracked.
+runs*/
+
+# Reference material, notes and experiment records stay local
+/reference-proj/
+# Local research notes and link index; keep external reference material out of Git.
+/reference-projs/
+# Keep the previous spelling ignored for older local checkouts.
+/reference_proj/
+/references/
+/experiments/
+
+# Local configuration and credentials
+.env
+.env.*
+*.pem
+*.key
+.claude/
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Editors and macOS metadata
+.vscode/
+.idea/
+.DS_Store
+._*
+
+# Private: DCLH config, agent notes, docs and tests stay out of Git.
+.comment-standard.json
+/AGENTS.md
+/PROJECT.md
+/docs/
+/tests/

@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xray-nns"
+version = "0.1.0"
+description = "Record and replay neural-network inference as an interactive HTML trace."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{name = "x-ray-nns contributors"}]
+dependencies = []
+
+[project.optional-dependencies]
+torch = ["torch>=2.3,<3"]
+clip = [
+  "torch>=2.3,<3",
+  "transformers>=4.45,<6",
+  "Pillow>=10,<13",
+  "numpy>=1.26,<3",
+  "safetensors>=0.4,<1",
+]
+dev = ["pytest>=8,<10"]
+
+[project.scripts]
+xray = "xray.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["xray*"]
+
+[tool.setuptools.package-data]
+"xray.exporters" = ["*.js", "vendor/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
