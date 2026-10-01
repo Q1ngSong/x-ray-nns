@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="x-ray-nns：记录一次真实的 PyTorch 推理，在浏览器中逐层查看神经网络的结构、中间值与数据流。在线探索 CLIP 图文推理示例。">
+  <meta name="theme-color" content="#f7f9f8">
+  <title>x-ray-nns · 看见神经网络如何计算</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23283f43'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='Arial' font-size='46' fill='%23bce1d4'%3Ex%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#examples">跳到案例</a>
+<header class="site-nav wrap">
+  <a class="wordmark" href="./" aria-label="x-ray-nns 首页">x<span>−</span>ray<span class="wordmark-tail"> / nns</span></a>
+  <nav aria-label="主导航"><a href="#examples">案例</a><a href="#readme">README</a><a href="__REPOSITORY__">GitHub <span aria-hidden="true">↗</span></a></nav>
+</header>
+<main class="wrap">
+  <section class="hero" aria-labelledby="project-title">
+    <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> OPEN SOURCE · NEURAL NETWORK EXPLORER</p>
+    <h1 id="project-title">x-ray-nns</h1>
+    <p class="hero-title">给神经网络，拍一张 <span>X 光片。</span></p>
+    <p class="hero-description">跑一次真实的 PyTorch 推理，<br class="desktop-break">把模型结构、中间值和数据流，变成一个可以逐层打开的网页。</p>
+    <div class="hero-actions"><a class="button primary" href="#examples">探索案例 <span aria-hidden="true">↘</span></a><a class="button secondary" href="__REPOSITORY__">查看源代码 <span aria-hidden="true">↗</span></a></div>
+    <div class="hero-foot"><span>Record once, replay anywhere.</span><span class="hero-tags">真实推理 <i>·</i> 2D / 3D <i>·</i> 浏览器回放</span></div>
+  </section>
+  <section id="examples" class="examples" aria-labelledby="examples-title">
+    <div class="section-heading"><div><p class="eyebrow">01 / EXPLORE</p><h2 id="examples-title">案例项目</h2></div><p>从一个真实输入出发，看看模型里发生了什么。</p></div>
+    <div class="case-grid">__EXAMPLE_CARDS__</div>
+    <p class="examples-note">点击卡片即可探索录制好的推理过程，无需安装或下载模型。</p>
+  </section>
+  <section id="readme" class="readme-section" aria-label="README">
+    <article class="readme-content">__README__</article>
+  </section>
+</main>
+<footer class="site-footer wrap"><a class="wordmark" href="#project-title">x<span>−</span>ray</a><p>看见结构，也看见计算。</p><a href="__REPOSITORY__/blob/main/LICENSE">MIT License</a></footer>
+</body>
+</html>

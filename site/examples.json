@@ -1,0 +1,10 @@
+[
+  {
+    "slug": "clip-cat",
+    "title": "CLIP ViT-B/32",
+    "subtitle": "一张猫的照片，三条文本提示",
+    "description": "图片和文字如何走过两个编码器，汇合成相似度？逐层展开视觉与文本分支，查看注意力、中间激活与最终结果。",
+    "preview": "assets/readme/hero-3d.webp",
+    "tags": ["图像 × 文本", "24 encoder layers", "2D / 3D"]
+  }
+]

@@ -23,6 +23,8 @@
   const ATTENTION_RAMP = [[247, 249, 252], [46, 84, 122]], MLP_RAMP = [[241, 246, 244], [47, 110, 96]];
   const view = {mode: '2d', expanded: new Set(), open: new Set(), types: new Set(['hidden', 'output']),
     head: 'avg', style: 'matrix', active: null, hover: null};
+  const similarityIds = Object.keys(views).filter(id => views[id].output?.similarity);
+  if (similarityIds.length) view.types.delete('output');
   const renderers = new Map(), decoded = new Map(), imageWaiters = [];
   const flowLanes = lanes.filter(lane => !lane.items.every(item => item.block && blocks[item.block].kind === 'result'));
   const mergeLanes = lanes.filter(lane => !flowLanes.includes(lane));
@@ -764,6 +766,7 @@
   function collapseAll() {
     view.expanded.clear();
     view.open.clear();
+    if (similarityIds.length) { view.types.delete('output'); refreshBar(); }
     started().forEach(renderer => {
       renderer.rebuildPanels();
       renderer.relayout(true);
@@ -774,12 +777,17 @@
   function setType(key) {
     if (view.types.has(key)) view.types.delete(key);
     else view.types.add(key);
+    if (key === 'output') similarityIds.forEach(id => {
+      if (view.types.has(key)) view.open.add(id);
+      else view.open.delete(id);
+    });
     refreshBar();
     started().forEach(renderer => {
       renderer.rebuildPanels();
       renderer.relayout(false, view.active);
     });
     sync();
+    if (key === 'output' && view.types.has(key) && similarityIds.length) focusBlock(similarityIds[0]);
   }
 
   function setHead(value) {
@@ -853,7 +861,8 @@
     const block = blocks[pick.id];
     if (block.kind === 'module' || !block.tensor) selectOperation(block.operations[0]);
     else selectTensor(block.tensor);
-    if (views[block.id]) toggleOpen(block.id);
+    if (views[block.id]?.output?.similarity) setType('output');
+    else if (views[block.id]) toggleOpen(block.id);
   }
 
   // The old view hides first so the new one measures its real size; a renderer's ``show``
@@ -891,7 +900,7 @@
       const button = node('button', label, 'scene-type');
       button.type = 'button';
       button.dataset.type = key;
-      button.title = 'Show on opened blocks';
+      button.title = key === 'output' && similarityIds.length ? '显示简洁结果；在 Details 面板查看矩阵' : 'Show on opened blocks';
       button.addEventListener('click', () => setType(key));
       typeButtons.set(key, button);
       bar.appendChild(button);
@@ -964,6 +973,7 @@
     };
     const three = renderers.get('3d');
     setMode(location.hash === '#3d' && lanes.length && three && three.available() ? '3d' : '2d');
+    if (location.hash === '#similarity' && similarityIds.length) setType('output');
   }
 
   document.addEventListener('DOMContentLoaded', start);

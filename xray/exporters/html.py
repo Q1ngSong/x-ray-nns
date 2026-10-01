@@ -28,6 +28,14 @@ _HTML = r"""<!doctype html>
 @media(max-width:820px){.plane2d{flex:none;height:420px}.panel-toggles{display:none}}
 .run-select{max-width:420px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#4b6878;padding:5px 8px;font:11px var(--mono);text-overflow:ellipsis}.topbar #new-run{font-size:11px;padding:5px 10px}.topbar #new-run.active{background:var(--blue-soft);border-color:#a8c3d6;color:#3d637d}.run-error{margin:0;padding:9px 24px;background:var(--peach-soft);border-bottom:1px solid #ecd9c9;color:#7a5a45;font-size:12px}.run-form{padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--line)}.run-form label{display:grid;gap:5px;font-size:11px;color:#5f7481}.run-form input[type=file]{font-size:11px}.run-prompts{display:grid;gap:6px;margin:10px 0}.run-prompt{display:grid;grid-template-columns:1fr auto;gap:5px}.run-prompt input{min-width:0;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;color:var(--ink)}.run-prompt button{padding:4px 8px}.run-actions{display:flex;gap:6px;justify-content:space-between}.run-actions .primary{background:var(--blue-soft);border-color:#abc5d7;color:#466d83}
 .patch-map[hidden]{display:none}.source-figure{margin:12px 0 0}.source-figure img{display:block;width:100%;border:1px solid #cad9e3;border-radius:12px}.source-figure figcaption{margin-top:6px;color:var(--muted);font-size:11px}#source-extra .fact{font-size:11px}
+body.model-fullscreen{overflow:hidden}
+.center:fullscreen,.center.fullscreen-fallback{width:100%;height:100%;min-height:0;overflow:hidden;background:var(--wash)}
+.center.fullscreen-fallback{position:fixed;inset:0;z-index:1000}
+.center:fullscreen .view-panel,.center.fullscreen-fallback .view-panel{min-height:0}
+.center:fullscreen .plane2d,.center:fullscreen .scene-canvas,.center.fullscreen-fallback .plane2d,.center.fullscreen-fallback .scene-canvas{flex:1;min-height:0;height:auto}
+.center:fullscreen .architecture-wrap,.center.fullscreen-fallback .architecture-wrap{overflow:hidden}
+.center:fullscreen .timeline,.center.fullscreen-fallback .timeline{position:static;flex-shrink:0}
+#toggle-fullscreen{font-size:10px;padding:5px 10px}#toggle-fullscreen[aria-pressed=true]{background:var(--blue-soft);border-color:#a8c3d6}
 </style>
 </head>
 <body>
@@ -40,8 +48,8 @@ _HTML = r"""<!doctype html>
   <section class="source-block"><h2 class="panel-title"><span id="image-title">01 · Source image</span> <span id="image-size" class="run-name"></span></h2><p id="image-note" class="panel-note">Visible pixels are partitioned into 32 × 32 patches.</p><div id="source-image" class="input-frame"></div><div id="patch-map" class="patch-map" aria-label="7 by 7 image patch activation map"></div><p id="patch-map-caption" class="patch-map-caption">Select a patch to inspect its recorded embedding token.</p><div id="source-extra"></div></section>
   <section><h2 class="panel-title">02 · Prompts and tokens</h2><div id="prompt-list" class="token-list"></div></section>
 </aside>
-<section class="center" aria-label="Model architecture and runtime">
-  <div class="view-panel"><div class="view-head"><label class="branch-select-wrap">Branch <select id="branch-select" aria-label="Branch filter"><option value="all">All paths</option></select></label><div class="view-switch" role="group" aria-label="View mode"><button id="view-2d" class="active" type="button" aria-pressed="true">2D</button><button id="view-3d" type="button" aria-pressed="false">3D</button></div></div><div id="scene-bar" class="scene-bar" aria-label="View controls"></div>
+<section id="model-view" class="center" aria-label="Model architecture and runtime">
+  <div class="view-panel"><div class="view-head"><label class="branch-select-wrap">Branch <select id="branch-select" aria-label="Branch filter"><option value="all">All paths</option></select></label><div class="view-switch" role="group" aria-label="View mode"><button id="view-2d" class="active" type="button" aria-pressed="true">2D</button><button id="view-3d" type="button" aria-pressed="false">3D</button></div><button id="toggle-fullscreen" type="button" aria-controls="model-view" aria-pressed="false" title="Show the model view fullscreen">Fullscreen</button></div><div id="scene-bar" class="scene-bar" aria-label="View controls"></div>
   <div id="graph-stage" class="architecture-wrap"><div id="plane" class="plane2d"><div id="plane-world" class="plane-world"><svg id="plane-links" class="plane-links" aria-hidden="true"></svg></div><div id="plane-labels" class="scene-labels"></div></div><p class="scene-note">Drag to pan · scroll to zoom · click a group label to expand it · click a block to open its values; the switches choose which values appear.</p></div>
   <div id="scene-stage" class="scene-stage" hidden><div id="scene-canvas" class="scene-canvas"><div id="scene-labels" class="scene-labels"></div></div><p id="scene-note" class="scene-note"></p></div>
   </div>
@@ -125,7 +133,7 @@ function drawStateVisual(t){
 }
 function openDetails(){E('detail-panel').hidden=false;E('inspector-empty').hidden=true}
 function closeDetails(){E('detail-panel').hidden=true;E('inspector-empty').hidden=false}
-function renderInspector(){const t=tensors.get(state.tensor),op=operations.get(state.operation);renderPatchMap();drawStateVisual(t);E('selected-name').textContent=t?t.id:(op?op.name:'Select a node');E('selected-kind').textContent=t?(t.semantic_type||'intermediate Tensor'):(op?stage(op):'');E('selected-device').textContent=t?t.dtype+' · '+t.device:'';E('selected-flow').textContent=op?laneLabel(classify(op))+' · '+stage(op):'';const facts=E('selected-facts');facts.replaceChildren();stats(t).forEach(([key,value])=>{const row=node('div',undefined,'fact');row.append(node('span',key),node('span',value));facts.appendChild(row)});renderConnections(t,op);E('tensor-json').textContent=t?JSON.stringify(t,null,2):'Select a Tensor.';E('operation-json').textContent=op?JSON.stringify(op,null,2):'Select an operation.'}
+function renderInspector(){const t=tensors.get(state.tensor),op=operations.get(state.operation);renderPatchMap();drawStateVisual(t);E('selected-name').textContent=t?t.id:(op?op.name:'Select a node');E('selected-kind').textContent=t?(t.semantic_type||'intermediate Tensor'):(op?stage(op):'');E('selected-device').textContent=t?t.dtype+' · '+t.device:'';E('selected-flow').textContent=op?laneLabel(classify(op))+' · '+stage(op):'';const facts=E('selected-facts');facts.replaceChildren();stats(t).forEach(([key,value])=>{const row=node('div',undefined,'fact');row.append(node('span',key),node('span',value));facts.appendChild(row)});renderConnections(t,op);E('tensor-json').textContent=t?JSON.stringify(t,null,2):'Select a Tensor.';E('operation-json').textContent=op?JSON.stringify(op,null,2):'Select an operation.';if(window.XRAY_SIMILARITY)window.XRAY_SIMILARITY.sync()}
 // Data flow: the operation's input and output tensors, then where the selected tensor comes from and goes to.
 function renderConnections(t,op){const box=E('selected-connections');box.replaceChildren();const row=(label,items)=>{if(!items.length)return;const line=node('div',undefined,'flow-row');line.append(node('span',label,'flow-label'),...items);box.appendChild(line)};const tensorRef=id=>{const b=node('button',tensorRefLabel(id));b.type='button';b.dataset.inspectTensor=id;b.classList.toggle('current',!!t&&t.id===id);b.onclick=()=>focusTensor(id);return b};const opRef=id=>{const o=operations.get(id),b=node('button',o?String(o.name).split('.').slice(-2).join('.'):id);b.type='button';b.title=id+(o?' · '+o.name:'');b.onclick=()=>focusOperation(id);return b};if(op){row('in',(op.inputs||[]).map(tensorRef));row('out',(op.outputs||[]).map(tensorRef))}if(t&&t.producer&&(!op||t.producer!==op.id))row('from',[opRef(t.producer)]);if(t)row('to',(t.consumers||[]).slice(0,6).map(opRef));if(!box.children.length)box.appendChild(node('span','No recorded connections.','empty'))}
 function selectPatch(index){state.patchIndex=index;const patch=inputTensor('image_patch_tokens');if(patch)selectTensor(patch.id);else renderPatchMap()}
@@ -142,17 +150,55 @@ function pause(){if(state.timer!==null)clearInterval(state.timer);state.timer=nu
 function setupTimeline(){const total=(trace.events||[]).length;E('event-range').max=String(Math.max(0,total-1));E('previous').onclick=()=>{if(state.event>0)selectEvent(state.event-1)};E('next').onclick=()=>{if(state.event<total-1)selectEvent(state.event+1)};E('pause').onclick=pause;E('play').onclick=()=>{if(!total||state.timer!==null)return;if(state.event>=total-1)selectEvent(0);state.timer=setInterval(()=>{if(state.event>=total-1){pause();return}selectEvent(state.event+1,true)},650);selectEvent(state.event,true)};E('event-range').oninput=event=>selectEvent(Number(event.target.value));E('detail-close').onclick=closeDetails;E('branch-select').onchange=event=>{state.branch=event.target.value;renderBranches();renderScene();renderLedger()};E('ledger-expand').onclick=()=>{const groups=[...document.querySelectorAll('.ledger-group')],open=groups.some(group=>!group.open);groups.forEach(group=>{group.open=open});E('ledger-expand').textContent=open?'Collapse all groups':'Expand all groups'}}
 // Side panels: Input and Details fold away so the graph fills the page; each choice is remembered in this browser.
 function setupPanels(){const workbench=document.querySelector('.workbench');[['source','toggle-source'],['inspector','toggle-inspector']].forEach(([panel,id])=>{const button=E(id),key='xray-hide-'+panel;const apply=hidden=>{workbench.classList.toggle(panel+'-hidden',hidden);button.classList.toggle('active',!hidden);button.setAttribute('aria-pressed',String(!hidden))};let hidden=false;try{hidden=localStorage.getItem(key)==='1'}catch(error){}apply(hidden);button.onclick=()=>{hidden=!hidden;apply(hidden);try{localStorage.setItem(key,hidden?'1':'0')}catch(error){}}})}
+// Fullscreen keeps the existing scene and timeline; embedded browsers can use a page-sized fallback.
+function setupFullscreen(){
+  const center=E('model-view'),button=E('toggle-fullscreen');
+  const outside=[document.querySelector('.topbar'),document.querySelector('.source'),E('inspector'),E('run-error')];
+  const sync=()=>{
+    const active=document.fullscreenElement===center||center.classList.contains('fullscreen-fallback');
+    document.body.classList.toggle('model-fullscreen',active);
+    outside.forEach(element=>{element.inert=active});
+    button.textContent=active?'Exit fullscreen':'Fullscreen';
+    button.setAttribute('aria-pressed',String(active));
+    button.title=active?'Exit fullscreen (Esc)':'Show the model view fullscreen';
+    button.focus({preventScroll:true});
+  };
+  button.onclick=async()=>{
+    button.disabled=true;
+    try{
+      if(document.fullscreenElement===center){
+        await document.exitFullscreen();
+      }else if(center.classList.contains('fullscreen-fallback')){
+        center.classList.remove('fullscreen-fallback');
+      }else{
+        try{await center.requestFullscreen()}
+        catch(error){center.classList.add('fullscreen-fallback')}
+      }
+    }finally{
+      button.disabled=false;
+      sync();
+    }
+  };
+  document.addEventListener('fullscreenchange',sync);
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&(document.fullscreenElement===center||center.classList.contains('fullscreen-fallback'))){
+      event.preventDefault();
+      button.click();
+    }
+  });
+}
 // Served by `xray serve`: runs-data lists the recorded runs; offline bundles embed null and keep these controls hidden.
 // A failed submission comes back with runs.error; the prompts typed before it are restored from sessionStorage.
 const runs=JSON.parse(E('runs-data').textContent);
 function addPrompt(text){const box=E('run-prompts');if(box.children.length>=8)return;const row=node('div',undefined,'run-prompt'),field=node('input'),remove=node('button','×');field.name='prompt';field.value=text;field.maxLength=300;field.required=true;field.placeholder='a photo of …';remove.type='button';remove.setAttribute('aria-label','Remove prompt');remove.onclick=()=>{if(box.children.length>1)row.remove()};row.append(field,remove);box.appendChild(row)}
 function setupRuns(){if(!runs)return;const select=E('run-select'),toggle=E('new-run'),form=E('run-form');E('run-name').hidden=true;select.hidden=false;toggle.hidden=metadata.backend!=='transformers.CLIPModel';(runs.runs||[]).forEach(run=>{const option=node('option',run.label);option.value=run.path;option.selected=run.path===runs.current;select.appendChild(option)});select.onchange=()=>{location.href='/runs/'+select.value.split('/').map(encodeURIComponent).join('/')+'/'};toggle.onclick=()=>{form.hidden=!form.hidden;toggle.classList.toggle('active',!form.hidden)};E('run-base').value=runs.current||'';let typed=null;try{typed=runs.error?JSON.parse(sessionStorage.getItem('xray-prompts')||'null'):null;if(!runs.error)sessionStorage.removeItem('xray-prompts')}catch(error){}(Array.isArray(typed)&&typed.length?typed:(Array.isArray(inputs.text)&&inputs.text.length?inputs.text:[''])).forEach(addPrompt);E('add-prompt').onclick=()=>addPrompt('');form.onsubmit=()=>{try{sessionStorage.setItem('xray-prompts',JSON.stringify([...E('run-prompts').querySelectorAll('input')].map(field=>field.value)))}catch(error){}E('run-submit').disabled=true;E('run-submit').textContent='Running…';E('run-status').textContent='Recording a new CLIP run; the page opens it when done.'};if(runs.error){E('run-error').textContent=runs.error;E('run-error').hidden=false;form.hidden=false;toggle.classList.add('active')}}
-E('run-name').textContent=(trace.model_name||'model')+' · '+(trace.trace_id||'trace');renderSource();renderBranches();renderLedger();setupTimeline();new ResizeObserver(()=>drawStateVisual(tensors.get(state.tensor))).observe(E('state-canvas'));selectEvent(state.event,false,false);setupRuns();setupPanels();
+E('run-name').textContent=(trace.model_name||'model')+' · '+(trace.trace_id||'trace');renderSource();renderBranches();renderLedger();setupTimeline();new ResizeObserver(()=>drawStateVisual(tensors.get(state.tensor))).observe(E('state-canvas'));selectEvent(state.event,false,false);setupRuns();setupPanels();setupFullscreen();
 </script>
 <script>__THREE_JS__</script>
 <script>__SCENE_CORE_JS__</script>
 <script>__SCENE_2D_JS__</script>
-<script>__SCENE_JS__</script></body></html>"""
+<script>__SCENE_JS__</script>
+<script>__SIMILARITY_JS__</script></body></html>"""
 
 
 def export_bundle(trace: InferenceTrace, destination: str | Path) -> Path:
@@ -197,6 +243,8 @@ def render_page(trace: InferenceTrace, scene: Mapping[str, Any], runs: Mapping[s
         宽屏时页面不滚动，模型图填满中栏。去掉中栏标题、阶段条（``stage-strip``）、``run-state`` 与 ``patch-summary``；
         token 列表并入 ``prompt-list``（``source-token-list`` 已移除）。
     变更: 2026-09-24 数据说明优先取 Tensor 或其产生算子 metadata 里的 ``description``；调色板未命名的 lane 按场景顺序取色。
+    变更: 2026-10-01 相似度矩阵集成到 Details 侧栏；Final output 保留简洁结果，#similarity 直达简洁结果。
+    变更: 2026-09-26 中栏新增 Fullscreen 切换，保留图状态与时间线；原生全屏不可用时铺满页面，退出恢复原布局。
     """
     parts = {
         "TRACE_DATA": _script_json(_manifest(trace)),
@@ -206,9 +254,10 @@ def render_page(trace: InferenceTrace, scene: Mapping[str, Any], runs: Mapping[s
         "SCENE_CORE_JS": (_ASSETS / "scene_core.js").read_text(encoding="utf-8"),
         "SCENE_2D_JS": (_ASSETS / "scene2d.js").read_text(encoding="utf-8"),
         "SCENE_JS": (_ASSETS / "scene3d.js").read_text(encoding="utf-8"),
+        "SIMILARITY_JS": (_ASSETS / "similarity.js").read_text(encoding="utf-8"),
     }
     # One pass, so placeholder-like text inside trace strings is never expanded.
-    return re.sub(r"__(TRACE_DATA|SCENE_DATA|RUNS_DATA|THREE_JS|SCENE_CORE_JS|SCENE_2D_JS|SCENE_JS)__", lambda match: parts[match.group(1)], _HTML)
+    return re.sub(r"__(TRACE_DATA|SCENE_DATA|RUNS_DATA|THREE_JS|SCENE_CORE_JS|SCENE_2D_JS|SCENE_JS|SIMILARITY_JS)__", lambda match: parts[match.group(1)], _HTML)
 
 
 def _manifest(trace: InferenceTrace) -> str:

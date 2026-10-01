@@ -54,7 +54,7 @@
   <img src="assets/readme/workbench.webp" alt="完整工作台：左栏是输入图片、patch 格和 token，中间是模型图与时间线，右栏是选中的 patch" width="100%">
 </p>
 
-**④ 把整张图铺满。** 左右两栏看过之后，可以用顶栏的 `Input`、`Details` 收起，模型图会铺满整个窗口并保持居中；图右上角的 `2D | 3D` 随时切换视角。
+**④ 把整张图铺满。** 左右两栏看过之后，可以用顶栏的 `Input`、`Details` 收起，模型图会铺满整个窗口并保持居中；图右上角的 `2D | 3D` 随时切换视角。 点旁边的 `Fullscreen`，模型图、工具栏和时间线会一起全屏显示；点 `Exit fullscreen` 或按 `Esc` 退出。浏览器不允许原生全屏时，会铺满当前页面。
 
 <p align="center">
   <img src="assets/readme/overview-2d.webp" alt="收起两侧栏后的 2D 视图：两个编码器展开，几层打开了面板" width="100%">

@@ -42,6 +42,7 @@ def run_clip(
     变更: 2026-09-23 注意力 checkpoint 改存逐 head 张量 [batch, heads, tokens, tokens] 并记录所属层 owner；
         2D preview 仍是第一个样本的 head 平均。
     变更: 2026-09-23 超过 CLIP 上下文长度（77 token）的 prompt 按 tokenizer 截断，原先会在 forward 时报错。
+    变更: 2026-10-01 图文相似度结果附带实际缩放参数与投影/归一化 Tensor 引用；不增加补算的运行事件。
     变更: 2026-09-24 ``asset_path`` 写成正斜杠，Windows 上录的 bundle 在其他系统里也能找到输入图。
     """
     try:
@@ -223,6 +224,17 @@ def run_clip(
                 )
                 if tensor_id is not None:
                     result_tensor_ids[result_name] = tensor_id
+        # These are references to recorded tensors and the actual parameter, not new execution events.
+        similarity = {
+            "image": result_tensor_ids.get("image_embeds"),
+            "text": result_tensor_ids.get("text_embeds"),
+            "log_scale": float(model.logit_scale.detach().cpu()),
+            "scale": float(model.logit_scale.detach().exp().cpu()),
+        }
+        for key, module in (("image_projection", "visual_projection"), ("text_projection", "text_projection")):
+            recorded = recorder.latest_module_tensor(module)
+            if recorded is not None:
+                similarity[key] = recorded[0]
         for result_name in ("logits_per_image", "logits_per_text"):
             result = getattr(outputs, result_name, None)
             if result is not None:
@@ -232,6 +244,7 @@ def run_clip(
                     semantic_type="similarity_logits",
                     branch="fusion",
                     stage="fusion.similarity",
+                    metadata={"similarity": similarity} if result_name == "logits_per_image" else None,
                     input_tensor_ids=(
                         result_tensor_ids.get("image_embeds"),
                         result_tensor_ids.get("text_embeds"),

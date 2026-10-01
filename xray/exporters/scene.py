@@ -185,6 +185,7 @@ def _views(trace: InferenceTrace, bundle: Path, scene: Mapping[str, Any]) -> dic
         dict[str, dict[str, Any]] — block id → ``hidden`` / ``attention`` / ``cross`` / ``mlp`` /
         ``qkv`` (``q``, ``k``, ``v``) / ``output`` payloads; empty without torch.
 
+    变更: 2026-10-01 新录制的 CLIP 输出附带相似度计算视图；旧 trace 与缺少原始向量的运行保持原样。
     变更: 2026-09-24 4 维模块输出按空间位置出 ``hidden``（带 ``grid``、不带 ``norm``），新增 ``cross``；
         结果运算的 ``threshold`` / ``detected`` / ``score_type`` 随 ``output`` 带出。原有 3 维输出与各面板不变。
     """
@@ -229,6 +230,10 @@ def _views(trace: InferenceTrace, bundle: Path, scene: Mapping[str, Any]) -> dic
             meta = operations[blocks[block_id]["operations"][0]].metadata or {}
             view = _output_view(tensor_id, value, blocks[block_id]["semantic"] == "similarity_logits")
             view.update({key: meta[key] for key in ("threshold", "detected", "score_type") if key in meta})
+            if meta.get("similarity"):
+                detail = _similarity_view(meta["similarity"], records, root, value)
+                if detail is not None:
+                    view["similarity"] = detail
             views.setdefault(block_id, {})["output"] = view
     for (_lane, kind, _width), members in token_states.items():
         colours = _pca_rgb([states for _, _, states, _ in members])
@@ -244,6 +249,54 @@ def _views(trace: InferenceTrace, bundle: Path, scene: Mapping[str, Any]) -> dic
             else:
                 views.setdefault(block_id, {}).setdefault("qkv", {})[kind] = payload
     return views
+
+
+def _similarity_view(metadata: Mapping[str, Any], records: Mapping[str, TensorRecord],
+                    root: Path, logits: Any) -> dict[str, Any] | None:
+    """CLIP similarity: explain recorded embeddings and scale without inventing trace events. [主线]
+
+    Projection norms validate normalization; only the normalized vectors used by the inspector
+    are exported. Cosine similarities and softmax are derived from the recorded forward.
+
+    Args:
+        metadata: Tensor references and actual ``scale`` / ``log_scale`` recorded with image logits.
+        records: Tensor IDs mapped to raw payload records.
+        root: Resolved bundle directory; raw files outside it are rejected by ``_load_raw``.
+        logits: Recorded image-by-text scores; matrix dimensions must match the embeddings.
+    Returns:
+        JSON-ready calculation details, or None for incomplete, non-finite or incompatible data.
+
+    变更: 2026-10-01 只导出侧栏使用的向量与分数；原始投影仍参与归一化校验，但不再重复序列化。
+    """
+    import math
+    import torch
+
+    scale, log_scale = metadata.get("scale"), metadata.get("log_scale")
+    if any(not isinstance(value, (int, float)) or not math.isfinite(value) for value in (scale, log_scale)) or scale <= 0:
+        return None
+    values = {key: _load_raw(records.get(metadata.get(key)), root)
+              for key in ("image", "text", "image_projection", "text_projection")}
+    if any(value is None or value.ndim != 2 or not value.numel() or not torch.isfinite(value).all()
+           for value in values.values()):
+        return None
+    image, text = values["image"], values["text"]
+    if (image.shape[1] != text.shape[1] or tuple(logits.shape) != (image.shape[0], text.shape[0])
+            or not torch.isfinite(logits).all()
+            or values["image_projection"].shape != image.shape
+            or values["text_projection"].shape != text.shape):
+        return None
+    norms = {key: value.norm(dim=-1, keepdim=True) for key, value in values.items()}
+    if any(not torch.isfinite(norm).all() or (norm == 0).any() for norm in norms.values()):
+        return None
+    cosine = image @ text.T
+    return {
+        "image": {"values": image.tolist()}, "text": {"values": text.tolist()},
+        "dimensions": int(image.shape[1]), "scale": scale,
+        "cosine": cosine.tolist(), "logits": logits.tolist(), "probs": logits.softmax(dim=-1).tolist(),
+        "max_abs_error": float((cosine * scale - logits).abs().max()),
+        "normalization_error": max(float((values[key + "_projection"] / norms[key + "_projection"] - values[key]).abs().max())
+                                   for key in ("image", "text")),
+    }
 
 
 def _load_raw(record: TensorRecord | None, root: Path) -> Any | None:
