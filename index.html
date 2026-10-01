@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="x-ray-nns：记录一次真实的 PyTorch 推理，在浏览器中逐层查看神经网络的结构、中间值与数据流。在线探索 CLIP 图文推理示例。">
+  <meta name="theme-color" content="#f7f9f8">
+  <title>x-ray-nns · 看见神经网络如何计算</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23283f43'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='Arial' font-size='46' fill='%23bce1d4'%3Ex%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#examples">跳到案例</a>
+<header class="site-nav wrap">
+  <a class="wordmark" href="./" aria-label="x-ray-nns 首页">x<span>−</span>ray<span class="wordmark-tail"> / nns</span></a>
+  <nav aria-label="主导航"><a href="#examples">案例</a><a href="#readme">README</a><a href="https://github.com/Q1ngSong/x-ray-nns">GitHub <span aria-hidden="true">↗</span></a></nav>
+</header>
+<main class="wrap">
+  <section class="hero" aria-labelledby="project-title">
+    <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> OPEN SOURCE · NEURAL NETWORK EXPLORER</p>
+    <h1 id="project-title">x-ray-nns</h1>
+    <p class="hero-title">给神经网络，拍一张 <span>X 光片。</span></p>
+    <p class="hero-description">跑一次真实的 PyTorch 推理，<br class="desktop-break">把模型结构、中间值和数据流，变成一个可以逐层打开的网页。</p>
+    <div class="hero-actions"><a class="button primary" href="#examples">探索案例 <span aria-hidden="true">↘</span></a><a class="button secondary" href="https://github.com/Q1ngSong/x-ray-nns">查看源代码 <span aria-hidden="true">↗</span></a></div>
+    <div class="hero-foot"><span>Record once, replay anywhere.</span><span class="hero-tags">真实推理 <i>·</i> 2D / 3D <i>·</i> 浏览器回放</span></div>
+  </section>
+  <section id="examples" class="examples" aria-labelledby="examples-title">
+    <div class="section-heading"><div><p class="eyebrow">01 / EXPLORE</p><h2 id="examples-title">案例项目</h2></div><p>从一个真实输入出发，看看模型里发生了什么。</p></div>
+    <div class="case-grid"><a class="case-card" href="examples/clip-cat/" aria-label="探索 CLIP ViT-B/32 示例">
+  <div class="case-preview"><img src="assets/readme/hero-3d.webp" alt="CLIP 视觉和文本编码器的三维回放" width="1600" height="900" loading="lazy"></div>
+  <div class="case-body"><div class="case-meta"><span>EXAMPLE 01</span><span>RECORDED INFERENCE</span></div>
+    <h3>CLIP ViT-B/32</h3><p class="case-subtitle">一张猫的照片，三条文本提示</p>
+    <p class="case-description">图片和文字如何走过两个编码器，汇合成相似度？逐层展开视觉与文本分支，查看注意力、中间激活与最终结果。</p><div class="case-tags"><span>图像 × 文本</span><span>24 encoder layers</span><span>2D / 3D</span></div>
+    <div class="case-cta">打开交互示例 <span aria-hidden="true">↗</span></div>
+  </div>
+</a></div>
+    <p class="examples-note">点击卡片即可探索录制好的推理过程，无需安装或下载模型。</p>
+  </section>
+  <section id="readme" class="readme-section" aria-label="README">
+    <article class="readme-content"><p align="center">
+  <img src="assets/readme/banner.svg" alt="x-ray-nns：给神经网络拍一张 X 光片" width="100%">
+</p>
+<p align="center">
+  <b>跑一次真实的 PyTorch 推理，把它变成一个能一层层打开、一步步回放的网页。</b><br>
+  <sub>Record one real PyTorch inference, then replay it layer by layer in your browser, fully offline.</sub>
+</p>
+<p align="center">
+  <img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-3776ab?logo=python&logoColor=white">
+  <img alt="PyTorch 2.x" src="https://img.shields.io/badge/PyTorch-2.x-ee4c2c?logo=pytorch&logoColor=white">
+  <img alt="model: CLIP ViT-B/32" src="https://img.shields.io/badge/model-CLIP%20ViT--B%2F32-6f93b1">
+  <img alt="viewer: offline HTML" src="https://img.shields.io/badge/viewer-offline%20HTML-6f9e92">
+  <a href="https://github.com/Q1ngSong/x-ray-nns/blob/main/LICENSE"><img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-b78f70"></a>
+</p>
+<p align="center">
+  <img src="assets/readme/hero-3d.webp" alt="3D 视图：CLIP 的视觉与文本编码器，第 1、6、11 层打开了注意力与 PCA 面板，右侧是图文相似度" width="100%">
+</p>
+<p>结构图只告诉你网络<strong>长什么样</strong>。x-ray 告诉你：<strong>这一张图、这几句话</strong>送进去以后，每一层<strong>到底算出了什么</strong>。</p>
+<p>它在本机跑一次真实推理，按执行顺序记下每一次模块调用、每一个 Tensor、每一个事件，再导出成网页。你可以展开任意一层，看它的输出和注意力；也可以拖动时间线，把整个前向过程一步一步重放。浏览器里不跑模型，页面上的每个数都来自那一次真实运行。</p>
+<h2>✨ 亮点</h2>
+<ul>
+<li><strong>真实推理，不是示意图</strong>：模块、Tensor、事件都来自那一次前向；时间线就是真实的执行顺序，不是拓扑排序。</li>
+<li><strong>每一层都能打开</strong>：层输出按 PCA 着色，注意力可以画成矩阵，也可以直接叠在原图上，还有 MLP 激活和 Q / K / V。</li>
+<li><strong>每个值都能追到源头</strong>：点任意一块、一个面板或一个 patch，右栏列出形状、统计量，以及它从哪个算子来、流向哪里。</li>
+<li><strong>2D、3D 随时切换</strong>：平面图看结构，3D 看层叠；展开的层和打开的面板在两种视图间保持不变。</li>
+<li><strong>离线页面，拿走就能看</strong>：导出的 <code>index.html</code> 已经嵌好全部 trace 和面板数据，连同 <code>assets/</code> 里的原图一起拷走，双击就能打开。</li>
+<li><strong>在页面上换输入</strong>：<code>xray serve</code> 起一个本地服务，上传图片、改几条 prompt，CPU 上大约 5 秒就录好新的一次。</li>
+</ul>
+<h2>🔬 跟着一张猫的照片走一遍</h2>
+<p>下面的图都截自同一次运行：CLIP ViT-B/32 看一张猫的照片，同时读三条 prompt：<em>a photo of a cat</em>、<em>a photo of a tiger</em>、<em>a photo of a dog</em>。</p>
+<p><strong>① 图片被切成 49 个 patch，一层层往上传。</strong> 打开视觉编码器的任意一层：上面是 CLS 对各个 patch 的注意力，直接叠在原图上，越暗表示越少被关注；下面是这一层每个 token 的输出，投影到 PCA 前三个主成分后着色。各层共用同一组 PCA 基，所以颜色可以跨层比较。</p>
+<p align="center">
+  <img src="assets/readme/vision-path.webp" alt="原图 → 49 个 patch → 第 1、6、11 层：CLS 注意力叠在原图上，token 输出按 PCA 着色" width="100%">
+</p>
+<p><strong>② 文字那一路也能打开。</strong> 每条 prompt 一行，每个 token 一格。文本编码器的注意力是因果的，所以画出来是一个下三角。最后图文向量做相似度，softmax 给出答案：<strong>98% 是猫</strong>，2% 像老虎，几乎不可能是狗。</p>
+<p align="center">
+  <img src="assets/readme/text-result.webp" alt="文本编码器最后一层的 token 颜色与因果注意力，以及三条 prompt 的 softmax 概率">
+</p>
+<p><strong>③ 每个值都能追到源头。</strong> 在左栏点第 17 个 patch（猫的眼睛），右栏马上给出它对应的原图像素、形状与统计量，以及它从哪个算子来、流向哪里。在右栏的 Full data path 里点某个算子的 <code>Focus operation</code>，模型图会自动把镜头移到那一块。</p>
+<p align="center">
+  <img src="assets/readme/workbench.webp" alt="完整工作台：左栏是输入图片、patch 格和 token，中间是模型图与时间线，右栏是选中的 patch" width="100%">
+</p>
+<p><strong>④ 把整张图铺满。</strong> 左右两栏看过之后，可以用顶栏的 <code>Input</code>、<code>Details</code> 收起，模型图会铺满整个窗口并保持居中；图右上角的 <code>2D | 3D</code> 随时切换视角。 点旁边的 <code>Fullscreen</code>，模型图、工具栏和时间线会一起全屏显示；点 <code>Exit fullscreen</code> 或按 <code>Esc</code> 退出。浏览器不允许原生全屏时，会铺满当前页面。</p>
+<p align="center">
+  <img src="assets/readme/overview-2d.webp" alt="收起两侧栏后的 2D 视图：两个编码器展开，几层打开了面板" width="100%">
+</p>
+<h2>⚙️ 它是怎么工作的</h2>
+<p align="center">
+  <img src="assets/readme/how-it-works.svg" alt="PyTorch 模型 → 录制器 → Trace → 播放器；xray serve 可以在页面上换输入再录一次" width="100%">
+</p>
+<ul>
+<li><strong>录制</strong>：给模型的每个模块挂上 forward hook，按真实执行顺序记下三样东西：Operation（哪个模块被调用、吃进什么、吐出什么）、Tensor（形状、统计量、预览和原始值）、Event（发生的先后）。</li>
+<li><strong>Trace</strong>：一次运行的全部记录，就是 <code>trace.json</code> 加上 <code>tensors/*.pt</code>。播放器要画的中间值（PCA 颜色、注意力等）在导出时从原始 Tensor 算好，嵌进页面。</li>
+<li><strong>回放</strong>：播放器是纯前端页面，只读数据、不跑模型。<code>xray serve</code> 打开旧运行时会按当前代码重新生成页面，以前录的运行也能用上新界面。</li>
+</ul>
+<p>一句话：<strong>record once, replay anywhere</strong>。Python 负责执行和记录，浏览器只负责看。</p>
+<h2>🚀 三步上手</h2>
+<p><strong>1. 安装</strong></p>
+<pre><code class="language-bash">conda env create -f environment.yml
+conda activate xraynns
+python -m pip install -e &quot;.[clip]&quot;
+</code></pre>
+<p>装好后就有了 <code>xray</code> 命令。CPU 就够用，Apple Silicon 上可以用 MPS。</p>
+<p><strong>2. 把 CLIP 权重下载到本地</strong>（只要 PyTorch 权重，约 580 MB）</p>
+<pre><code class="language-bash">hf download openai/clip-vit-base-patch32 \
+  --local-dir models/openai/clip-vit-base-patch32 \
+  --exclude &quot;*.h5&quot; --exclude &quot;*.msgpack&quot;
+</code></pre>
+<p>权重放在 <code>models/</code> 下，这个目录不入库（见下面的&quot;目录约定&quot;）。x-ray 只读本地文件，运行时用 <code>--model</code> 传入模型目录，自己不会联网下载。</p>
+<p><strong>3. 打开页面</strong></p>
+<pre><code class="language-bash">xray serve --model models/openai/clip-vit-base-patch32
+</code></pre>
+<p>浏览器访问 <a href="http://127.0.0.1:8765/">http://127.0.0.1:8765/</a>。第一次还没有任何运行，页面会直接给出上传表单：选一张图、写几条 prompt、点 <code>Run CLIP</code>，几秒后页面就会打开这次运行。点 <code>encoder.layers ×12 +</code> 展开各层，再点某一层打开它的面板。以后想换输入，点顶栏的 <code>New run</code> 就行。</p>
+<p>不想起服务的话，也可以在命令行录一次，生成的页面双击就能打开：</p>
+<pre><code class="language-bash">xray clip-run \
+  --model models/openai/clip-vit-base-patch32 \
+  --image cat.png \
+  --text &quot;a photo of a cat&quot; --text &quot;a photo of a dog&quot; \
+  --output runs/clip/cat
+</code></pre>
+<h2>🗂️ 目录约定</h2>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>放什么</th>
+<th>入库</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>xray/</code></td>
+<td>工具本体：录制器、Trace 格式、导出器与播放器、本地服务</td>
+<td>是</td>
+</tr>
+<tr>
+<td><code>models/</code></td>
+<td>模型单独存放：下载的权重放 <code>models/&lt;组织&gt;/&lt;名字&gt;/</code>，自定义模型放 <code>models/&lt;名字&gt;/</code>（录制脚本、测试、说明、本地权重），见 <a href="https://github.com/Q1ngSong/x-ray-nns/blob/main/models/README.md">models/README.md</a></td>
+<td>只有 README</td>
+</tr>
+<tr>
+<td><code>runs/</code></td>
+<td>每次录制的数据：<code>runs/&lt;模型&gt;/&lt;运行&gt;/</code>，含 <code>trace.json</code>、中间 tensor 和页面</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p><code>models/</code> 和 <code>runs/</code> 都写进了 <code>.gitignore</code>：放进去的权重、自定义模型代码和录制数据不会被误提交。自定义模型的录制脚本只依赖 <code>xray</code>，<code>xray/</code> 里的代码不会反过来依赖它们。</p>
+<h2>📖 使用说明</h2>
+<details>
+<summary><b>页面速查</b></summary>
+<p>宽屏时页面分左、中、右三栏，窄屏时上下排列。宽屏时页面本身不滚动：中栏的模型图和时间线填满窗口，左右两栏内容多时各自滚动，也都可以收起，收起状态刷新后保留。</p>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>顶栏</td>
+<td>运行下拉框、<code>New run</code>；右侧 <code>Input</code>、<code>Details</code> 收起或展开左栏、右栏</td>
+</tr>
+<tr>
+<td>左栏</td>
+<td>本次输入：原图、7×7 patch 格，以及 <code>Prompts and tokens</code>（每条 prompt 和它的 token）。点 patch 格可以查看这个 patch 的 embedding</td>
+</tr>
+<tr>
+<td>模型图</td>
+<td>上方是 <code>Branch</code> 过滤和 <code>2D</code>、<code>3D</code> 切换，再往下是中间值开关和 <code>Collapse all</code>、<code>Fit</code>。开关只列出本次运行记录到的值。图中 vision 在上，text 在下，fusion 在右</td>
+</tr>
+<tr>
+<td>时间线</td>
+<td>在模型图正下方。<code>←</code>、<code>Play</code>、<code>Pause</code>、<code>→</code> 和滑条按记录的事件顺序回放，当前事件所在的层会高亮</td>
+</tr>
+<tr>
+<td>右栏 · Selected state</td>
+<td>选中块、面板、算子或时间线事件后显示：名称、类型与所在阶段；<code>Data state</code> 预览；形状与统计量；<code>Data flow</code>（所属算子的输入输出、这个 tensor 的来源与去向）；原始记录</td>
+</tr>
+<tr>
+<td>右栏 · Full data path</td>
+<td>列出记录到的全部算子，按分支分组。点 <code>Focus operation</code> 或某个输入输出，模型图会移到对应的块并选中它：折叠的组自动展开，块太小时放大到可读；直接点图中的块不会移动镜头</td>
+</tr>
+</tbody>
+</table>
+</details>
+<details>
+<summary><b>查看中间值</b></summary>
+<ol>
+<li>点 <code>encoder.layers ×12 +</code>，展开 12 层。</li>
+<li>点其中一层，它的面板出现在上方（vision）或下方（text），再点一次收起。可以同时打开几层对比。</li>
+<li>图上方的开关决定面板显示哪些值：<code>Layer output</code>、<code>Attention</code>、<code>MLP activation</code>、<code>Q / K / V</code>、<code>Final output</code>，默认打开第一个和最后一个。</li>
+<li>看注意力时，<code>Head</code> 可选 <code>mean</code>（所有 head 的平均）或单个 head，显示方式可选 <code>Matrix</code> 或 <code>On image</code>。</li>
+<li>点面板，右栏显示对应的 tensor。<code>Fit</code> 显示全图，<code>Collapse all</code> 收起所有层。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>面板</th>
+<th>画法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Layer output、Q/K/V</td>
+<td>每个 token 一个色块，颜色是 token 向量在 PCA 前三个主成分上的投影。同一分支里，层输出、Q、K、V 各有一组 PCA 基，由各层共用，所以同一种值的颜色可以跨层比较。vision 画成 CLS 加 7×7 网格，text 每条 prompt 一行</td>
+</tr>
+<tr>
+<td>Attention</td>
+<td>行是 query，列是 key，越亮注意力越大，弱值经过提亮。<code>On image</code> 把 CLS 对各 patch 的注意力叠在原图上，关注少的 patch 变暗</td>
+</tr>
+<tr>
+<td>MLP activation</td>
+<td>每个 token 经过激活函数后，大于 0 的神经元所占比例</td>
+</tr>
+<tr>
+<td>Final output</td>
+<td>embedding 画成色带；fusion 显示每条 prompt 的 softmax 概率和 logit</td>
+</tr>
+</tbody>
+</table>
+<p>2D 视图里拖动空白处平移，滚轮缩放。3D 视图里左键拖动旋转，左右最多各转 90°；右键拖动，或按住 Ctrl / ⌘ / Shift 用左键拖动，可以平移；滚轮缩放。点击节点、展开或收起组都不会改变缩放。地址末尾加上 <code>#3d</code>，页面会直接进入 3D。</p>
+</details>
+<details>
+<summary><b>在页面上提交新输入</b></summary>
+<p>点顶栏的 <code>New run</code>，左栏顶部会展开表单。不选图片时沿用当前运行的图片。表单预填当前运行的 prompts，可以修改、删除，或点 <code>+ Prompt</code> 添加；最多 8 条，每条不超过 300 个字符，超过 CLIP 77 个 token 上限的部分会被截断。</p>
+<p>点 <code>Run CLIP</code> 后，服务在本机运行一次 CLIP，完成后页面跳到新的运行。结果保存在 <code>runs/clip/live/&lt;提交时间&gt;/</code>，每次提交都新建目录，不覆盖旧结果。图片打不开、没有 prompt 或模型运行失败时，页面回到原来的运行，并在顶部显示原因。</p>
+<p>服务只监听 127.0.0.1，其他网站借浏览器提交的表单会被拒绝。页面默认显示最近一次运行，可以用顶栏下拉框切换到 <code>runs/</code> 下的其他运行；在别处启动时用 <code>--runs</code> 指定运行目录，端口被占用时用 <code>--port</code> 更换。</p>
+</details>
+<details>
+<summary><b>命令行参数与输出</b></summary>
+<p><code>xray clip-run</code> 的参数：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--model</code></td>
+<td>本地 CLIP 目录，必填</td>
+</tr>
+<tr>
+<td><code>--image</code></td>
+<td>输入图片，必填</td>
+</tr>
+<tr>
+<td><code>--text</code></td>
+<td>prompt 文本，至少一条；多条时重复这个参数</td>
+</tr>
+<tr>
+<td><code>--output</code></td>
+<td>输出目录，默认 <code>runs/clip/latest</code>，已存在时覆盖</td>
+</tr>
+<tr>
+<td><code>--device</code></td>
+<td><code>auto</code>、<code>cpu</code> 或 <code>mps</code>，默认 <code>auto</code>，有 MPS 时用 MPS</td>
+</tr>
+<tr>
+<td><code>--no-raw</code></td>
+<td>不保存 <code>.pt</code> 中间 tensor，生成的页面没有中间值面板</td>
+</tr>
+<tr>
+<td><code>--trace-id</code></td>
+<td>写入 trace 的标识，默认 <code>clip-run</code></td>
+</tr>
+</tbody>
+</table>
+<p>一次运行的输出（三条 prompt 为例）：</p>
+<pre><code class="language-text">runs/clip/cat/
+├── index.html              页面，已内嵌 trace 和面板数据（约 5.8 MB）
+├── trace.json              记录的 Operation、Tensor 和 Event
+├── assets/input-image.png  输入图片
+└── tensors/*.pt            中间 tensor，单个超过 4 MB 的不保存（合计约 45 MB）
+</code></pre>
+<p>离线查看只需要 <code>index.html</code> 和 <code>assets/</code>，这时页面没有运行下拉框和 <code>New run</code>。<code>xray serve</code> 打开一次运行时会读 <code>trace.json</code> 和 <code>tensors/</code>，按当前代码重新生成页面。</p>
+<p><code>xray serve</code> 另有 <code>--runs</code>（运行目录，默认当前目录下的 <code>runs/</code>）、<code>--port</code>（默认 8765）和 <code>--device</code>。<code>xray clip-info &lt;模型目录&gt;</code> 打印模型配置摘要，包括层数、head 数和隐藏维度。</p>
+</details>
+<h2>❓ 常见问题</h2>
+<ul>
+<li><strong>找不到 <code>xray</code> 命令</strong>：环境没有激活，先运行 <code>conda activate xraynns</code>。</li>
+<li><strong>页面只有上传表单，看不到之前的运行</strong>：服务只在 <code>--runs</code> 目录（默认是当前目录下的 <code>runs/</code>）往下四层以内找带 <code>trace.json</code> 的运行。回到项目根目录启动，或者用 <code>--runs</code> 指定。</li>
+<li><strong>端口被占用</strong>：加 <code>--port 8766</code>。</li>
+</ul>
+<h2>🗺️ 现状</h2>
+<p>目前内置 CLIP ViT-B/32（图像、文本两个编码器加相似度）。录制器用的是通用的 PyTorch forward hook，Trace 格式也不绑定具体模型。想看看别的模型里发生了什么？欢迎开 issue 或者提 PR。</p>
+<p>如果 x-ray 帮你看懂了某一层，欢迎点个 ⭐。</p>
+<h2>🙏 致谢</h2>
+<ul>
+<li>3D 视图用的是 <a href="https://threejs.org/">Three.js</a>（MIT），打包文件和许可证在 <code>xray/exporters/vendor/</code>。</li>
+<li>示例模型是 OpenAI 的 <a href="https://huggingface.co/openai/clip-vit-base-patch32">CLIP ViT-B/32</a>。</li>
+<li>截图里的猫是 scikit-image 自带的示例图片 <code>chelsea.png</code>，Stéfan van der Walt 摄，CC0。</li>
+</ul>
+<h2>📄 许可证</h2>
+<p>x-ray-nns 以 <a href="https://github.com/Q1ngSong/x-ray-nns/blob/main/LICENSE">MIT 许可证</a>发布，可以自由使用、修改和分发，保留版权与许可声明即可。</p>
+</article>
+  </section>
+</main>
+<footer class="site-footer wrap"><a class="wordmark" href="#project-title">x<span>−</span>ray</a><p>看见结构，也看见计算。</p><a href="https://github.com/Q1ngSong/x-ray-nns/blob/main/LICENSE">MIT License</a></footer>
+</body>
+</html>

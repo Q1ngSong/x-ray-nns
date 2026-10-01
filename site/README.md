@@ -14,7 +14,7 @@ python -m http.server 8770 --directory runs/tool/github-pages/preview
 
 Open `http://localhost:8770/x-ray-nns/`. The output directory must be new or empty. Building requires neither PyTorch nor model weights. All paths work under the GitHub Pages repository subpath.
 
-Only the generated directory is published to the `gh-pages` branch. In repository Settings → Pages, select **Deploy from a branch**, **gh-pages**, and **/ (root)**. The `.nojekyll` file preserves the generated HTML unchanged. Rebuild and republish after updating the project README, viewer, or sample list.
+The generated website snapshot is tracked at the repository root on `main`. To publish it from `main`, in repository Settings → Pages select **Deploy from a branch**, **main**, and **/ (root)**. The `.nojekyll` file preserves the generated HTML unchanged. After updating the project README, viewer, or sample list, rebuild into a new output directory, copy the reviewed website files into the repository root, and commit them. A source change alone does not refresh the snapshot.
 
 ## Public CLIP sample
 
