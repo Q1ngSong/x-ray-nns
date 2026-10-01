@@ -32,7 +32,7 @@ xray = "xray.cli:main"
 include = ["xray*"]
 
 [tool.setuptools.package-data]
-"xray.exporters" = ["*.js", "*.css", "vendor/*"]
+"xray.exporters" = ["*.js", "vendor/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

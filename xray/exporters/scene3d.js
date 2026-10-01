@@ -175,11 +175,12 @@
       array.set([x1, a.y, 0, x1, y1, 0, x1, y1, 0, x2, y2, 0, x2, y2, 0, x2, b.y, 0], index * 18);
     });
     frames.forEach((frame,id)=>{
-      const members=groups[id].blocks.map(id=>objects.get(id));frame.visible=view.expanded.has(id)&&members.some(member=>member.shown);
+      const members=S.groupMembers(objects,groups[id]), parent=groups[id].items?.some(item=>item.group);frame.visible=view.expanded.has(id)&&members.length>0;
       if(!frame.visible)return;
-      const left=Math.min(...members.map(o=>o.node.position.x-o.size.w/2))-.4,right=Math.max(...members.map(o=>o.node.position.x+o.size.w/2))+.4;
-      const top=Math.max(...members.map(o=>o.node.position.y+o.size.h/2))+.6,bottom=Math.min(...members.map(o=>o.node.position.y-o.size.h/2))-1.5;
-      frame.position.set((left+right)/2,(top+bottom)/2,-1.8);frame.scale.set(right-left,top-bottom,1);
+      const pad = parent ? 0.7 : 0.4;
+      const left=Math.min(...members.map(o=>o.node.position.x-S.widthOf(o)/2))-pad,right=Math.max(...members.map(o=>o.node.position.x+S.widthOf(o)/2))+pad;
+      const top=Math.max(...members.map(o=>o.node.position.y+S.topOf(o)))+(parent?1.4:.6),bottom=Math.min(...members.map(o=>o.node.position.y-o.size.h/2))-(parent?1.9:1.5);
+      frame.position.set((left+right)/2,(top+bottom)/2,parent?-2:-1.8);frame.scale.set(right-left,top-bottom,1);
     });
     links.geometry.attributes.position.needsUpdate = true;
     links.geometry.computeBoundingSphere();
@@ -223,10 +224,10 @@
   }
 
   // Frame everything shown along the current viewing direction (or the default one): centre the
-  // content across the view, then back off until each corner fits the frustum. Clicks never call
-  // this; they keep the zoom (see ``hold``).
-  function fit(animate, resetDirection) {
-    const corners = S.framed(objects).flatMap(S.cornersOf).map(corner => new THREE.Vector3(corner.x, corner.y, corner.z));
+  // content across the view, then back off until each corner fits the frustum. CNN groups may
+  // frame their members; opening a value panel keeps the zoom (see ``hold``).
+  function fit(animate, resetDirection, selection) {
+    const corners = (selection || S.framed(objects)).flatMap(S.cornersOf).map(corner => new THREE.Vector3(corner.x, corner.y, corner.z));
     if (!corners.length) return;
     const back = camera.position.clone().sub(controls.target);
     if (resetDirection || !fitted || back.lengthSq() < 1e-6) back.set(...DEFAULT_DIRECTION);
@@ -530,6 +531,7 @@
     available: () => lanes.length > 0 && !E('view-3d').disabled,
     hide: () => { stageEl.hidden = true; },
     repaint: () => { if (renderer) paint(); },
+    focusGroup: id => fit(true, false, S.groupMembers(objects, groups[id])),
     fitAll: () => fit(true, true),
   });
 })();

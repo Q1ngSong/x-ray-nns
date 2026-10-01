@@ -32,4 +32,4 @@ The sample pages offer spatial PCA, individual feature channels and ImageNet top
 
 Recreate the full local recordings with the `cnn-run` commands in the repository README, then curate their trace/scene/assets into these sample directories. `examples.json` includes all three cases in the normal static build.
 
-CNN pages open with a structural guide. ResNet stages and all eight blocks are separate cards; selecting a block shows its main and shortcut paths, actual tensor shapes, and the addition before ReLU. Step controls explain identity versus projection. Diagram modules open the real recorded values in Details; the 3D action focuses the same block. The 2D/3D views use distinct module colours and bounded group cards.
+CNN pages open as folded modules in the 2D view. ResNet stages expand into residual blocks, then into recorded operations and shortcut edges. Stem and classifier fold as modules too. Both 2D and 3D share expansion state, semantic colours and group boundaries; clicking an operation opens its real recorded values. Collapse all returns to the complete architecture.

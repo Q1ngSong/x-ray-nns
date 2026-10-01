@@ -36,7 +36,10 @@ body.model-fullscreen{overflow:hidden}
 .center:fullscreen .architecture-wrap,.center.fullscreen-fallback .architecture-wrap{overflow:hidden}
 .center:fullscreen .timeline,.center.fullscreen-fallback .timeline{position:static;flex-shrink:0}
 #toggle-fullscreen{font-size:10px;padding:5px 10px}#toggle-fullscreen[aria-pressed=true]{background:var(--blue-soft);border-color:#a8c3d6}
-__CNN_GUIDE_CSS__
+.b2d.module-card{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;font:600 12px var(--mono)}.b2d.module-card small{font:8px var(--mono);padding:0 2px;overflow-wrap:anywhere}.g2d.module-card{overflow:hidden;border-width:1.5px;border-style:solid;border-radius:10px}.g2d.module-card canvas{width:100%;height:100%;display:block}.frame2d.module-frame{border-style:solid;background:#f1f6fa80}.scene-label.group.module-label{font-weight:600;border-width:1.5px;color:#406476;background:#f8fbff}
+
+
+.guide-diagram svg{max-height:280px}
 </style>
 </head>
 <body>
@@ -200,7 +203,7 @@ E('run-name').textContent=(trace.model_name||'model')+' · '+(trace.trace_id||'t
 <script>__SCENE_2D_JS__</script>
 <script>__SCENE_JS__</script>
 <script>__SIMILARITY_JS__</script>
-<script>__CNN_GUIDE_JS__</script></body></html>"""
+</body></html>"""
 
 
 def export_bundle(trace: InferenceTrace, destination: str | Path) -> Path:
@@ -238,7 +241,7 @@ def render_page(trace: InferenceTrace, scene: Mapping[str, Any], runs: Mapping[s
     变更: 2026-09-23 另内联 scene_core.js 与 scene2d.js：2D 图改为共用场景的正视图，旧 SVG 图的代码与样式移除。
     变更: 2026-09-24 分支筛选、算子列表与阶段条按场景的 lane 生成（CLIP 仍为原来三路与六个阶段）；左栏可显示
         ``inputs`` 里的终图、多组 token 与摘要；非 CLIP 运行隐藏 New run。
-    变更: 2026-10-01 CNN 默认进入按 Stage / 残差双路拆解的结构导览；无文本输入时隐藏 token 栏。
+    变更: 2026-10-01 CNN 仅保留共享层级折叠的 2D/3D；模块样式内联，无文本输入时隐藏 token 栏。
     变更: 2026-09-24 中栏的 Data state 与 Full data path 移入右栏：两个预览合成 ``state-canvas``，inspect 按钮与
         Connections 合成 Data flow；``preview-canvas``、``preview-caption``、``state-label``、``state-name``、``op-count`` 已移除。
         Full data path 与 Data flow 的按钮会把模型图移到对应的块（``xrayScene.focus``）；左右两栏各自滚动。
@@ -258,11 +261,9 @@ def render_page(trace: InferenceTrace, scene: Mapping[str, Any], runs: Mapping[s
         "SCENE_2D_JS": (_ASSETS / "scene2d.js").read_text(encoding="utf-8"),
         "SCENE_JS": (_ASSETS / "scene3d.js").read_text(encoding="utf-8"),
         "SIMILARITY_JS": (_ASSETS / "similarity.js").read_text(encoding="utf-8"),
-        "CNN_GUIDE_JS": (_ASSETS / "cnn_guide.js").read_text(encoding="utf-8-sig"),
-        "CNN_GUIDE_CSS": (_ASSETS / "cnn_guide.css").read_text(encoding="utf-8-sig"),
     }
     # One pass, so placeholder-like text inside trace strings is never expanded.
-    return re.sub(r"__(TRACE_DATA|SCENE_DATA|RUNS_DATA|THREE_JS|SCENE_CORE_JS|SCENE_2D_JS|SCENE_JS|SIMILARITY_JS|CNN_GUIDE_JS|CNN_GUIDE_CSS)__", lambda match: parts[match.group(1)], _HTML)
+    return re.sub(r"__(TRACE_DATA|SCENE_DATA|RUNS_DATA|THREE_JS|SCENE_CORE_JS|SCENE_2D_JS|SCENE_JS|SIMILARITY_JS)__", lambda match: parts[match.group(1)], _HTML)
 
 
 def _manifest(trace: InferenceTrace) -> str:

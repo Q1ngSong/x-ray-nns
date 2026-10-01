@@ -134,7 +134,7 @@ python -m pip install -e &quot;.[clip]&quot;
   --output runs/clip/cat
 </code></pre>
 <h2>CNN 与 ResNet 示例</h2>
-<p>现在也可以录制 <strong>AlexNet</strong> 和 <strong>ResNet-18</strong> 的真实 ImageNet 推理。页面默认打开<strong>结构导览</strong>：按阶段组织模块，点击残差块拆开主分支与捷径，对照恒等连接和投影下采样。点图中模块查看真实数值，也可跳到同一块的 3D 视图。</p>
+<p>现在也可以录制 <strong>AlexNet</strong> 和 <strong>ResNet-18</strong> 的真实 ImageNet 推理。页面直接在 <strong>2D / 3D</strong> 中显示折叠模型：展开 Stage 看残差块，再展开残差块看 Conv、BN、ReLU、Add 与真实跳连；点击运算查看数值。两个视图共享展开状态，可随时收起回到整体结构。</p>
 <p>2D / 3D 播放器与导览共用同一份运行记录：</p>
 <ul>
 <li>展开卷积、池化、全连接层或残差块，查看实际输出形状、Tensor 与时间线。</li>

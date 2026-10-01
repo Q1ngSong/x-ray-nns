@@ -85,7 +85,7 @@
   // A collapsed group is the same tight stack of thin plates as in 3D, seen head-on.
   function buildGroup(group) {
     const member = objects.get(group.blocks[0]).size, size = S.groupSize(group, member), colours = S.groupStyle(group);
-    const element = button('g2d ' + group.lane, {kind: 'group', id: group.id}, group.label + ' ×' + group.blocks.length);
+    const element = button('g2d ' + group.lane, {kind: 'group', id: group.id}, group.label + ' ×' + S.groupItems(group).length);
     element.dataset.group = group.id;
     if (S.model.edges) { element.classList.add('module-card'); element.style.borderColor=colours.edge; element.appendChild(S.groupCanvas(group)); }
     else group.blocks.forEach((_, index) => {
@@ -157,16 +157,17 @@
     // Expanded groups keep a light dashed outline, one screen pixel wide, around their layers and
     // opened panels; its top edge stops just under the group label.
     frames.forEach((outline, id) => {
-      const members = groups[id].blocks.map(member => objects.get(member)).filter(object => object.shown);
+      const members = S.groupMembers(objects, groups[id]);
+      const parent = groups[id].items?.some(item => item.group), padding = parent ? 0.65 : FRAME_PAD;
       outline.hidden = !view.expanded.has(id) || !members.length;
       if (outline.hidden) return;
-      const left = Math.min(...members.map(object => object.current.x - S.widthOf(object) / 2)) - FRAME_PAD;
-      const right = Math.max(...members.map(object => object.current.x + S.widthOf(object) / 2)) + FRAME_PAD;
+      const left = Math.min(...members.map(object => object.current.x - S.widthOf(object) / 2)) - padding;
+      const right = Math.max(...members.map(object => object.current.x + S.widthOf(object) / 2)) + padding;
       // Near the minimum zoom the label gap would cut into the tallest layer, so keep 2 pixels above it.
       const content = Math.max(...members.map(object => object.current.y + S.topOf(object)));
-      const top = Math.max(content + 2 / (UNIT * camera.s), S.groupTop(members) - FRAME_GAP / (UNIT * camera.s));
+      const top = Math.max(content + 2 / (UNIT * camera.s), S.groupTop(members) + (parent ? 0.8 : 0) - FRAME_GAP / (UNIT * camera.s));
       const bottom = Math.min(...members.map(object => object.current.y - object.size.h / 2
-        - (object.stack.direction < 0 ? object.stack.height : 0))) - (S.model.edges ? 1.5 : FRAME_PAD);
+        - (object.stack.direction < 0 ? object.stack.height : 0))) - (S.model.edges ? (parent ? 1.9 : 1.5) : FRAME_PAD);
       Object.assign(outline.style, {left: px(left) + 'px', top: px(-top) + 'px', width: px(right - left) + 'px',
         height: px(top - bottom) + 'px', borderWidth: (S.model.edges ? 1.6 : 1) / camera.s + 'px'});
     });
@@ -242,8 +243,8 @@
 
   // Frame everything shown: fit its bounds into the plane, centred. Clicks never call this; they
   // keep the zoom (see ``hold``).
-  function fit(animate) {
-    const corners = S.framed(objects).flatMap(S.cornersOf);
+  function fit(animate, selection) {
+    const corners = (selection || S.framed(objects)).flatMap(S.cornersOf);
     if (!corners.length) return;
     const xs = corners.map(corner => px(corner.x)), ys = corners.map(corner => px(-corner.y));
     const [left, right, top, bottom] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
@@ -448,6 +449,6 @@
     started: () => ready,
     hide: () => { stageEl.hidden = true; },
     repaint: () => { if (ready) paint(); },
-    fitAll: () => fit(true),
+    focusGroup: id => fit(true, S.groupMembers(objects, groups[id])), fitAll: () => fit(true),
   });
 })();

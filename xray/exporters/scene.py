@@ -43,6 +43,7 @@ def build_scene(trace: InferenceTrace, bundle: Path) -> dict[str, Any]:
         ``image`` (centre-crop PNG data URL, or ``None``) and ``views`` (block →
         intermediate-value payloads, see ``_views``).
 
+    变更: 2026-10-01 CNN 折叠 Stem、Classifier，Stage 内嵌残差组；叶节点和真实边不变。
     变更: 2026-10-01 支持 CNN 的真实分支连线与残差 shortcut 标记；旧 trace 的布局不变。
     变更: 2026-09-24 块可由 ``label`` 命名、由 ``group`` 归入指定组（原先只按编号兄弟分组）；新增 ``links``，
         跨通道连线改按真实 Tensor 流向给出，原先由页面把各通道末尾连到结果通道。
@@ -139,8 +140,53 @@ def build_scene(trace: InferenceTrace, bundle: Path) -> dict[str, Any]:
                                   "shortcut": ((operation.metadata or {}).get("semantic_type") == "residual_add" and index == 1)
                                               or ".downsample." in str((operation.metadata or {}).get("stage", ""))})
         scene["edges"] = edges
+    if trace.metadata.get("backend") in ("torchvision.resnet18", "torchvision.alexnet"):
+        _cnn_hierarchy(scene, trace.metadata["backend"])
     scene["views"] = _views(trace, bundle, scene)
     return scene
+
+
+def _cnn_hierarchy(scene: dict[str, Any], backend: str) -> None:
+    """CNN stages: nest residual groups and fold the stem and classifier. [主线]
+
+    Args:
+        scene: Mutable scene; leaf blocks and recorded edges remain unchanged.
+        backend: Recorded torchvision architecture; only AlexNet and ResNet-18 call here.
+    """
+    groups, blocks = scene["groups"], scene["blocks"]
+    for lane in scene["lanes"]:
+        keyed = []
+        for item in lane["items"]:
+            group_id = item.get("group")
+            block = blocks.get(item.get("block"))
+            if group_id and re.fullmatch(r"layer[1-4]\.\d+", group_id):
+                parent = group_id.split(".")[0]
+            elif group_id == "classifier" or (block and block["kind"] != "input"):
+                parent = "classifier"
+                if backend == "torchvision.resnet18" and block and block["stage"] in ("conv1", "bn1", "relu", "maxpool"):
+                    parent = "stem"
+            else:
+                parent = None
+            keyed.append((parent, item))
+        items = []
+        for parent, entries in groupby(keyed, key=lambda entry: entry[0]):
+            children = [item for _, item in entries]
+            if parent is None:
+                items.extend(children)
+                continue
+            leaves = [block_id for child in children for block_id in
+                      (groups[child["group"]]["blocks"] if "group" in child else [child["block"]])]
+            nested = parent.startswith("layer")
+            groups[parent] = {"id": parent, "lane": lane["id"], "label": "Stage " + parent[-1] if nested else parent.title(),
+                              "blocks": leaves, "items": children if nested else [{"block": key} for key in leaves]}
+            if nested:
+                for child in children:
+                    groups[child["group"]]["parent"] = parent
+            else:
+                for key in leaves:
+                    blocks[key]["group"] = parent
+            items.append({"group": parent})
+        lane["items"] = items
 
 
 def _links(trace: InferenceTrace, tensors: Mapping[str, TensorRecord], operations: Mapping[str, Any],

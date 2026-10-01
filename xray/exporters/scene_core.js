@@ -23,7 +23,6 @@
   const ATTENTION_RAMP = [[247, 249, 252], [46, 84, 122]], MLP_RAMP = [[241, 246, 244], [47, 110, 96]];
   const view = {mode: '2d', expanded: new Set(), open: new Set(), types: new Set(['hidden', 'output']),
     channel: 0, head: 'avg', style: 'matrix', active: null, hover: null};
-  Object.keys(views).filter(id => views[id].output?.labels).forEach(id => view.open.add(id));
   const similarityIds = Object.keys(views).filter(id => views[id].output?.similarity);
   if (similarityIds.length) view.types.delete('output');
   const renderers = new Map(), decoded = new Map(), imageWaiters = [];
@@ -36,7 +35,7 @@
     const index = lanes.findIndex(item => item.id === lane);
     return PALETTE[lane] || (index < 0 ? PALETTE.model : CYCLE[index % CYCLE.length]);
   };
-  // CNN module roles keep the same visual vocabulary in the guide, 2D and 3D.
+  // CNN module roles keep the same visual vocabulary in 2D and 3D.
   function moduleStyle(type) {
     const styles = {
       Conv2d: ['#dcebf8', '#648faf', 'Conv'], BatchNorm2d: ['#e6eaf3', '#8794b1', 'BN'],
@@ -56,21 +55,52 @@
     return style;
   }
   function groupStyle(group) {
-    const index = Math.max(0, Number(group.id.match(/^layer([1-4])/ )?.[1] || 1) - 1);
+    const index = Math.max(0, Number(group.id.match(/^(?:layer|features\.stage)([1-4])/)?.[1] || (group.id === 'classifier' ? 3 : 1)) - 1);
     const colours = [['#e7f1fb','#648faf'],['#e5f3ee','#629d89'],['#f0eaf7','#9a84b6'],['#fcf0dd','#bb955d']];
     return model.edges ? {face:colours[index][0],edge:colours[index][1]} : palette(group.lane);
   }
   function groupCanvas(group) {
-    const canvas = document.createElement('canvas'); canvas.width=336;canvas.height=240;
-    const ctx=canvas.getContext('2d'), colours=groupStyle(group), residual=group.blocks.some(id=>blocks[id].semantic==='residual_add');
-    ctx.fillStyle=colours.face;ctx.fillRect(0,0,336,240);ctx.fillStyle=colours.edge;ctx.fillRect(0,0,336,7);
-    ctx.fillStyle='#3b5b6e';ctx.font='600 25px '+FONT;ctx.fillText(group.label,20,43);
-    ctx.font='16px '+FONT;ctx.fillText(residual?'Residual block':'Module group',20,71);
-    ctx.strokeStyle=colours.edge;ctx.lineWidth=3;
-    ctx.beginPath();ctx.moveTo(25,128);ctx.lineTo(309,128);ctx.stroke();
-    [55,122,189].forEach(x=>{ctx.fillStyle='#ffffff';ctx.fillRect(x,108,45,40);ctx.strokeRect(x,108,45,40);});
-    if(residual){ctx.beginPath();ctx.moveTo(35,128);ctx.lineTo(35,174);ctx.lineTo(281,174);ctx.lineTo(281,128);ctx.stroke();ctx.fillStyle='#fff2df';ctx.beginPath();ctx.arc(281,128,16,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#9c723a';ctx.font='22px '+FONT;ctx.fillText('+',274,136);}
-    const last=blocks[group.blocks.at(-1)];ctx.fillStyle='#6c8190';ctx.font='15px '+FONT;ctx.fillText((last.shape||[]).slice(1).join(' × '),20,216);
+    const canvas = document.createElement('canvas'); canvas.width = 420; canvas.height = 320;
+    const ctx = canvas.getContext('2d'), colours = groupStyle(group);
+    const residual = !group.items && group.blocks.some(id => blocks[id].semantic === 'residual_add');
+    const children = group.items?.filter(item => item.group) || [];
+    const projection = group.blocks.some(id => blocks[id].stage.includes('.downsample.'));
+    const last = blocks[group.blocks.at(-1)], first = blocks[group.blocks[0]];
+    const input = tensors.get(operations.get(first.operations[0])?.inputs[0]);
+    const shape = dims => (dims || []).slice(1).join(' × ');
+    ctx.fillStyle = colours.face; ctx.fillRect(0, 0, 420, 320);
+    ctx.fillStyle = colours.edge; ctx.fillRect(0, 0, 420, 7);
+    ctx.fillStyle = '#304f62'; ctx.font = '600 40px ' + FONT; ctx.fillText(group.label, 22, 51);
+    ctx.font = '20px ' + FONT;
+    ctx.fillText(children.length ? children.length + ' × BasicBlock' : residual ? 'Residual block' : group.id === 'stem' ? 'Conv · BN · ReLU · Pool' : group.id === 'classifier' ? 'Pool · Flatten · Linear' : 'Convolution features', 22, 82);
+    ctx.strokeStyle = colours.edge; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(22, 148); ctx.lineTo(390, 148); ctx.stroke();
+    const chip = (x, y, w, label) => {
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, 48); ctx.strokeRect(x, y, w, 48);
+      ctx.fillStyle = '#3e5d70'; ctx.font = '20px ' + FONT; ctx.textAlign = 'center';
+      ctx.fillText(label, x + w / 2, y + 31); ctx.textAlign = 'left';
+    };
+    if (children.length) {
+      children.forEach((item, index) => chip(30 + index * 190, 124, 160, 'Block ' + (index + 1)));
+      ctx.font = '18px ' + FONT; ctx.fillText(projection ? '1st block: projection ↓2' : 'Identity shortcuts', 22, 218);
+    } else if (residual) {
+      chip(65, 124, 200, 'F(x): 2 × Conv');
+      ctx.strokeStyle = '#b17d40'; ctx.beginPath(); ctx.moveTo(32, 148); ctx.lineTo(32, 210); ctx.lineTo(350, 210); ctx.lineTo(350, 148); ctx.stroke();
+      ctx.fillStyle = '#fff4df'; ctx.beginPath(); ctx.arc(350, 148, 23, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#9a692e'; ctx.font = '28px ' + FONT; ctx.fillText('+', 341, 158);
+      ctx.fillStyle = colours.face; ctx.fillRect(62, 195, 245, 27);
+      ctx.fillStyle = '#9a692e'; ctx.font = '18px ' + FONT; ctx.fillText(projection ? '1×1 Conv + BN, s=2' : 'Identity: x', 72, 215);
+    } else {
+      const types = [...new Set(group.blocks.filter(id => blocks[id].kind === 'module').map(id => blockStyle(blocks[id]).title))];
+      chip(35, 124, 350, types.slice(0, 3).join(' → '));
+      ctx.font = '18px ' + FONT;
+      const output = views[last.id]?.output;
+      ctx.fillText(output?.labels ? 'Top 1: ' + output.labels[0] : group.blocks.length + ' recorded operations', 22, 218);
+    }
+    ctx.fillStyle = '#526d7d'; ctx.font = '24px ' + FONT;
+    ctx.fillText(shape(input?.shape) + ' →', 22, 252);
+    ctx.fillText(shape(last.shape), 22, 281);
+    ctx.fillStyle = colours.edge; ctx.font = '20px ' + FONT; ctx.textAlign = 'right'; ctx.fillText('Expand +', 398, 306);
     return canvas;
   }
   // The first flow lane (and the fusion lane) stacks panels upwards, every other lane downwards.
@@ -107,9 +137,9 @@
     return {rows, cols, tile, size: {w: 2.6, h: rows * tile + TILE_GAP * (rows - 1), d: 0.04}};
   }
 
-  // A collapsed group is a tight stack of thin plates, one per member layer.
+  // CNN groups fold to labelled modules; other groups keep one thin plate per member.
   function groupSize(group, member) {
-    if (model.edges) return {w: 2.8, h: 2.0, d: 1.2};
+    if (model.edges) return {w: 4.2, h: 3.2, d: 1.2};
     const count = group.blocks.length;
     return {w: count * PLATE + (count - 1) * PLATE_GAP, h: member.h, d: member.d};
   }
@@ -586,18 +616,29 @@
   const laneShown = lane => state.branch === 'all' || lane.id === state.branch;
   const blockShown = id => state.branch === 'all' || blocks[id].lane === state.branch;
 
-  // The object that stands for a block: itself, or its group while the group is collapsed.
+  const groupItems = group => group.items || group.blocks.map(block => ({block}));
+
+  // Resolve through every ancestor so an edge always lands on its visible folded boundary.
   function unitOf(objects, id) {
-    const block = blocks[id];
-    return objects.get(block.group && !view.expanded.has(block.group) ? block.group : id);
+    let visible = id, parent = blocks[id].group;
+    while (parent) {
+      if (!view.expanded.has(parent)) visible = parent;
+      parent = groups[parent].parent;
+    }
+    return objects.get(visible);
   }
 
-  // The visible objects of a lane in order: blocks, collapsed groups, or an expanded group's members.
+  function itemUnits(objects, item) {
+    if (!item.group || !view.expanded.has(item.group)) return [objects.get(item.group || item.block)];
+    return groupItems(groups[item.group]).flatMap(child => itemUnits(objects, child));
+  }
+
+  function groupMembers(objects, group) {
+    return groupItems(group).flatMap(item => itemUnits(objects, item)).filter(object => object.shown);
+  }
+
   function laneUnits(objects, lane) {
-    return lane.items.flatMap(item => {
-      if (!item.group) return [objects.get(item.block)];
-      return view.expanded.has(item.group) ? groups[item.group].blocks.map(id => objects.get(id)) : [objects.get(item.group)];
-    });
+    return lane.items.flatMap(item => itemUnits(objects, item));
   }
 
   // Flow lanes stack from the top, spaced so that open panels clear the next lane. A lane fed by an
@@ -606,9 +647,7 @@
   // follow at the end, level with the lanes that feed them.
   function layout(objects) {
     const flow = flowLanes.filter(laneShown), merge = mergeLanes.filter(laneShown), links = model.links || [];
-    lanes.filter(lane => !laneShown(lane)).forEach(lane => lane.items.forEach(item => {
-      (item.group ? [item.group, ...groups[item.group].blocks] : [item.block]).forEach(id => { objects.get(id).shown = false; });
-    }));
+    objects.forEach(object => { object.shown = false; });
     // How far a lane reaches above (``up``) or below its centre line, panels included.
     const reach = (lane, up) => Math.max(0.25, ...laneUnits(objects, lane).map(unit =>
       unit.size.h / 2 + ((unit.stack.direction > 0) === up ? unit.stack.height : 0)));
@@ -644,30 +683,21 @@
 
   function extent(objects, item) {
     if (!item.group) return widthOf(objects.get(item.block));
-    const group = groups[item.group], count = group.blocks.length;
-    return view.expanded.has(group.id)
-      ? group.blocks.reduce((sum, id) => sum + widthOf(objects.get(id)), 0) + (count - 1) * LAYER_GAP
-      : objects.get(group.id).size.w;
+    if (!view.expanded.has(item.group)) return objects.get(item.group).size.w;
+    const children = groupItems(groups[item.group]);
+    return children.reduce((sum, child) => sum + extent(objects, child), 0) + (children.length - 1) * LAYER_GAP + (model.edges ? 1.2 : 0);
   }
 
-  function placeItem(objects, item, x, y) {
-    if (!item.group) {
-      const object = objects.get(item.block);
-      object.target.x = x;
-      object.target.y = y;
-      object.shown = true;
-      return;
-    }
-    const group = groups[item.group], box = objects.get(group.id), expanded = view.expanded.has(group.id);
-    box.target.x = x;
-    box.target.y = y;
-    box.shown = !expanded;
-    let cursor = x - extent(objects, item) / 2;
-    group.blocks.forEach(id => {
-      const member = objects.get(id), width = widthOf(member);
-      member.shown = expanded;
-      member.target.x = expanded ? cursor + width / 2 : x;
-      member.target.y = y;
+  function placeItem(objects, item, x, y, visible = true) {
+    const object = objects.get(item.group || item.block);
+    object.target.x = x; object.target.y = y;
+    const expanded = item.group && view.expanded.has(item.group);
+    object.shown = visible && !expanded;
+    if (!item.group) return;
+    let cursor = x - extent(objects, item) / 2 + (model.edges ? 0.6 : 0);
+    groupItems(groups[item.group]).forEach(child => {
+      const width = extent(objects, child);
+      placeItem(objects, child, visible && expanded ? cursor + width / 2 : x, y, visible && expanded);
       cursor += width + LAYER_GAP;
     });
   }
@@ -705,7 +735,7 @@
   // World-space corners of an object with its panel stack (and room above for its label).
   function cornersOf(object) {
     const t = object.target, s = object.size, half = widthOf(object) / 2, list = [];
-    const top = topOf(object) + 1.0, bottom = -s.h / 2 - (object.stack.direction < 0 ? object.stack.height : 0);
+    const top = topOf(object) + (model.edges ? 2.0 : 1.0), bottom = -s.h / 2 - (object.stack.direction < 0 ? object.stack.height : 0) - (model.edges ? 1.9 : 0);
     [-half, half].forEach(x => [bottom, top].forEach(y => [-s.d / 2, s.d / 2].forEach(z => list.push({x: t.x + x, y: t.y + y, z}))));
     return list;
   }
@@ -739,7 +769,7 @@
 
   const above = (object, lift) => ({x: object.current.x, y: object.current.y + topOf(object) + lift, z: 0});
   // World y of an expanded group's label: above its tallest layer, panels included.
-  const groupTop = members => members[0].current.y + Math.max(...members.map(topOf)) + 0.7;
+  const groupTop = members => Math.max(...members.map(object => object.current.y + topOf(object))) + 0.7;
 
   // Static labels name lanes, groups, inputs and results; other blocks are named only
   // while hovered or active, which keeps the default view to a handful of words.
@@ -754,15 +784,16 @@
     });
     Object.values(groups).forEach(group => {
       const element = addLabel(list, layer, '', () => {
-        const members = group.blocks.map(id => objects.get(id)), box = objects.get(group.id);
+        const members = groupMembers(objects, group), box = objects.get(group.id);
         if (!view.expanded.has(group.id)) return box.visible() ? above(box, 0.7) : null;
+        if (!members.length) return null;
         const first = members[0].current, last = members[members.length - 1].current;
-        return {x: (first.x + last.x) / 2, y: groupTop(members), z: 0};
+        return {x: (first.x + last.x) / 2, y: groupTop(members) + (group.items?.some(item => item.group) ? 0.8 : 0), z: 0};
       }, 1, 'group', () => toggleGroup(group.id));
       element.dataset.group = group.id;
       if (model.edges) { element.classList.add('module-label'); element.style.borderColor=groupStyle(group).edge; }
       objects.get(group.id).labelElement = element;
-      group.blocks.forEach(id => addLabel(list, layer, blocks[id].label, () => {
+      groupItems(group).filter(item => item.block).forEach(({block: id}) => addLabel(list, layer, blocks[id].label, () => {
         const object = objects.get(id);
         return object.visible() ? above(object, 0.25) : null;
       }, 3, 'minor'));
@@ -781,7 +812,7 @@
   function refreshGroupLabels(objects) {
     Object.values(groups).forEach(group => {
       const element = objects.get(group.id).labelElement;
-      element.textContent = group.label + ' ×' + group.blocks.length + (view.expanded.has(group.id) ? '  −' : '  +');
+      element.textContent = group.label + ' ×' + groupItems(group).length + (view.expanded.has(group.id) ? '  −' : '  +');
       element.setAttribute('aria-expanded', String(view.expanded.has(group.id)));
     });
   }
@@ -820,6 +851,10 @@
     if (view.expanded.has(id)) view.expanded.delete(id);
     else view.expanded.add(id);
     started().forEach(renderer => renderer.relayout(false));
+    if (model.edges && current()) {
+      if (view.expanded.has(id)) current().focusGroup(id);
+      else current().fitAll();
+    }
     sync();
   }
 
@@ -900,10 +935,12 @@
   function focus(id) {
     const block = blocks[id];
     if (!block) return;
-    if (block.group && !view.expanded.has(block.group)) {
-      view.expanded.add(block.group);
-      started().forEach(renderer => renderer.relayout(false));
+    let parent = block.group, changed = false;
+    while (parent) {
+      if (!view.expanded.has(parent)) { view.expanded.add(parent); changed = true; }
+      parent = groups[parent].parent;
     }
+    if (changed) started().forEach(renderer => renderer.relayout(false));
     sync();
     const renderer = current();
     if (renderer && renderer.focus) renderer.focus(id);
@@ -948,8 +985,7 @@
     }
     view.mode = mode;
     document.querySelector('.center').classList.toggle('mode-3d', mode === '3d');
-    document.querySelector('.center').classList.toggle('mode-guide', mode === 'guide');
-    [['view-2d', mode === '2d'], ['view-3d', mode === '3d'], ['view-guide', mode === 'guide']].forEach(([id, on]) => {
+    [['view-2d', mode === '2d'], ['view-3d', mode === '3d']].forEach(([id, on]) => {
       if (!E(id)) return;
       E(id).classList.toggle('active', on);
       E(id).setAttribute('aria-pressed', String(on));
@@ -1057,7 +1093,7 @@
       painted: () => renderers.get('3d') ? renderers.get('3d').painted() : 0,
     };
     const three = renderers.get('3d');
-    setMode(location.hash === '#3d' && lanes.length && three && three.available() ? '3d' : renderers.has('guide') && location.hash !== '#2d' ? 'guide' : '2d');
+    setMode(location.hash === '#3d' && lanes.length && three && three.available() ? '3d' : '2d');
     if (location.hash === '#similarity' && similarityIds.length) setType('output');
   }
 
@@ -1066,7 +1102,7 @@
     model, blocks, groups, lanes, view, TILE_GAP, PLATE, PLATE_GAP,
     palette, moduleStyle, blockStyle, groupStyle, groupCanvas, inputKind, slabSize, patchGrid, groupSize, sourceImage, tokenCanvas,
     makePanels, arrangePanels, panelDirection, widthOf, topOf, groupTop, cornersOf, framed, nudge,
-    layout, linkPairs, buildLabels, refreshGroupLabels, placeLabels,
+    layout, linkPairs, groupMembers, groupItems, buildLabels, refreshGroupLabels, placeLabels,
     register, activate, hover,
   };
 })();

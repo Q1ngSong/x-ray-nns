@@ -161,10 +161,10 @@ def run_cnn(architecture: str, model_path: str | Path, image_path: str | Path,
                                       "summary": [["Architecture", architecture], ["Weights", "ImageNet-1K V1"], ["Input", "224 × 224 centre crop"]],
                                       "guide": (["展开 features.stage1，点击 Conv2d，打开 Feature channels 并切换通道。",
                                                  "继续查看池化后的空间尺寸，再展开 classifier 查看全连接层。"] if architecture == "alexnet" else
-                                                ["展开 layer1.0：棕色跳连把输入送到 Add (+)，与主分支相加。",
-                                                 "展开 layer2.0：downsample 用投影匹配通道与空间尺寸，再做残差相加。"])
+                                                ["先展开 Stage 1，再展开 layer1.0：棕色跳连把输入送到 Add (+)，与主分支相加。",
+                                                 "先展开 Stage 2，再展开 layer2.0：downsample 用投影匹配通道与空间尺寸，再做残差相加。"])
                                                 + ["Layer output 的颜色是空间特征的 PCA 摘要；Feature channels 显示单个通道。",
-                                                   "最右侧显示 ImageNet 的前五类预测，概率按全部 1000 类计算。"]},
+                                                   "展开 Classifier 并点击 Scores，查看 ImageNet 前五类预测，概率按全部 1000 类计算。"]},
                                metadata={"executed_model": True, "provenance": "real_forward",
                                          "backend": "torchvision." + architecture, "weights": {"url": weights.url, "sha256": digest},
                                          "runtime": {"torch": torch.__version__, "torchvision": torchvision.__version__},
