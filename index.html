@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="x-ray-nns：记录一次真实的 PyTorch 推理，在浏览器中逐层查看神经网络的结构、中间值与数据流。在线探索 CLIP 图文推理示例。">
+  <meta name="description" content="x-ray-nns：记录一次真实的 PyTorch 推理，在浏览器中逐层查看神经网络的结构、中间值与数据流。在线探索 CLIP、AlexNet 与 ResNet 的真实推理示例。">
   <meta name="theme-color" content="#f7f9f8">
   <title>x-ray-nns · 看见神经网络如何计算</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23283f43'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='Arial' font-size='46' fill='%23bce1d4'%3Ex%3C/text%3E%3C/svg%3E">
@@ -27,10 +27,26 @@
   <section id="examples" class="examples" aria-labelledby="examples-title">
     <div class="section-heading"><div><p class="eyebrow">01 / EXPLORE</p><h2 id="examples-title">案例项目</h2></div><p>从一个真实输入出发，看看模型里发生了什么。</p></div>
     <div class="case-grid"><a class="case-card" href="examples/clip-cat/" aria-label="探索 CLIP ViT-B/32 示例">
-  <div class="case-preview"><img src="assets/readme/hero-3d.webp" alt="CLIP 视觉和文本编码器的三维回放" width="1600" height="900" loading="lazy"></div>
+  <div class="case-preview"><img src="assets/readme/hero-3d.webp" alt="CLIP ViT-B/32 结构与中间值回放" width="1600" height="900" loading="lazy"></div>
   <div class="case-body"><div class="case-meta"><span>EXAMPLE 01</span><span>RECORDED INFERENCE</span></div>
     <h3>CLIP ViT-B/32</h3><p class="case-subtitle">一张猫的照片，三条文本提示</p>
     <p class="case-description">图片和文字如何走过两个编码器，汇合成相似度？逐层展开视觉与文本分支，查看注意力、中间激活与最终结果。</p><div class="case-tags"><span>图像 × 文本</span><span>24 encoder layers</span><span>2D / 3D</span></div>
+    <div class="case-cta">打开交互示例 <span aria-hidden="true">↗</span></div>
+  </div>
+</a>
+<a class="case-card" href="examples/alexnet-cat/" aria-label="探索 AlexNet 示例">
+  <div class="case-preview"><img src="assets/readme/alexnet-example.webp" alt="AlexNet 结构与中间值回放" width="1600" height="900" loading="lazy"></div>
+  <div class="case-body"><div class="case-meta"><span>EXAMPLE 02</span><span>RECORDED INFERENCE</span></div>
+    <h3>AlexNet</h3><p class="case-subtitle">从卷积特征到 1000 类预测</p>
+    <p class="case-description">一张猫的照片走过经典 CNN：展开卷积、池化与全连接层，切换特征通道，观察空间分辨率如何缩小，最后查看 ImageNet 分类结果。</p><div class="case-tags"><span>经典 CNN</span><span>5 convolution layers</span><span>Feature channels</span></div>
+    <div class="case-cta">打开交互示例 <span aria-hidden="true">↗</span></div>
+  </div>
+</a>
+<a class="case-card" href="examples/resnet18-cat/" aria-label="探索 ResNet-18 示例">
+  <div class="case-preview"><img src="assets/readme/resnet18-example.webp" alt="ResNet-18 结构与中间值回放" width="1600" height="900" loading="lazy"></div>
+  <div class="case-body"><div class="case-meta"><span>EXAMPLE 03</span><span>RECORDED INFERENCE</span></div>
+    <h3>ResNet-18</h3><p class="case-subtitle">沿着残差连接，追踪两路信息的相加</p>
+    <p class="case-description">逐个展开残差块，查看主分支、恒等捷径与下采样投影。每个 Add 节点都保留真实的两个输入，2D 与 3D 共用同一份执行记录。</p><div class="case-tags"><span>8 residual blocks</span><span>Identity / projection</span><span>2D / 3D</span></div>
     <div class="case-cta">打开交互示例 <span aria-hidden="true">↗</span></div>
   </div>
 </a></div>
@@ -117,6 +133,31 @@ python -m pip install -e &quot;.[clip]&quot;
   --text &quot;a photo of a cat&quot; --text &quot;a photo of a dog&quot; \
   --output runs/clip/cat
 </code></pre>
+<h2>CNN 与 ResNet 示例</h2>
+<p>现在也可以录制 <strong>AlexNet</strong> 和 <strong>ResNet-18</strong> 的真实 ImageNet 推理。页面默认打开<strong>结构导览</strong>：按阶段组织模块，点击残差块拆开主分支与捷径，对照恒等连接和投影下采样。点图中模块查看真实数值，也可跳到同一块的 3D 视图。</p>
+<p>2D / 3D 播放器与导览共用同一份运行记录：</p>
+<ul>
+<li>展开卷积、池化、全连接层或残差块，查看实际输出形状、Tensor 与时间线。</li>
+<li><code>Layer output</code> 显示空间特征的 PCA 摘要；<code>Feature channels</code> 显示单个通道，可用 <code>Channel</code> 切换。通道图按各自范围着色，大图平均池化到至多 28×28；原始 Tensor 保存在本地录制中。</li>
+<li>ResNet 的棕色连线表示捷径。展开 <code>layer1.0</code> 看恒等捷径，展开 <code>layer2.0</code> 看投影与下采样；<code>Add (+)</code> 的详情列出两路输入和相加结果。</li>
+<li>最后显示 ImageNet 前五类预测，softmax 的分母包含全部 1000 类，前五项没有重新归一化。</li>
+</ul>
+<p>安装 CNN 运行依赖（使用与 PyTorch 匹配的 torchvision）：</p>
+<pre><code class="language-bash">python -m pip install -e &quot;.[cnn]&quot;
+</code></pre>
+<p>将官方权重保存在 <code>models/torchvision/&lt;模型&gt;/</code>：
+<a href="https://download.pytorch.org/models/alexnet-owt-7be5be79.pth">AlexNet ImageNet-1K V1</a>、
+<a href="https://download.pytorch.org/models/resnet18-f37072fd.pth">ResNet-18 ImageNet-1K V1</a>。录制时只读取本地权重，校验官方 SHA-256 前缀，不自动下载。</p>
+<pre><code class="language-bash">xray cnn-run --architecture alexnet \
+  --model models/torchvision/alexnet/alexnet-owt-7be5be79.pth \
+  --image cat.png --output runs/alexnet/cat
+
+xray cnn-run --architecture resnet18 \
+  --model models/torchvision/resnet18/resnet18-f37072fd.pth \
+  --image cat.png --output runs/resnet18/cat
+</code></pre>
+<p>输出目录须为新目录或空目录。两种模型均使用官方 V1 预处理，在 CPU 上执行，并验证录制图与原始模型的 logits 一致。FX 将这两种模型的 residual add 与 flatten 暴露给 hooks；这不表示已经捕获任意模型的全部底层算子。输入图保存为模型实际看到的 224×224 裁剪，便于与空间特征对照。</p>
+<p>公开样例在 <code>site/samples/alexnet-cat/</code> 和 <code>site/samples/resnet18-cat/</code>，只包含可分享的 trace、预计算视图与图片。与已有 CLIP 样例一起通过 <code>site/build.py</code> 构建，网页回放无需安装模型。AlexNet 使用 torchvision 的官方变体；<a href="https://docs.pytorch.org/vision/stable/models/generated/torchvision.models.alexnet.html">架构说明</a>。</p>
 <h2>🗂️ 目录约定</h2>
 <table>
 <thead>
@@ -285,7 +326,7 @@ python -m pip install -e &quot;.[clip]&quot;
 <li><strong>端口被占用</strong>：加 <code>--port 8766</code>。</li>
 </ul>
 <h2>🗺️ 现状</h2>
-<p>目前内置 CLIP ViT-B/32（图像、文本两个编码器加相似度）。录制器用的是通用的 PyTorch forward hook，Trace 格式也不绑定具体模型。想看看别的模型里发生了什么？欢迎开 issue 或者提 PR。</p>
+<p>目前内置 CLIP ViT-B/32（图像、文本两个编码器加相似度）、AlexNet 和 ResNet-18（ImageNet 图像分类）。录制器用的是通用的 PyTorch forward hook，Trace 格式也不绑定具体模型。想看看别的模型里发生了什么？欢迎开 issue 或者提 PR。</p>
 <p>如果 x-ray 帮你看懂了某一层，欢迎点个 ⭐。</p>
 <h2>🙏 致谢</h2>
 <ul>

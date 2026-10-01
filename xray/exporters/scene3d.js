@@ -7,7 +7,7 @@
   const {blocks, groups, lanes, view} = S;
   const DEFAULT_DIRECTION = [-0.5, 0.42, 1], FOCUS_DISTANCE = 14;
   const stageEl = E('scene-stage'), holder = E('scene-canvas'), labelLayer = E('scene-labels'), note = E('scene-note');
-  const objects = new Map();
+  const objects = new Map(), frames = new Map();
   let labels = [], renderer = null, camera = null, controls = null, world = null, links = null, linkPairs = [];
   let frame = 0, tweens = [], imageTexture = null, fitted = false, needsFit = false;
 
@@ -25,11 +25,11 @@
     return mesh;
   }
 
-  function slabParts(size, lane, pick) {
+  function slabParts(size, lane, pick, colours = S.palette(lane)) {
     const geometry = new THREE.BoxGeometry(size.w, size.h, size.d);
-    const mesh = pickable(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: S.palette(lane).face, roughness: 0.85, metalness: 0})), pick);
+    const mesh = pickable(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: colours.face, roughness: 0.85, metalness: 0})), pick);
     const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry),
-      new THREE.LineBasicMaterial({color: S.palette(lane).edge, transparent: true, opacity: 0.6}));
+      new THREE.LineBasicMaterial({color: colours.edge, transparent: true, opacity: 0.6}));
     return {meshes: [mesh], edges: [edges]};
   }
 
@@ -92,7 +92,7 @@
       parts = {meshes: [plane(size.w, size.h, canvasTexture(tokens.canvas), null, pick)], edges: [frameLines(size.w, size.h, block.lane)]};
     } else {
       size = S.slabSize(block);
-      parts = slabParts(size, block.lane, pick);
+      parts = slabParts(size, block.lane, pick, S.blockStyle(block));
     }
     [...parts.meshes, ...parts.edges].forEach(part => node3.add(part));
     return {id: block.id, kind: 'block', lane: block.lane, node: node3, current: node3.position, visible: () => node3.visible,
@@ -103,7 +103,12 @@
   function buildGroup(group) {
     const member = objects.get(group.blocks[0]).size, size = S.groupSize(group, member), node3 = new THREE.Group();
     const parts = {meshes: [], edges: []};
-    group.blocks.forEach((_, index) => {
+    if (S.model.edges) {
+      const box=slabParts(size,group.lane,{kind:'group',id:group.id},S.groupStyle(group));
+      const label=plane(size.w,size.h,canvasTexture(S.groupCanvas(group)),null,{kind:'group',id:group.id}); label.position.z=size.d/2+0.01;
+      parts.meshes.push(...box.meshes,label);parts.edges.push(...box.edges);
+      [...parts.meshes,...parts.edges].forEach(part=>node3.add(part));
+    } else group.blocks.forEach((_, index) => {
       const plate = slabParts({w: S.PLATE, h: member.h, d: member.d}, group.lane, {kind: 'group', id: group.id});
       [...plate.meshes, ...plate.edges].forEach(part => {
         part.position.x = -size.w / 2 + S.PLATE / 2 + index * (S.PLATE + S.PLATE_GAP);
@@ -147,8 +152,14 @@
       links.geometry.dispose();
     }
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(linkPairs.length * 6), 3));
-    links = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({color: '#a9bccb', transparent: true, opacity: 0.8}));
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(linkPairs.length * 18), 3));
+    const colours = new Float32Array(linkPairs.length * 18);
+    linkPairs.forEach(([, , shortcut], index) => {
+      const colour = new THREE.Color(shortcut ? '#b78f70' : '#a9bccb');
+      for (let vertex = 0; vertex < 6; vertex++) colour.toArray(colours, index * 18 + vertex * 3);
+    });
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colours, 3));
+    links = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({vertexColors: true, transparent: true, opacity: 0.85}));
     world.add(links);
     updateLinks();
   }
@@ -156,9 +167,19 @@
   function updateLinks() {
     if (!links) return;
     const array = links.geometry.attributes.position.array;
-    linkPairs.forEach(([from, to], index) => {
+    linkPairs.forEach(([from, to, shortcut, detour], index) => {
       const a = from.node.position, b = to.node.position;
-      array.set([a.x + from.size.w / 2, a.y, 0, b.x - to.size.w / 2, b.y, 0], index * 6);
+      const x1 = a.x + from.size.w / 2, x2 = b.x - to.size.w / 2;
+      const bottom = Math.min(a.y - from.size.h / 2, b.y - to.size.h / 2) - (shortcut ? 1.2 : 0.65);
+      const y1 = shortcut || detour ? bottom : a.y, y2 = shortcut || detour ? bottom : b.y;
+      array.set([x1, a.y, 0, x1, y1, 0, x1, y1, 0, x2, y2, 0, x2, y2, 0, x2, b.y, 0], index * 18);
+    });
+    frames.forEach((frame,id)=>{
+      const members=groups[id].blocks.map(id=>objects.get(id));frame.visible=view.expanded.has(id)&&members.some(member=>member.shown);
+      if(!frame.visible)return;
+      const left=Math.min(...members.map(o=>o.node.position.x-o.size.w/2))-.4,right=Math.max(...members.map(o=>o.node.position.x+o.size.w/2))+.4;
+      const top=Math.max(...members.map(o=>o.node.position.y+o.size.h/2))+.6,bottom=Math.min(...members.map(o=>o.node.position.y-o.size.h/2))-1.5;
+      frame.position.set((left+right)/2,(top+bottom)/2,-1.8);frame.scale.set(right-left,top-bottom,1);
     });
     links.geometry.attributes.position.needsUpdate = true;
     links.geometry.computeBoundingSphere();
@@ -291,12 +312,13 @@
   function paint() {
     objects.forEach(object => {
       const active = object.id === view.active, hover = object.id === view.hover;
+      const colours = object.kind === 'group' ? S.groupStyle(groups[object.id]) : S.blockStyle(blocks[object.id]);
       object.meshes.forEach(mesh => {
         const patch = mesh.userData.pick && mesh.userData.pick.patch;
         if (mesh.material.emissive) {
-          mesh.material.emissive.set(active ? S.palette(object.lane).edge : '#000000');
+          mesh.material.emissive.set(active ? colours.edge : '#000000');
           mesh.material.emissiveIntensity = active ? 0.32 : 0;
-          mesh.material.color.set(hover && !active ? '#eef5fa' : S.palette(object.lane).face);
+          mesh.material.color.set(hover && !active ? '#eef5fa' : colours.face);
         }
         if (patch !== undefined) mesh.position.z = state.patchIndex === patch ? 0.18 : 0;
       });
@@ -398,6 +420,12 @@
     Object.values(blocks).forEach(block => objects.set(block.id, buildBlock(block)));
     Object.values(groups).forEach(group => objects.set(group.id, buildGroup(group)));
     objects.forEach(object => world.add(object.node));
+    if(S.model.edges) Object.values(groups).forEach(group=>{
+      const frame=new THREE.Group(), colour=S.groupStyle(group).edge;
+      frame.add(new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:S.groupStyle(group).face,transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false})));
+      frame.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(1,1)),new THREE.LineBasicMaterial({color:colour,transparent:true,opacity:.7})));
+      frame.visible=false;world.add(frame);frames.set(group.id,frame);
+    });
     labels = S.buildLabels(objects, labelLayer);
     bindPointer(renderer.domElement);
     new ResizeObserver(resize).observe(holder);

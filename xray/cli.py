@@ -16,6 +16,7 @@ def main(argv: list[str] | None = None) -> int:
     Returns:
         int — process exit status.
 
+    变更: 2026-10-01 增加 cnn-run，录制本地官方权重的 AlexNet / ResNet-18。
     变更: 2026-09-21 增加 `clip-run` 命令，将本地 CLIP forward 导出为离线 HTML bundle。
     变更: 2026-09-23 增加 `serve` 命令：本地服务浏览各次运行，并从页面提交新的图片和 prompts。
     变更: 2026-09-23 删除 `mock` 命令（手工构造的示例 trace）；导出格式由 pytest 覆盖。
@@ -33,6 +34,11 @@ def main(argv: list[str] | None = None) -> int:
     clip_run.add_argument("--device", choices=("auto", "cpu", "mps"), default="auto")
     clip_run.add_argument("--no-raw", action="store_true", help="keep metadata/previews but skip .pt tensors")
     clip_run.add_argument("--trace-id", default="clip-run")
+    cnn_run = subparsers.add_parser("cnn-run", help="record local pretrained AlexNet or ResNet-18")
+    cnn_run.add_argument("--architecture", choices=("alexnet", "resnet18"), required=True)
+    cnn_run.add_argument("--model", type=Path, required=True, help="local official ImageNet-1K V1 state dict")
+    cnn_run.add_argument("--image", type=Path, required=True)
+    cnn_run.add_argument("--output", type=Path, required=True, help="new or empty bundle directory")
     serve =subparsers.add_parser("serve", help="browse recorded runs and record new ones from the page")
     serve.add_argument("--model", dest="model_path", type=Path, required=True)
     serve.add_argument("--runs", type=Path, default=Path("runs"), help="runs root; new runs go to <runs>/clip/live/")
@@ -55,6 +61,11 @@ def main(argv: list[str] | None = None) -> int:
             save_raw=not args.no_raw,
             trace_id=args.trace_id,
         )
+        print(f"wrote {bundle / 'index.html'}")
+    elif args.command == "cnn-run":
+        from xray.recorder.cnn import run_cnn
+
+        bundle = run_cnn(args.architecture, args.model, args.image, args.output)
         print(f"wrote {bundle / 'index.html'}")
     elif args.command == "serve":
         from xray.server import serve as serve_runs

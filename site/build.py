@@ -50,6 +50,8 @@ def readme_html(repository: str) -> str:
 def build(output: Path, repository: str) -> None:
     """Build a static site from explicitly listed examples and public assets. [主线]
 
+    变更: 2026-10-01 示例卡片替代文字取模型名称，支持 CNN / ResNet 样例。
+
     Args:
         output: New or empty destination; refuse to mix prior files into a release.
         repository: Public source repository URL used in navigation and documentation.
@@ -79,7 +81,7 @@ def build(output: Path, repository: str) -> None:
         shutil.copytree(source / "assets", destination / "assets", ignore=shutil.ignore_patterns("._*", ".DS_Store"))
         tags = "".join('<span>' + escape(tag) + '</span>' for tag in example["tags"])
         cards.append(f'''<a class="case-card" href="examples/{slug}/" aria-label="探索 {escape(example['title'])} 示例">
-  <div class="case-preview"><img src="{escape(example['preview'], quote=True)}" alt="CLIP 视觉和文本编码器的三维回放" width="1600" height="900" loading="lazy"></div>
+  <div class="case-preview"><img src="{escape(example['preview'], quote=True)}" alt="{escape(example['title'])} 结构与中间值回放" width="1600" height="900" loading="lazy"></div>
   <div class="case-body"><div class="case-meta"><span>EXAMPLE {number:02d}</span><span>RECORDED INFERENCE</span></div>
     <h3>{escape(example['title'])}</h3><p class="case-subtitle">{escape(example['subtitle'])}</p>
     <p class="case-description">{escape(example['description'])}</p><div class="case-tags">{tags}</div>

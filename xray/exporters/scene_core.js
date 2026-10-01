@@ -13,7 +13,7 @@
   };
   // Lanes the palette does not name take the colour of their place in the scene's lane order.
   const CYCLE = [PALETTE.text, PALETTE.model, PALETTE.vision, {face: '#f1e1e8', edge: '#a9829a'}, PALETTE.fusion];
-  const TYPES = [['hidden', 'Layer output'], ['attention', 'Attention'], ['cross', 'Cross-attention'], ['mlp', 'MLP activation'],
+  const TYPES = [['hidden', 'Layer output'], ['channels', 'Feature channels'], ['attention', 'Attention'], ['cross', 'Cross-attention'], ['mlp', 'MLP activation'],
     ['qkv', 'Q / K / V'], ['output', 'Final output']];
   // World units: slabs are thin along x (the flow axis); lanes stack along y.
   const GAP = 0.9, LAYER_GAP = 1.0, SLAB = 0.3, PLATE = 0.07, PLATE_GAP = 0.05, LANE_GAP = 2.4, TILE_GAP = 0.05;
@@ -22,7 +22,8 @@
   const FONT = 'ui-monospace, SFMono-Regular, Menlo, monospace';
   const ATTENTION_RAMP = [[247, 249, 252], [46, 84, 122]], MLP_RAMP = [[241, 246, 244], [47, 110, 96]];
   const view = {mode: '2d', expanded: new Set(), open: new Set(), types: new Set(['hidden', 'output']),
-    head: 'avg', style: 'matrix', active: null, hover: null};
+    channel: 0, head: 'avg', style: 'matrix', active: null, hover: null};
+  Object.keys(views).filter(id => views[id].output?.labels).forEach(id => view.open.add(id));
   const similarityIds = Object.keys(views).filter(id => views[id].output?.similarity);
   if (similarityIds.length) view.types.delete('output');
   const renderers = new Map(), decoded = new Map(), imageWaiters = [];
@@ -35,6 +36,43 @@
     const index = lanes.findIndex(item => item.id === lane);
     return PALETTE[lane] || (index < 0 ? PALETTE.model : CYCLE[index % CYCLE.length]);
   };
+  // CNN module roles keep the same visual vocabulary in the guide, 2D and 3D.
+  function moduleStyle(type) {
+    const styles = {
+      Conv2d: ['#dcebf8', '#648faf', 'Conv'], BatchNorm2d: ['#e6eaf3', '#8794b1', 'BN'],
+      ReLU: ['#fff1ce', '#c49b48', 'ReLU'], MaxPool2d: ['#dbf0e9', '#589d87', 'MaxPool'],
+      AdaptiveAvgPool2d: ['#dcf1ea', '#589d87', 'AvgPool'], Linear: ['#eadff3', '#997ab0', 'Linear'],
+      Dropout: ['#f0e9f3', '#ad95b7', 'Dropout'], _FunctionCall: ['#fff0db', '#c18a4b', 'Add (+)'],
+    };
+    const [face, edge, title] = styles[type] || ['#edf2f5', '#8da4b1', type];
+    return {face, edge, title};
+  }
+  function blockStyle(block) {
+    if (!model.edges) return palette(block.lane);
+    const type = operations.get(block.operations[0])?.type || block.label;
+    const style = moduleStyle(type);
+    if (type === '_FunctionCall' && block.semantic !== 'residual_add') return {...moduleStyle('Flatten'), title: 'Flatten'};
+    if (block.kind === 'result') return {...moduleStyle('Linear'), title: 'Scores'};
+    return style;
+  }
+  function groupStyle(group) {
+    const index = Math.max(0, Number(group.id.match(/^layer([1-4])/ )?.[1] || 1) - 1);
+    const colours = [['#e7f1fb','#648faf'],['#e5f3ee','#629d89'],['#f0eaf7','#9a84b6'],['#fcf0dd','#bb955d']];
+    return model.edges ? {face:colours[index][0],edge:colours[index][1]} : palette(group.lane);
+  }
+  function groupCanvas(group) {
+    const canvas = document.createElement('canvas'); canvas.width=336;canvas.height=240;
+    const ctx=canvas.getContext('2d'), colours=groupStyle(group), residual=group.blocks.some(id=>blocks[id].semantic==='residual_add');
+    ctx.fillStyle=colours.face;ctx.fillRect(0,0,336,240);ctx.fillStyle=colours.edge;ctx.fillRect(0,0,336,7);
+    ctx.fillStyle='#3b5b6e';ctx.font='600 25px '+FONT;ctx.fillText(group.label,20,43);
+    ctx.font='16px '+FONT;ctx.fillText(residual?'Residual block':'Module group',20,71);
+    ctx.strokeStyle=colours.edge;ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(25,128);ctx.lineTo(309,128);ctx.stroke();
+    [55,122,189].forEach(x=>{ctx.fillStyle='#ffffff';ctx.fillRect(x,108,45,40);ctx.strokeRect(x,108,45,40);});
+    if(residual){ctx.beginPath();ctx.moveTo(35,128);ctx.lineTo(35,174);ctx.lineTo(281,174);ctx.lineTo(281,128);ctx.stroke();ctx.fillStyle='#fff2df';ctx.beginPath();ctx.arc(281,128,16,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#9c723a';ctx.font='22px '+FONT;ctx.fillText('+',274,136);}
+    const last=blocks[group.blocks.at(-1)];ctx.fillStyle='#6c8190';ctx.font='15px '+FONT;ctx.fillText((last.shape||[]).slice(1).join(' × '),20,216);
+    return canvas;
+  }
   // The first flow lane (and the fusion lane) stacks panels upwards, every other lane downwards.
   const panelDirection = lane => flowLanes.findIndex(item => item.id === lane) > 0 ? -1 : 1;
   const widthOf = object => Math.max(object.size.w, object.stack.width);
@@ -71,6 +109,7 @@
 
   // A collapsed group is a tight stack of thin plates, one per member layer.
   function groupSize(group, member) {
+    if (model.edges) return {w: 2.8, h: 2.0, d: 1.2};
     const count = group.blocks.length;
     return {w: count * PLATE + (count - 1) * PLATE_GAP, h: member.h, d: member.d};
   }
@@ -406,6 +445,24 @@
       };
       return spec;
     },
+    channels: (data, block) => {
+      const [h, w] = data.grid, values = bytesOf(data.data);
+      const cell = Math.max(1, Math.floor(170 / Math.max(h, w)));
+      const spec = {key: 'channels', tensor: data.tensor, width: Math.max(260, PAD * 2 + w * cell), height: TITLE + h * cell + 48};
+      spec.draw = ctx => {
+        const ch = Math.min(view.channel, data.channels - 1);
+        frameCanvas(ctx, spec, blockName(block) + ' · channel ' + ch, data.channels + ' channels · sample ' + data.sample);
+        for (let row = 0; row < h; row++) for (let col = 0; col < w; col++) {
+          const t = values[ch * h * w + row * w + col] / 255;
+          ctx.fillStyle = 'rgb(' + Math.round(247 - 201 * t) + ',' + Math.round(249 - 165 * t) + ',' + Math.round(252 - 130 * t) + ')';
+          ctx.fillRect(PAD + col * cell, TITLE + row * cell, cell, cell);
+        }
+        ctx.fillStyle = '#5f7481'; ctx.font = '10px ' + FONT;
+        ctx.fillText('range ' + Number(data.low[ch]).toPrecision(3) + ' → ' + Number(data.high[ch]).toPrecision(3), PAD, TITLE + h * cell + 18);
+        ctx.fillText(data.original_grid.join('×') + ' → ' + data.grid.join('×') + ' · average pooled', PAD, TITLE + h * cell + 34);
+      };
+      return spec;
+    },
     output: (data, block) => {
       const prompts = Array.isArray(inputs.text) ? inputs.text : [];
       if (data.threshold !== undefined) {
@@ -433,18 +490,18 @@
         const probs = data.probs[0] || [], logits = data.values[0] || [];
         const spec = {key: 'output', tensor: data.tensor, width: 330, height: TITLE + probs.length * 24 + PAD};
         spec.draw = ctx => {
-          frameCanvas(ctx, spec, blockName(block) + ' · similarity', 'softmax');
+          frameCanvas(ctx, spec, blockName(block) + (data.labels ? ' · top 5' : ' · similarity'), data.labels ? 'softmax over ' + data.class_count + ' classes' : 'softmax');
           probs.forEach((p, j) => {
             const y = TITLE + j * 24;
             ctx.fillStyle = '#4f6978';
             ctx.font = '10px ' + FONT;
-            ctx.fillText(String(prompts[j] || 'prompt ' + (j + 1)).slice(0, 22), PAD, y + 12);
+            ctx.fillText(String((data.labels || prompts)[j] || 'prompt ' + (j + 1)).slice(0, 22), PAD, y + 12);
             ctx.fillStyle = '#f0e8e0';
             ctx.fillRect(150, y + 3, 90, 10);
             ctx.fillStyle = '#c29b7d';
             ctx.fillRect(150, y + 3, 90 * p, 10);
             ctx.fillStyle = '#765b48';
-            ctx.fillText(Math.round(p * 100) + '% · ' + Number(logits[j]).toFixed(1), 248, y + 12);
+            ctx.fillText((p * 100).toFixed(data.labels ? 1 : 0) + '% · ' + Number(logits[j]).toFixed(1), 248, y + 12);
           });
         };
         return spec;
@@ -618,6 +675,19 @@
   // Links join consecutive visible units in a lane, plus the recorded cross-lane Tensor links.
   function linkPairs(objects) {
     const pairs = [];
+    if (model.edges) {
+      const seen = new Set();
+      model.edges.forEach(edge => {
+        if (!blockShown(edge.from) || !blockShown(edge.to)) return;
+        const from = unitOf(objects, edge.from), to = unitOf(objects, edge.to);
+        const key = from.id + ':' + to.id;
+        if (from === to || seen.has(key)) return;
+        seen.add(key);
+        const chain = laneUnits(objects, lanes.find(lane => lane.id === from.lane));
+        pairs.push([from, to, edge.shortcut, from.lane === to.lane && chain.indexOf(to) > chain.indexOf(from) + 1]);
+      });
+      return pairs;
+    }
     lanes.filter(laneShown).forEach(lane => {
       const chain = laneUnits(objects, lane);
       chain.slice(1).forEach((unit, index) => pairs.push([chain[index], unit]));
@@ -690,6 +760,7 @@
         return {x: (first.x + last.x) / 2, y: groupTop(members), z: 0};
       }, 1, 'group', () => toggleGroup(group.id));
       element.dataset.group = group.id;
+      if (model.edges) { element.classList.add('module-label'); element.style.borderColor=groupStyle(group).edge; }
       objects.get(group.id).labelElement = element;
       group.blocks.forEach(id => addLabel(list, layer, blocks[id].label, () => {
         const object = objects.get(id);
@@ -877,7 +948,9 @@
     }
     view.mode = mode;
     document.querySelector('.center').classList.toggle('mode-3d', mode === '3d');
-    [['view-2d', mode === '2d'], ['view-3d', mode === '3d']].forEach(([id, on]) => {
+    document.querySelector('.center').classList.toggle('mode-guide', mode === 'guide');
+    [['view-2d', mode === '2d'], ['view-3d', mode === '3d'], ['view-guide', mode === 'guide']].forEach(([id, on]) => {
+      if (!E(id)) return;
       E(id).classList.toggle('active', on);
       E(id).setAttribute('aria-pressed', String(on));
     });
@@ -905,6 +978,18 @@
       typeButtons.set(key, button);
       bar.appendChild(button);
     });
+    const channels = Math.max(0, ...Object.values(views).map(item => item.channels?.channels || 0));
+    if (channels) {
+      const label = node('label', 'Channel ', 'scene-head'), select = node('input');
+      select.type = 'number'; select.min = '0'; select.max = String(channels - 1); select.value = '0';
+      select.setAttribute('aria-label', 'Feature channel'); select.style.width = '60px';
+      select.addEventListener('input', () => {
+        view.channel = Math.max(0, Math.min(channels - 1, Math.trunc(Number(select.value) || 0)));
+        select.value = String(view.channel); redrawPanels('channels');
+      });
+      label.appendChild(select); bar.appendChild(label);
+      label.title = 'Zero-based channel; layers with fewer channels show their last channel. Each map uses its own range.';
+    }
     const heads = Math.max(0, ...Object.values(views).flatMap(item => [item.attention, item.cross]).map(data => data ? data.heads : 0));
     const headWrap = node('label', 'Head', 'scene-head');
     headSelect = document.createElement('select');
@@ -956,7 +1041,7 @@
     const visible = current();
     return Object.assign({
       mode: view.mode, expanded: [...view.expanded], open: [...view.open], types: [...view.types],
-      head: view.head, style: view.style, active: view.active,
+      head: view.head, channel: view.channel, style: view.style, active: view.active,
     }, visible && visible.snapshot ? visible.snapshot() : {});
   }
 
@@ -972,14 +1057,14 @@
       painted: () => renderers.get('3d') ? renderers.get('3d').painted() : 0,
     };
     const three = renderers.get('3d');
-    setMode(location.hash === '#3d' && lanes.length && three && three.available() ? '3d' : '2d');
+    setMode(location.hash === '#3d' && lanes.length && three && three.available() ? '3d' : renderers.has('guide') && location.hash !== '#2d' ? 'guide' : '2d');
     if (location.hash === '#similarity' && similarityIds.length) setType('output');
   }
 
   document.addEventListener('DOMContentLoaded', start);
   window.XRAY_SCENE = {
     model, blocks, groups, lanes, view, TILE_GAP, PLATE, PLATE_GAP,
-    palette, inputKind, slabSize, patchGrid, groupSize, sourceImage, tokenCanvas,
+    palette, moduleStyle, blockStyle, groupStyle, groupCanvas, inputKind, slabSize, patchGrid, groupSize, sourceImage, tokenCanvas,
     makePanels, arrangePanels, panelDirection, widthOf, topOf, groupTop, cornersOf, framed, nudge,
     layout, linkPairs, buildLabels, refreshGroupLabels, placeLabels,
     register, activate, hover,

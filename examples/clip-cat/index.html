@@ -5,7 +5,7 @@
 <title>x-ray · local inference</title>
 <style>
 :root{color-scheme:light;font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f7fb;color:#213442;--paper:#fff;--wash:#f7f9fc;--line:#d9e2ea;--muted:#718291;--ink:#213442;--blue:#789ab7;--blue-soft:#e7f0f8;--teal:#79a99d;--teal-soft:#e6f2ef;--lilac:#9a91b7;--lilac-soft:#f0edf7;--peach:#c29b7d;--peach-soft:#f8eee7;--mono:ui-monospace,SFMono-Regular,Menlo,monospace}
-*{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);overflow-x:hidden}button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:inherit;padding:6px 9px}button:hover{border-color:#a9bfce;background:#f4f8fb}button:focus-visible,input:focus-visible{outline:2px solid #90afc5;outline-offset:2px}button:disabled{opacity:.4;cursor:default}.app{min-height:100vh;display:flex;flex-direction:column}.topbar{height:68px;display:flex;align-items:center;gap:18px;padding:0 24px;background:var(--paper);border-bottom:1px solid var(--line)}.brand{font-size:25px;font-weight:750;letter-spacing:-1.5px}.brand span{color:var(--blue)}.run-name{font:11px var(--mono);color:var(--muted)}.workbench{--source:270px;--inspector:330px;display:grid;grid-template-columns:var(--source) minmax(620px,1fr) var(--inspector);height:calc(100vh - 68px);overflow:hidden}.workbench.source-hidden{--source:0px}.workbench.inspector-hidden{--inspector:0px}.workbench.source-hidden>.source,.workbench.inspector-hidden>.inspector{display:none}.workbench>.source{grid-column:1}.workbench>.center{grid-column:2}.workbench>.inspector{grid-column:3}.source,.inspector{background:var(--paper);overflow:auto}.source{border-right:1px solid var(--line);padding:20px 17px}.inspector{border-left:1px solid var(--line);padding:20px 17px}.detail-panel[hidden]{display:none}.detail-panel{animation:detail-in .16s ease-out}@keyframes detail-in{from{transform:translateY(4px)}to{transform:none}}.detail-panel .inspector-head button{font-size:10px;padding:4px 7px}.inspector-empty[hidden]{display:none}.inspector-empty{display:grid;gap:7px;align-content:center;min-height:180px;padding:22px;border:1px dashed #cddbe3;border-radius:14px;background:#fbfdff;color:#617583}.inspector-empty strong{font-size:18px;letter-spacing:-.3px;color:#385260}.inspector-empty p{margin:0;font-size:11px;color:var(--muted)}.empty-kicker{font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#7b8d99}.center{min-width:0;display:flex;flex-direction:column;overflow:hidden}.panel-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 11px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#5f7484}.panel-note{font-size:11px;color:var(--muted);margin:0 0 14px}.source-block{padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--line)}.input-frame{position:relative;width:100%;aspect-ratio:1;border:1px solid #cad9e3;border-radius:12px;overflow:hidden;background:#edf3f7}.input-frame img{width:100%;height:100%;display:block;object-fit:cover}.input-frame img[hidden]{display:none}.input-frame.selectable-source{cursor:pointer}.input-frame.selectable-source:focus{outline:2px solid #90afc5;outline-offset:2px}.patch-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);pointer-events:none;opacity:.7}.patch-grid i{border-right:1px solid rgba(73,111,136,.35);border-bottom:1px solid rgba(73,111,136,.35)}.prompt{padding:10px 11px;margin:6px 0;background:#fbfcfe;border:1px solid var(--line);border-radius:9px;color:#526875;font-size:12px}.prompt:before{content:"↳";color:var(--blue);margin-right:7px}.token-list{display:grid;gap:6px;margin-top:9px}.token-row{display:flex;gap:4px;flex-wrap:wrap}.token-chip{font:10px var(--mono);padding:4px 5px;border:1px solid #d4dee5;background:#f8fafc;border-radius:5px;color:#5f7380}.token-chip.special{background:var(--lilac-soft);border-color:#d9d1e9;color:#756a92}.token-chip:hover{background:var(--blue-soft);border-color:#abc6d8}.branch-select-wrap{display:inline-flex;align-items:center;gap:7px;color:#738693;font:10px var(--mono);text-transform:uppercase;letter-spacing:.08em}.branch-select-wrap select{border:1px solid var(--line);border-radius:8px;background:#fff;color:#4b6878;padding:5px 8px;font:11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-transform:none;letter-spacing:0}.view-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:14px 22px 10px;background:#f4f7fb}.view-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}.view-head .view-switch{margin-left:auto}.architecture-wrap{flex:1;min-height:0;display:flex;flex-direction:column}.architecture-wrap[hidden]{display:none}.timeline{padding:12px 22px 17px;background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.timeline-controls{display:flex;align-items:center;gap:6px;min-width:0}.timeline-controls .primary{background:var(--blue-soft);border-color:#abc5d7;color:#466d83}.timeline-position{font:10px var(--mono);color:var(--muted);margin-left:7px;white-space:nowrap}.timeline-range{flex:1;min-width:100px;accent-color:var(--blue)}.timeline-caption{margin-top:8px;color:var(--muted);font:10px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.inspector-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.selected-name{font:15px var(--mono);margin:3px 0;color:#2f4d5c;overflow-wrap:anywhere}.selected-kind{font-size:11px;color:#5d8a82;min-height:18px}.selected-flow{margin:0 0 9px;font:10px var(--mono);color:var(--muted);overflow-wrap:anywhere}.inspector-card{padding:11px 0;border-top:1px solid var(--line)}.inspector-card h3{margin:0 0 8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7c8e99}.facts{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.fact{display:flex;justify-content:space-between;gap:7px;padding:4px 0;border-bottom:1px solid #edf1f4;font-size:10px}.fact span:first-child{color:var(--muted)}.fact span:last-child{font:10px var(--mono);text-align:right;overflow-wrap:anywhere}.preview{display:block;width:100%;height:154px;background:#eef3f6;border:1px solid #cedbe4;border-radius:9px;image-rendering:pixelated}.preview-caption{font:10px/1.45 var(--mono);color:var(--muted);margin:7px 0 0}.inspector-tokens{display:flex;gap:4px;flex-wrap:wrap;max-height:170px;overflow:auto}.inspector-tokens .token-chip{cursor:default}.connections{display:grid;gap:6px}.connections button{font:10px var(--mono);padding:4px 6px}.connections button.current{background:var(--blue-soft);border-color:#abc5d7}.flow-row{display:flex;gap:4px;flex-wrap:wrap;align-items:center}.flow-label{width:30px;font:10px var(--mono);color:var(--muted)}.preview[hidden]{display:none}.json{font:10px/1.5 var(--mono);white-space:pre-wrap;overflow:auto;max-height:220px;color:#6f818c;margin:0}.empty{font-size:11px;color:var(--muted)}@media(max-width:1120px){.workbench{--source:230px;--inspector:290px;grid-template-columns:var(--source) minmax(560px,1fr) var(--inspector)}.source,.inspector{padding-left:13px;padding-right:13px}.view-panel,.timeline{padding-left:16px;padding-right:16px}}@media(max-width:820px){.workbench{display:block;height:auto;overflow:visible}.center{overflow:visible}.source,.inspector{border:0;border-bottom:1px solid var(--line)}.architecture-wrap{overflow:auto}.timeline{position:sticky;bottom:0;z-index:2}.input-frame{max-width:320px}.timeline-controls{flex-wrap:wrap}.timeline-range{order:5;flex-basis:100%;width:100%;min-width:0}.timeline-position{margin-left:auto}}.patch-map{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:10px;padding:7px;border:1px solid #d5e2e9;border-radius:10px;background:#f5f9fb}.patch-cell{position:relative;aspect-ratio:1;border:1px solid rgba(73,111,136,.18);border-radius:4px;background:#d7e8ef;color:#466d82;padding:0;font:9px var(--mono);transition:transform .12s,border-color .12s,box-shadow .12s}.patch-cell:hover{transform:scale(1.06);z-index:1;border-color:#6f9bb3}.patch-cell.selected{border:2px solid #486f84;box-shadow:0 0 0 2px #d7e8ef;z-index:2}.patch-map-caption{margin:6px 0 0;color:var(--muted);font:10px/1.4 var(--mono)}.operation-ledger{margin:16px 0 0;padding:13px 14px;border:1px solid #dbe4eb;border-radius:12px;background:#fff}.ledger-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 9px}.ledger-head strong{font-size:12px;color:#3d5c6c}.ledger-head span{font:10px var(--mono);color:var(--muted)}.ledger-head button{margin-left:auto;font-size:10px;padding:4px 7px}.ledger-groups{display:grid;gap:7px;margin-top:10px}.ledger-group{border:1px solid #e0e8ed;border-radius:9px;background:#fbfdff;overflow:hidden}.ledger-group>summary{cursor:pointer;padding:8px 10px;font:11px var(--mono);color:#537082;list-style:none}.ledger-group>summary::-webkit-details-marker{display:none}.ledger-group>summary:before{content:'+';display:inline-block;width:15px;color:#8aa5b4}.ledger-group[open]>summary:before{content:'−'}.ledger-ops{display:grid;gap:3px;padding:0 7px 7px}.ledger-op{border-top:1px solid #edf2f5}.ledger-op>summary{cursor:pointer;padding:6px 7px;font:10px var(--mono);color:#5f7481;list-style:none}.ledger-op>summary::-webkit-details-marker{display:none}.ledger-op>summary:before{content:'›';display:inline-block;width:13px;color:#9bb3bf}.ledger-op[open]>summary:before{content:'⌄'}.ledger-op[open]>summary{color:#3f6478;background:#f3f8fb}.ledger-op-body{display:grid;gap:6px;padding:5px 7px 9px 20px;background:#fff}.ledger-io{display:grid;grid-template-columns:48px 1fr;gap:6px;align-items:start;font-size:10px}.ledger-io>span{font:10px var(--mono);color:#8a9ba5;text-transform:uppercase}.ledger-refs{display:flex;gap:4px;flex-wrap:wrap}.ledger-ref{font:10px var(--mono);padding:3px 5px;border:1px solid #d8e3e9;border-radius:5px;background:#fbfdff;color:#5e7784;cursor:pointer}.ledger-ref:hover{background:var(--blue-soft);border-color:#a9c3d4}@media(max-width:820px){.patch-map{max-width:320px}}.panel-toggles{margin-left:auto;display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.panel-toggles button{border:0;border-radius:0;padding:5px 10px;font-size:11px;color:var(--muted)}.panel-toggles button+button{border-left:1px solid var(--line)}.panel-toggles button.active{background:var(--blue-soft);color:#3d637d}.view-switch{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.view-switch button{border:0;border-radius:0;padding:5px 10px;font-size:10px}.view-switch button+button{border-left:1px solid var(--line)}.view-switch button.active{background:var(--blue-soft);color:#3d637d}
+*{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);overflow-x:hidden}button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:inherit;padding:6px 9px}button:hover{border-color:#a9bfce;background:#f4f8fb}button:focus-visible,input:focus-visible{outline:2px solid #90afc5;outline-offset:2px}button:disabled{opacity:.4;cursor:default}.app{min-height:100vh;display:flex;flex-direction:column}.topbar{height:68px;display:flex;align-items:center;gap:18px;padding:0 24px;background:var(--paper);border-bottom:1px solid var(--line)}.brand{font-size:25px;font-weight:750;letter-spacing:-1.5px}.brand span{color:var(--blue)}.run-name{font:11px var(--mono);color:var(--muted)}.workbench{--source:270px;--inspector:330px;display:grid;grid-template-columns:var(--source) minmax(620px,1fr) var(--inspector);height:calc(100vh - 68px);overflow:hidden}.workbench.source-hidden{--source:0px}.workbench.inspector-hidden{--inspector:0px}.workbench.source-hidden>.source,.workbench.inspector-hidden>.inspector{display:none}.workbench>.source{grid-column:1}.workbench>.center{grid-column:2}.workbench>.inspector{grid-column:3}.source,.inspector{background:var(--paper);overflow:auto}.source{border-right:1px solid var(--line);padding:20px 17px}.inspector{border-left:1px solid var(--line);padding:20px 17px}.detail-panel[hidden]{display:none}.detail-panel{animation:detail-in .16s ease-out}@keyframes detail-in{from{transform:translateY(4px)}to{transform:none}}.detail-panel .inspector-head button{font-size:10px;padding:4px 7px}.inspector-empty[hidden]{display:none}.inspector-empty{display:grid;gap:7px;align-content:center;min-height:180px;padding:22px;border:1px dashed #cddbe3;border-radius:14px;background:#fbfdff;color:#617583}.inspector-empty strong{font-size:18px;letter-spacing:-.3px;color:#385260}.inspector-empty p{margin:0;font-size:11px;color:var(--muted)}.empty-kicker{font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#7b8d99}.center{min-width:0;display:flex;flex-direction:column;overflow:hidden}.panel-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 11px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#5f7484}.panel-note{font-size:11px;color:var(--muted);margin:0 0 14px}.source-block{padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--line)}.input-frame{position:relative;width:100%;aspect-ratio:1;border:1px solid #cad9e3;border-radius:12px;overflow:hidden;background:#edf3f7}.input-frame img{width:100%;height:100%;display:block;object-fit:cover}.input-frame img[hidden]{display:none}.input-frame.selectable-source{cursor:pointer}.input-frame.selectable-source:focus{outline:2px solid #90afc5;outline-offset:2px}.patch-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);pointer-events:none;opacity:.7}.patch-grid i{border-right:1px solid rgba(73,111,136,.35);border-bottom:1px solid rgba(73,111,136,.35)}.prompt{padding:10px 11px;margin:6px 0;background:#fbfcfe;border:1px solid var(--line);border-radius:9px;color:#526875;font-size:12px}.prompt:before{content:"↳";color:var(--blue);margin-right:7px}.token-list{display:grid;gap:6px;margin-top:9px}.token-row{display:flex;gap:4px;flex-wrap:wrap}.token-chip{font:10px var(--mono);padding:4px 5px;border:1px solid #d4dee5;background:#f8fafc;border-radius:5px;color:#5f7380}.token-chip.special{background:var(--lilac-soft);border-color:#d9d1e9;color:#756a92}.token-chip:hover{background:var(--blue-soft);border-color:#abc6d8}.branch-select-wrap{display:inline-flex;align-items:center;gap:7px;color:#738693;font:10px var(--mono);text-transform:uppercase;letter-spacing:.08em}.branch-select-wrap select{border:1px solid var(--line);border-radius:8px;background:#fff;color:#4b6878;padding:5px 8px;font:11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-transform:none;letter-spacing:0}.view-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:14px 22px 10px;background:#f4f7fb}.view-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}.view-head .view-switch{margin-left:auto}.architecture-wrap{flex:1;min-height:0;display:flex;flex-direction:column}.architecture-wrap[hidden]{display:none}.timeline{padding:12px 22px 17px;background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.timeline-controls{display:flex;align-items:center;gap:6px;min-width:0}.timeline-controls .primary{background:var(--blue-soft);border-color:#abc5d7;color:#466d83}.timeline-position{font:10px var(--mono);color:var(--muted);margin-left:7px;white-space:nowrap}.timeline-range{flex:1;min-width:100px;accent-color:var(--blue)}.timeline-caption{margin-top:8px;color:var(--muted);font:10px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.inspector-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.selected-name{font:15px var(--mono);margin:3px 0;color:#2f4d5c;overflow-wrap:anywhere}.selected-kind{font-size:11px;color:#5d8a82;min-height:18px}.selected-flow{margin:0 0 9px;font:10px var(--mono);color:var(--muted);overflow-wrap:anywhere}.inspector-card{padding:11px 0;border-top:1px solid var(--line)}.inspector-card h3{margin:0 0 8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7c8e99}.facts{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.fact{display:flex;justify-content:space-between;gap:7px;padding:4px 0;border-bottom:1px solid #edf1f4;font-size:10px}.fact span:first-child{color:var(--muted)}.fact span:last-child{font:10px var(--mono);text-align:right;overflow-wrap:anywhere}.preview{display:block;width:100%;height:154px;background:#eef3f6;border:1px solid #cedbe4;border-radius:9px;image-rendering:pixelated}.preview-caption{font:10px/1.45 var(--mono);color:var(--muted);margin:7px 0 0}.inspector-tokens{display:flex;gap:4px;flex-wrap:wrap;max-height:170px;overflow:auto}.inspector-tokens .token-chip{cursor:default}.connections{display:grid;gap:6px}.connections button{font:10px var(--mono);padding:4px 6px}.connections button.current{background:var(--blue-soft);border-color:#abc5d7}.flow-row{display:flex;gap:4px;flex-wrap:wrap;align-items:center}.flow-label{width:30px;font:10px var(--mono);color:var(--muted)}.preview[hidden]{display:none}.json{font:10px/1.5 var(--mono);white-space:pre-wrap;overflow:auto;max-height:220px;color:#6f818c;margin:0}.empty{font-size:11px;color:var(--muted)}@media(max-width:1120px){.workbench{--source:210px;--inspector:250px;grid-template-columns:var(--source) minmax(280px,1fr) var(--inspector)}.source,.inspector{padding-left:13px;padding-right:13px}.view-panel,.timeline{padding-left:16px;padding-right:16px}}@media(max-width:820px){.workbench{display:block;height:auto;overflow:visible}.center{overflow:visible}.source,.inspector{border:0;border-bottom:1px solid var(--line)}.architecture-wrap{overflow:auto}.timeline{position:sticky;bottom:0;z-index:2}.input-frame{max-width:320px}.timeline-controls{flex-wrap:wrap}.timeline-range{order:5;flex-basis:100%;width:100%;min-width:0}.timeline-position{margin-left:auto}}.patch-map{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:10px;padding:7px;border:1px solid #d5e2e9;border-radius:10px;background:#f5f9fb}.patch-cell{position:relative;aspect-ratio:1;border:1px solid rgba(73,111,136,.18);border-radius:4px;background:#d7e8ef;color:#466d82;padding:0;font:9px var(--mono);transition:transform .12s,border-color .12s,box-shadow .12s}.patch-cell:hover{transform:scale(1.06);z-index:1;border-color:#6f9bb3}.patch-cell.selected{border:2px solid #486f84;box-shadow:0 0 0 2px #d7e8ef;z-index:2}.patch-map-caption{margin:6px 0 0;color:var(--muted);font:10px/1.4 var(--mono)}.operation-ledger{margin:16px 0 0;padding:13px 14px;border:1px solid #dbe4eb;border-radius:12px;background:#fff}.ledger-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 9px}.ledger-head strong{font-size:12px;color:#3d5c6c}.ledger-head span{font:10px var(--mono);color:var(--muted)}.ledger-head button{margin-left:auto;font-size:10px;padding:4px 7px}.ledger-groups{display:grid;gap:7px;margin-top:10px}.ledger-group{border:1px solid #e0e8ed;border-radius:9px;background:#fbfdff;overflow:hidden}.ledger-group>summary{cursor:pointer;padding:8px 10px;font:11px var(--mono);color:#537082;list-style:none}.ledger-group>summary::-webkit-details-marker{display:none}.ledger-group>summary:before{content:'+';display:inline-block;width:15px;color:#8aa5b4}.ledger-group[open]>summary:before{content:'−'}.ledger-ops{display:grid;gap:3px;padding:0 7px 7px}.ledger-op{border-top:1px solid #edf2f5}.ledger-op>summary{cursor:pointer;padding:6px 7px;font:10px var(--mono);color:#5f7481;list-style:none}.ledger-op>summary::-webkit-details-marker{display:none}.ledger-op>summary:before{content:'›';display:inline-block;width:13px;color:#9bb3bf}.ledger-op[open]>summary:before{content:'⌄'}.ledger-op[open]>summary{color:#3f6478;background:#f3f8fb}.ledger-op-body{display:grid;gap:6px;padding:5px 7px 9px 20px;background:#fff}.ledger-io{display:grid;grid-template-columns:48px 1fr;gap:6px;align-items:start;font-size:10px}.ledger-io>span{font:10px var(--mono);color:#8a9ba5;text-transform:uppercase}.ledger-refs{display:flex;gap:4px;flex-wrap:wrap}.ledger-ref{font:10px var(--mono);padding:3px 5px;border:1px solid #d8e3e9;border-radius:5px;background:#fbfdff;color:#5e7784;cursor:pointer}.ledger-ref:hover{background:var(--blue-soft);border-color:#a9c3d4}@media(max-width:820px){.patch-map{max-width:320px}}.panel-toggles{margin-left:auto;display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.panel-toggles button{border:0;border-radius:0;padding:5px 10px;font-size:11px;color:var(--muted)}.panel-toggles button+button{border-left:1px solid var(--line)}.panel-toggles button.active{background:var(--blue-soft);color:#3d637d}.view-switch{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.view-switch button{border:0;border-radius:0;padding:5px 10px;font-size:10px}.view-switch button+button{border-left:1px solid var(--line)}.view-switch button.active{background:var(--blue-soft);color:#3d637d}
 .scene-stage{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}.scene-stage[hidden]{display:none}.scene-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:26px}.scene-bar button{font-size:10px;padding:5px 8px}.scene-canvas{position:relative;flex:1;min-height:320px;background:#fbfcfe;border:1px solid #dbe4eb;border-radius:14px;overflow:hidden}.scene-canvas canvas{position:absolute;inset:0;display:block;width:100%;height:100%;outline:none}.scene-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}.scene-label{position:absolute;transform:translate(-50%,-100%);padding:2px 6px;border-radius:6px;background:rgba(255,255,255,.82);color:#4f6978;font:10px var(--mono);white-space:nowrap}.scene-label.lane{transform:translate(0,-100%);background:none;color:#7b8d99;letter-spacing:.09em;text-transform:uppercase}.scene-label.group{pointer-events:auto;cursor:pointer;border:1px solid #d3dfe6}.scene-label.group:hover{border-color:#a9c3d4;background:#fff}.scene-label.minor{background:none;color:#8a9ba5;font-size:9px;padding:0}.scene-note{margin:0;color:var(--muted);font:10px var(--mono)}.scene-bar .scene-type{border-radius:999px}.scene-bar .scene-type.active{background:var(--blue-soft);border-color:#a8c3d6;color:#3d637d}.scene-bar button:disabled{opacity:.4;cursor:default}.scene-head{display:inline-flex;align-items:center;gap:5px;margin-left:6px;color:#738693;font:10px var(--mono);text-transform:uppercase;letter-spacing:.06em}.scene-head select{border:1px solid var(--line);border-radius:8px;background:#fff;color:#4b6878;padding:4px 6px;font:10px var(--mono)}.scene-style{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.scene-head[hidden],.scene-style[hidden]{display:none}.scene-bar .scene-style button{border:0;border-radius:0}.scene-style button+button{border-left:1px solid var(--line)}.scene-style button.active{background:var(--blue-soft);color:#3d637d}.scene-bar .spacer{flex:1}.scene-bar .spacer+button{margin-left:auto}
 @media(max-width:820px){.view-panel{padding-left:0;padding-right:0}.view-head,.scene-bar,.architecture-wrap{padding-left:16px;padding-right:16px}.scene-canvas{min-height:420px}}
 .plane2d{position:relative;flex:1;min-height:320px;background:#fbfcfe;border:1px solid #dbe4eb;border-radius:14px;overflow:hidden;touch-action:none;cursor:grab;user-select:none}.plane2d.panning{cursor:grabbing}.plane-world{position:absolute;left:0;top:0;transform-origin:0 0}.plane-world [hidden]{display:none!important}.plane-links{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}.plane-links line{stroke:#a9bccb;stroke-width:1.2}.architecture-wrap .scene-note{margin-top:8px}
@@ -22,6 +22,14 @@ body.model-fullscreen{overflow:hidden}
 .center:fullscreen .architecture-wrap,.center.fullscreen-fallback .architecture-wrap{overflow:hidden}
 .center:fullscreen .timeline,.center.fullscreen-fallback .timeline{position:static;flex-shrink:0}
 #toggle-fullscreen{font-size:10px;padding:5px 10px}#toggle-fullscreen[aria-pressed=true]{background:var(--blue-soft);border-color:#a8c3d6}
+/* CNN reading view: stage hierarchy, semantic modules and the two residual paths. */
+.center.mode-guide #scene-bar{display:none}.cnn-guide{flex:1;min-height:0;overflow:auto;padding:23px 25px;background:#fff;border:1px solid #dbe4eb;border-radius:14px}.cnn-guide[hidden]{display:none}.guide-kicker{font:10px var(--mono);letter-spacing:.12em;color:#859298}.guide-intro h2{font-size:27px;letter-spacing:-.7px;margin:7px 0 10px;color:#263f4b}.guide-intro p,.guide-description{font-size:12px;color:#657b87;line-height:1.8;margin:7px 0 12px}.guide-input-note{font:10px/1.8 var(--mono);color:#657b87;margin:16px 0 12px}.guide-stages{display:grid;grid-template-columns:repeat(var(--stage-count,6),minmax(0,1fr));gap:10px}.guide-stage{padding:12px 9px 9px;border:1px solid #dce5e9;border-top:3px solid var(--stage);border-radius:8px;background:#f9fbfc;min-width:0}.guide-stage-name{font:600 11px var(--mono);color:var(--stage)}.guide-stage>p{font-size:10px;color:#87969f;margin:6px 0 11px}.guide-module{display:flex;flex-direction:column;align-items:flex-start;gap:7px;width:100%;padding:10px 8px;margin-top:7px;border:1px solid #dce5e9;border-radius:7px;background:#fff;text-align:left;min-height:83px}.guide-module strong{font:600 11px var(--mono)}.guide-module-formula{font:10px var(--mono);color:#748593}.guide-module small{font:9px var(--mono);color:#89969f;white-space:normal}.guide-module[aria-pressed=true]{border-color:var(--stage);box-shadow:0 0 0 1px var(--stage);background:#f0f6fa}.guide-module:hover{transform:translateY(-1px)}.guide-detail{margin-top:26px;padding-top:22px;border-top:1px solid #e1e8ec}.guide-detail-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}.guide-detail-head h3{font-size:19px;letter-spacing:-.3px;margin:9px 0}.guide-detail-head button{font-size:10px}.guide-steps{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.guide-steps button{font-size:10px;padding:6px 10px;background:#fafcfd}.guide-steps button[aria-pressed=true]{color:#365e77;background:#e8f1f7;border-color:#8cadc2}.guide-diagram{border:1px solid #dce6ec;border-radius:12px;background:linear-gradient(#fbfdff,#f6f9fc);overflow:auto;margin-top:14px}.guide-diagram svg{display:block;width:100%;min-width:640px;height:auto}.guide-op{cursor:pointer;outline:none}.guide-op:hover>rect,.guide-op:hover>circle,.guide-op:focus>rect,.guide-op:focus>circle,.guide-op.selected>rect,.guide-op.selected>circle{stroke-width:3;filter:drop-shadow(0 2px 3px #274d6420)}.guide-op-title{font:600 17px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#344f61}.guide-op-sub{font:12px var(--mono);fill:#69818f}.guide-op-shape{font:11px var(--mono);fill:#5f7485}.guide-path-title{font:600 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#4e7d9e}.guide-path-title.skip{fill:#ae7739}.guide-identity{font:13px var(--mono);fill:#ae7739}.guide-plus{font:32px var(--mono);fill:#af7735}.guide-diagram[data-step=main] .shortcut,.guide-diagram[data-step=main] .guide-skip-path,.guide-diagram[data-step=shortcut] .main,.guide-diagram[data-step=shortcut] .guide-main-path{opacity:.22}.guide-explanation{font-size:12px;line-height:1.8;color:#46667a;border-left:3px solid #91b1c5;padding:7px 12px;background:#f6f9fc;margin:13px 0}.guide-equation{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px;font:11px var(--mono);color:#637e8e;margin:15px 0}.guide-equation span{padding:9px 12px;border:1px solid #dce6ec;border-radius:6px}.guide-equation span:nth-of-type(2){background:#fff8ed;border-color:#ead9bf;color:#a47a41}.guide-legend{display:flex;flex-wrap:wrap;gap:14px;border-top:1px solid #e2e9ec;margin-top:22px;padding-top:17px;color:#6f818b;font-size:10px}.guide-legend span:before{content:'';display:inline-block;width:8px;height:8px;background:var(--role);border-radius:2px;margin-right:5px}.guide-reading{font-size:11px;color:#6c818d;line-height:1.9;margin-top:20px}.guide-reading summary{cursor:pointer;color:#486578;font-weight:600}.guide-reading p{margin:12px 0}.guide-reading a{color:#5c879b;text-decoration:underline}.guide-chain{display:flex;flex-wrap:wrap;gap:20px;margin:20px 0}.guide-chain-op{position:relative;display:flex;flex-direction:column;gap:8px;min-width:110px;text-align:left;border-color:var(--role);border-top-width:3px;padding:14px 12px}.guide-chain-op:not(:last-child):after{content:'→';position:absolute;right:-18px;color:#8aa0ad}.guide-chain-op strong{font-size:12px}.guide-chain-op small{font:9px var(--mono);color:#7a8790}.guide-chain-op span{font:10px var(--mono)}.guide-chain-op.selected{outline:2px solid var(--role);outline-offset:3px}.b2d.module-card{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;font:600 12px var(--mono)}.b2d.module-card small{font:8px var(--mono);padding:0 2px;overflow-wrap:anywhere}.g2d.module-card{overflow:hidden;border-width:1.5px;border-style:solid;border-radius:10px}.g2d.module-card canvas{width:100%;height:100%;display:block}.frame2d.module-frame{border-style:solid;background:#f1f6fa80}.scene-label.group.module-label{font-weight:600;border-width:1.5px;color:#406476;background:#f8fbff}
+@media(max-width:1150px){.guide-stages{grid-template-columns:repeat(3,minmax(0,1fr))}.cnn-guide{padding:17px}.guide-intro h2{font-size:23px}}@media(max-width:820px){.cnn-guide{max-height:none;overflow:visible}.guide-stages{grid-template-columns:repeat(3,minmax(0,1fr))}.guide-detail-head h3{font-size:16px}}@media(max-width:460px){.guide-stages{grid-template-columns:repeat(2,minmax(0,1fr))}.guide-input-note{font-size:9px}.guide-legend{gap:9px}}
+
+.cnn-guide{container-type:inline-size}.guide-detail-actions{display:flex;gap:6px}.guide-detail{scroll-margin-top:12px}@container(max-width:850px){.guide-stages{grid-template-columns:repeat(3,minmax(0,1fr))}}@container(max-width:420px){.guide-stages{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.guide-diagram svg{max-height:280px}
+
 </style>
 </head>
 <body>
@@ -32,7 +40,7 @@ body.model-fullscreen{overflow:hidden}
 <aside class="source" aria-label="Input and token source">
   <form id="run-form" class="run-form" method="post" action="/runs/new" enctype="multipart/form-data" hidden><h2 class="panel-title">New run</h2><input id="run-base" type="hidden" name="base"><label>Image <input id="run-image" type="file" name="image" accept="image/*"></label><p class="panel-note">Leave the image empty to reuse the current one.</p><div id="run-prompts" class="run-prompts"></div><div class="run-actions"><button id="add-prompt" type="button">+ Prompt</button><button id="run-submit" class="primary" type="submit">Run CLIP</button></div><p id="run-status" class="panel-note"></p></form>
   <section class="source-block"><h2 class="panel-title"><span id="image-title">01 · Source image</span> <span id="image-size" class="run-name"></span></h2><p id="image-note" class="panel-note">Visible pixels are partitioned into 32 × 32 patches.</p><div id="source-image" class="input-frame"></div><div id="patch-map" class="patch-map" aria-label="7 by 7 image patch activation map"></div><p id="patch-map-caption" class="patch-map-caption">Select a patch to inspect its recorded embedding token.</p><div id="source-extra"></div></section>
-  <section><h2 class="panel-title">02 · Prompts and tokens</h2><div id="prompt-list" class="token-list"></div></section>
+  <section id="text-source"><h2 class="panel-title">02 · Prompts and tokens</h2><div id="prompt-list" class="token-list"></div></section><section id="source-guide" hidden><h2 class="panel-title">02 · 探索这个模型</h2><div id="guide-steps"></div></section>
 </aside>
 <section id="model-view" class="center" aria-label="Model architecture and runtime">
   <div class="view-panel"><div class="view-head"><label class="branch-select-wrap">Branch <select id="branch-select" aria-label="Branch filter"><option value="all">All paths</option></select></label><div class="view-switch" role="group" aria-label="View mode"><button id="view-2d" class="active" type="button" aria-pressed="true">2D</button><button id="view-3d" type="button" aria-pressed="false">3D</button></div><button id="toggle-fullscreen" type="button" aria-controls="model-view" aria-pressed="false" title="Show the model view fullscreen">Fullscreen</button></div><div id="scene-bar" class="scene-bar" aria-label="View controls"></div>
@@ -135522,7 +135530,7 @@ function tensorButton(id){const t=tensors.get(id),b=node('button',t?id+' ['+(t.s
 function renderScene(){if(window.xrayScene)xrayScene.sync()}
 function renderLedger(){const box=E('ledger-groups'),count=E('ledger-count');if(!box||!count)return;box.replaceChildren();const grouped=new Map([...lanes,'other'].map(id=>[id,[]]));(trace.operations||[]).forEach(op=>{const branch=classify(op);(grouped.get(branch)||grouped.get('other')).push(op)});const visible=[...grouped.entries()].filter(([branch,items])=>items.length&&(state.branch==='all'||branch===state.branch));const total=visible.reduce((sum,[,items])=>sum+items.length,0);count.textContent=total+' operations · '+(trace.tensors||[]).length+' tensors';visible.forEach(([branch,items])=>{const group=document.createElement('details');group.className='ledger-group';group.open=state.branch===branch;const summary=document.createElement('summary');summary.textContent=(branch==='other'?'Supporting operations':laneLabel(branch)+' path')+' · '+items.length+' operations';group.appendChild(summary);const ops=document.createElement('div');ops.className='ledger-ops';items.forEach(op=>{const detail=document.createElement('details');detail.className='ledger-op';detail.dataset.operationId=op.id;const opSummary=document.createElement('summary');opSummary.textContent=shortStage(op)+' · '+(op.type||'operation')+' · '+op.id+' · in '+(op.inputs||[]).length+' · out '+(op.outputs||[]).length;opSummary.title=(op.module||'')+' · '+(op.name||'');detail.appendChild(opSummary);const body=document.createElement('div');body.className='ledger-op-body';const meta=node('div',(op.name||'operation')+' · '+(op.level||'module')+(op.module?' · '+op.module:''),'run-name');body.appendChild(meta);[['inputs',op.inputs||[]],['outputs',op.outputs||[]]].forEach(([kind,ids])=>{const row=document.createElement('div');row.className='ledger-io';row.appendChild(node('span',kind));const refs=document.createElement('div');refs.className='ledger-refs';if(!ids.length)refs.appendChild(node('span','none','empty'));ids.forEach(id=>{const ref=node('button',tensorRefLabel(id),'ledger-ref');ref.type='button';ref.dataset.inspectTensor=id;ref.title='Inspect '+tensorRefLabel(id);ref.onclick=event=>{event.stopPropagation();focusTensor(id)};refs.appendChild(ref)});row.appendChild(refs);body.appendChild(row)});const focus=node('button','Focus operation','ledger-ref');focus.type='button';focus.onclick=event=>{event.stopPropagation();focusOperation(op.id)};body.appendChild(focus);detail.appendChild(body);ops.appendChild(detail)});group.appendChild(ops);box.appendChild(group)})}
 function renderBranches(){const select=E('branch-select');if(!select)return;if(select.options.length===1)lanes.forEach(id=>{const option=node('option',laneLabel(id));option.value=id;select.appendChild(option)});select.value=state.branch}
-function renderSource(){const image=inputs.image||{},wrap=E('source-image');wrap.replaceChildren();const pixel=inputTensor('image_pixels');if(pixel){wrap.classList.add('selectable-source');wrap.tabIndex=0;wrap.setAttribute('role','button');wrap.title='Inspect recorded image pixels';wrap.onclick=()=>selectTensor(pixel.id);wrap.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();selectTensor(pixel.id)}}}if(image.asset_path){const path=safeAssetPath(image.asset_path);if(path){const img=node('img');img.src=path;img.alt='Recorded model input';img.onload=()=>{if(state.tensor)drawStateVisual(tensors.get(state.tensor))};wrap.appendChild(img)}}const patch=inputTensor('image_patch_tokens');if(patch){const grid=node('div',undefined,'patch-grid');for(let i=0;i<49;i++)grid.appendChild(node('i'));wrap.appendChild(grid)}E('patch-map').hidden=E('patch-map-caption').hidden=!patch;if(image.title)E('image-title').textContent='01 · '+image.title;if(image.caption)E('image-note').textContent=image.caption;E('image-size').textContent=Array.isArray(image.size)?image.size.join(' × '):'';const prompts=E('prompt-list'),labels=Array.isArray(inputs.text_labels)?inputs.text_labels:[];prompts.replaceChildren();const rows=Object.keys(inputs).map(inputTensor).filter(token=>token&&token.metadata&&token.metadata.preview&&token.metadata.preview.kind==='token_ids').flatMap(token=>{const preview=token.metadata.preview,ids=Array.isArray(preview.values)?preview.values:[];return (Array.isArray(preview.tokens)?preview.tokens:[]).map((row,index)=>({token,row,ids:Array.isArray(ids[index])?ids[index]:[]}))});(Array.isArray(inputs.text)?inputs.text:[]).forEach((value,index)=>{prompts.appendChild(node('p',(labels[index]?labels[index]+' · ':'')+String(value),'prompt'));const entry=rows[index];if(!entry)return;const line=node('div',undefined,'token-row');trimPadding(entry.row).forEach((label,position)=>{const id=entry.ids[position]??'';const chip=node('button',String(label),'token-chip'+(position===0||String(label).includes('endoftext')?' special':''));chip.type='button';chip.dataset.tokenId=String(id);chip.title='token '+position+' · id '+String(id);chip.onclick=()=>selectTensor(entry.token.id);line.appendChild(chip)});prompts.appendChild(line)});renderExtra();renderPatchMap()}
+function renderSource(){const image=inputs.image||{},wrap=E('source-image');wrap.replaceChildren();const pixel=inputTensor('image_pixels');if(pixel){wrap.classList.add('selectable-source');wrap.tabIndex=0;wrap.setAttribute('role','button');wrap.title='Inspect recorded image pixels';wrap.onclick=()=>selectTensor(pixel.id);wrap.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();selectTensor(pixel.id)}}}if(image.asset_path){const path=safeAssetPath(image.asset_path);if(path){const img=node('img');img.src=path;img.alt='Recorded model input';img.onload=()=>{if(state.tensor)drawStateVisual(tensors.get(state.tensor))};wrap.appendChild(img)}}const patch=inputTensor('image_patch_tokens');if(patch){const grid=node('div',undefined,'patch-grid');for(let i=0;i<49;i++)grid.appendChild(node('i'));wrap.appendChild(grid)}E('patch-map').hidden=E('patch-map-caption').hidden=!patch;if(image.title)E('image-title').textContent='01 · '+image.title;if(image.caption)E('image-note').textContent=image.caption;E('image-size').textContent=Array.isArray(image.size)?image.size.join(' × '):'';const prompts=E('prompt-list'),labels=Array.isArray(inputs.text_labels)?inputs.text_labels:[];prompts.replaceChildren();const rows=Object.keys(inputs).map(inputTensor).filter(token=>token&&token.metadata&&token.metadata.preview&&token.metadata.preview.kind==='token_ids').flatMap(token=>{const preview=token.metadata.preview,ids=Array.isArray(preview.values)?preview.values:[];return (Array.isArray(preview.tokens)?preview.tokens:[]).map((row,index)=>({token,row,ids:Array.isArray(ids[index])?ids[index]:[]}))});(Array.isArray(inputs.text)?inputs.text:[]).forEach((value,index)=>{prompts.appendChild(node('p',(labels[index]?labels[index]+' · ':'')+String(value),'prompt'));const entry=rows[index];if(!entry)return;const line=node('div',undefined,'token-row');trimPadding(entry.row).forEach((label,position)=>{const id=entry.ids[position]??'';const chip=node('button',String(label),'token-chip'+(position===0||String(label).includes('endoftext')?' special':''));chip.type='button';chip.dataset.tokenId=String(id);chip.title='token '+position+' · id '+String(id);chip.onclick=()=>selectTensor(entry.token.id);line.appendChild(chip)});prompts.appendChild(line)});E("text-source").hidden=!(inputs.text||[]).length;const guide=Array.isArray(inputs.guide)?inputs.guide:[];E("source-guide").hidden=!guide.length;E("guide-steps").replaceChildren(...guide.map((text,index)=>node("p",(index+1)+". "+String(text),"panel-note")));renderExtra();renderPatchMap()}
 // Extra source facts some traces carry: a final generated image and label/value pairs.
 function renderExtra(){const box=E('source-extra');box.replaceChildren();const final=inputs.final_image||{},path=safeAssetPath(final.asset_path);if(path){const figure=node('figure',undefined,'source-figure'),img=node('img');img.src=path;img.alt='Final generated image';figure.append(img,node('figcaption',String(final.caption||'')));box.appendChild(figure)}(Array.isArray(inputs.summary)?inputs.summary:[]).forEach(([key,value])=>{const row=node('div',undefined,'fact');row.append(node('span',String(key)),node('span',String(value)));box.appendChild(row)})}
 function stats(t){const s=t&&t.stats||{},m=t&&t.metadata||{};return [['shape',t&&t.shape?'['+t.shape.join(' × ')+']':'—'],['values',m.numel===undefined?'—':fmt(m.numel)],['min',fmt(s.min)],['max',fmt(s.max)],['mean',fmt(s.mean)],['std',fmt(s.std)],['norm',fmt(s.norm)]]}
@@ -139874,7 +139882,7 @@ three/build/three.module.js:
   };
   // Lanes the palette does not name take the colour of their place in the scene's lane order.
   const CYCLE = [PALETTE.text, PALETTE.model, PALETTE.vision, {face: '#f1e1e8', edge: '#a9829a'}, PALETTE.fusion];
-  const TYPES = [['hidden', 'Layer output'], ['attention', 'Attention'], ['cross', 'Cross-attention'], ['mlp', 'MLP activation'],
+  const TYPES = [['hidden', 'Layer output'], ['channels', 'Feature channels'], ['attention', 'Attention'], ['cross', 'Cross-attention'], ['mlp', 'MLP activation'],
     ['qkv', 'Q / K / V'], ['output', 'Final output']];
   // World units: slabs are thin along x (the flow axis); lanes stack along y.
   const GAP = 0.9, LAYER_GAP = 1.0, SLAB = 0.3, PLATE = 0.07, PLATE_GAP = 0.05, LANE_GAP = 2.4, TILE_GAP = 0.05;
@@ -139883,7 +139891,8 @@ three/build/three.module.js:
   const FONT = 'ui-monospace, SFMono-Regular, Menlo, monospace';
   const ATTENTION_RAMP = [[247, 249, 252], [46, 84, 122]], MLP_RAMP = [[241, 246, 244], [47, 110, 96]];
   const view = {mode: '2d', expanded: new Set(), open: new Set(), types: new Set(['hidden', 'output']),
-    head: 'avg', style: 'matrix', active: null, hover: null};
+    channel: 0, head: 'avg', style: 'matrix', active: null, hover: null};
+  Object.keys(views).filter(id => views[id].output?.labels).forEach(id => view.open.add(id));
   const similarityIds = Object.keys(views).filter(id => views[id].output?.similarity);
   if (similarityIds.length) view.types.delete('output');
   const renderers = new Map(), decoded = new Map(), imageWaiters = [];
@@ -139896,6 +139905,43 @@ three/build/three.module.js:
     const index = lanes.findIndex(item => item.id === lane);
     return PALETTE[lane] || (index < 0 ? PALETTE.model : CYCLE[index % CYCLE.length]);
   };
+  // CNN module roles keep the same visual vocabulary in the guide, 2D and 3D.
+  function moduleStyle(type) {
+    const styles = {
+      Conv2d: ['#dcebf8', '#648faf', 'Conv'], BatchNorm2d: ['#e6eaf3', '#8794b1', 'BN'],
+      ReLU: ['#fff1ce', '#c49b48', 'ReLU'], MaxPool2d: ['#dbf0e9', '#589d87', 'MaxPool'],
+      AdaptiveAvgPool2d: ['#dcf1ea', '#589d87', 'AvgPool'], Linear: ['#eadff3', '#997ab0', 'Linear'],
+      Dropout: ['#f0e9f3', '#ad95b7', 'Dropout'], _FunctionCall: ['#fff0db', '#c18a4b', 'Add (+)'],
+    };
+    const [face, edge, title] = styles[type] || ['#edf2f5', '#8da4b1', type];
+    return {face, edge, title};
+  }
+  function blockStyle(block) {
+    if (!model.edges) return palette(block.lane);
+    const type = operations.get(block.operations[0])?.type || block.label;
+    const style = moduleStyle(type);
+    if (type === '_FunctionCall' && block.semantic !== 'residual_add') return {...moduleStyle('Flatten'), title: 'Flatten'};
+    if (block.kind === 'result') return {...moduleStyle('Linear'), title: 'Scores'};
+    return style;
+  }
+  function groupStyle(group) {
+    const index = Math.max(0, Number(group.id.match(/^layer([1-4])/ )?.[1] || 1) - 1);
+    const colours = [['#e7f1fb','#648faf'],['#e5f3ee','#629d89'],['#f0eaf7','#9a84b6'],['#fcf0dd','#bb955d']];
+    return model.edges ? {face:colours[index][0],edge:colours[index][1]} : palette(group.lane);
+  }
+  function groupCanvas(group) {
+    const canvas = document.createElement('canvas'); canvas.width=336;canvas.height=240;
+    const ctx=canvas.getContext('2d'), colours=groupStyle(group), residual=group.blocks.some(id=>blocks[id].semantic==='residual_add');
+    ctx.fillStyle=colours.face;ctx.fillRect(0,0,336,240);ctx.fillStyle=colours.edge;ctx.fillRect(0,0,336,7);
+    ctx.fillStyle='#3b5b6e';ctx.font='600 25px '+FONT;ctx.fillText(group.label,20,43);
+    ctx.font='16px '+FONT;ctx.fillText(residual?'Residual block':'Module group',20,71);
+    ctx.strokeStyle=colours.edge;ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(25,128);ctx.lineTo(309,128);ctx.stroke();
+    [55,122,189].forEach(x=>{ctx.fillStyle='#ffffff';ctx.fillRect(x,108,45,40);ctx.strokeRect(x,108,45,40);});
+    if(residual){ctx.beginPath();ctx.moveTo(35,128);ctx.lineTo(35,174);ctx.lineTo(281,174);ctx.lineTo(281,128);ctx.stroke();ctx.fillStyle='#fff2df';ctx.beginPath();ctx.arc(281,128,16,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#9c723a';ctx.font='22px '+FONT;ctx.fillText('+',274,136);}
+    const last=blocks[group.blocks.at(-1)];ctx.fillStyle='#6c8190';ctx.font='15px '+FONT;ctx.fillText((last.shape||[]).slice(1).join(' × '),20,216);
+    return canvas;
+  }
   // The first flow lane (and the fusion lane) stacks panels upwards, every other lane downwards.
   const panelDirection = lane => flowLanes.findIndex(item => item.id === lane) > 0 ? -1 : 1;
   const widthOf = object => Math.max(object.size.w, object.stack.width);
@@ -139932,6 +139978,7 @@ three/build/three.module.js:
 
   // A collapsed group is a tight stack of thin plates, one per member layer.
   function groupSize(group, member) {
+    if (model.edges) return {w: 2.8, h: 2.0, d: 1.2};
     const count = group.blocks.length;
     return {w: count * PLATE + (count - 1) * PLATE_GAP, h: member.h, d: member.d};
   }
@@ -140267,6 +140314,24 @@ three/build/three.module.js:
       };
       return spec;
     },
+    channels: (data, block) => {
+      const [h, w] = data.grid, values = bytesOf(data.data);
+      const cell = Math.max(1, Math.floor(170 / Math.max(h, w)));
+      const spec = {key: 'channels', tensor: data.tensor, width: Math.max(260, PAD * 2 + w * cell), height: TITLE + h * cell + 48};
+      spec.draw = ctx => {
+        const ch = Math.min(view.channel, data.channels - 1);
+        frameCanvas(ctx, spec, blockName(block) + ' · channel ' + ch, data.channels + ' channels · sample ' + data.sample);
+        for (let row = 0; row < h; row++) for (let col = 0; col < w; col++) {
+          const t = values[ch * h * w + row * w + col] / 255;
+          ctx.fillStyle = 'rgb(' + Math.round(247 - 201 * t) + ',' + Math.round(249 - 165 * t) + ',' + Math.round(252 - 130 * t) + ')';
+          ctx.fillRect(PAD + col * cell, TITLE + row * cell, cell, cell);
+        }
+        ctx.fillStyle = '#5f7481'; ctx.font = '10px ' + FONT;
+        ctx.fillText('range ' + Number(data.low[ch]).toPrecision(3) + ' → ' + Number(data.high[ch]).toPrecision(3), PAD, TITLE + h * cell + 18);
+        ctx.fillText(data.original_grid.join('×') + ' → ' + data.grid.join('×') + ' · average pooled', PAD, TITLE + h * cell + 34);
+      };
+      return spec;
+    },
     output: (data, block) => {
       const prompts = Array.isArray(inputs.text) ? inputs.text : [];
       if (data.threshold !== undefined) {
@@ -140294,18 +140359,18 @@ three/build/three.module.js:
         const probs = data.probs[0] || [], logits = data.values[0] || [];
         const spec = {key: 'output', tensor: data.tensor, width: 330, height: TITLE + probs.length * 24 + PAD};
         spec.draw = ctx => {
-          frameCanvas(ctx, spec, blockName(block) + ' · similarity', 'softmax');
+          frameCanvas(ctx, spec, blockName(block) + (data.labels ? ' · top 5' : ' · similarity'), data.labels ? 'softmax over ' + data.class_count + ' classes' : 'softmax');
           probs.forEach((p, j) => {
             const y = TITLE + j * 24;
             ctx.fillStyle = '#4f6978';
             ctx.font = '10px ' + FONT;
-            ctx.fillText(String(prompts[j] || 'prompt ' + (j + 1)).slice(0, 22), PAD, y + 12);
+            ctx.fillText(String((data.labels || prompts)[j] || 'prompt ' + (j + 1)).slice(0, 22), PAD, y + 12);
             ctx.fillStyle = '#f0e8e0';
             ctx.fillRect(150, y + 3, 90, 10);
             ctx.fillStyle = '#c29b7d';
             ctx.fillRect(150, y + 3, 90 * p, 10);
             ctx.fillStyle = '#765b48';
-            ctx.fillText(Math.round(p * 100) + '% · ' + Number(logits[j]).toFixed(1), 248, y + 12);
+            ctx.fillText((p * 100).toFixed(data.labels ? 1 : 0) + '% · ' + Number(logits[j]).toFixed(1), 248, y + 12);
           });
         };
         return spec;
@@ -140479,6 +140544,19 @@ three/build/three.module.js:
   // Links join consecutive visible units in a lane, plus the recorded cross-lane Tensor links.
   function linkPairs(objects) {
     const pairs = [];
+    if (model.edges) {
+      const seen = new Set();
+      model.edges.forEach(edge => {
+        if (!blockShown(edge.from) || !blockShown(edge.to)) return;
+        const from = unitOf(objects, edge.from), to = unitOf(objects, edge.to);
+        const key = from.id + ':' + to.id;
+        if (from === to || seen.has(key)) return;
+        seen.add(key);
+        const chain = laneUnits(objects, lanes.find(lane => lane.id === from.lane));
+        pairs.push([from, to, edge.shortcut, from.lane === to.lane && chain.indexOf(to) > chain.indexOf(from) + 1]);
+      });
+      return pairs;
+    }
     lanes.filter(laneShown).forEach(lane => {
       const chain = laneUnits(objects, lane);
       chain.slice(1).forEach((unit, index) => pairs.push([chain[index], unit]));
@@ -140551,6 +140629,7 @@ three/build/three.module.js:
         return {x: (first.x + last.x) / 2, y: groupTop(members), z: 0};
       }, 1, 'group', () => toggleGroup(group.id));
       element.dataset.group = group.id;
+      if (model.edges) { element.classList.add('module-label'); element.style.borderColor=groupStyle(group).edge; }
       objects.get(group.id).labelElement = element;
       group.blocks.forEach(id => addLabel(list, layer, blocks[id].label, () => {
         const object = objects.get(id);
@@ -140738,7 +140817,9 @@ three/build/three.module.js:
     }
     view.mode = mode;
     document.querySelector('.center').classList.toggle('mode-3d', mode === '3d');
-    [['view-2d', mode === '2d'], ['view-3d', mode === '3d']].forEach(([id, on]) => {
+    document.querySelector('.center').classList.toggle('mode-guide', mode === 'guide');
+    [['view-2d', mode === '2d'], ['view-3d', mode === '3d'], ['view-guide', mode === 'guide']].forEach(([id, on]) => {
+      if (!E(id)) return;
       E(id).classList.toggle('active', on);
       E(id).setAttribute('aria-pressed', String(on));
     });
@@ -140766,6 +140847,18 @@ three/build/three.module.js:
       typeButtons.set(key, button);
       bar.appendChild(button);
     });
+    const channels = Math.max(0, ...Object.values(views).map(item => item.channels?.channels || 0));
+    if (channels) {
+      const label = node('label', 'Channel ', 'scene-head'), select = node('input');
+      select.type = 'number'; select.min = '0'; select.max = String(channels - 1); select.value = '0';
+      select.setAttribute('aria-label', 'Feature channel'); select.style.width = '60px';
+      select.addEventListener('input', () => {
+        view.channel = Math.max(0, Math.min(channels - 1, Math.trunc(Number(select.value) || 0)));
+        select.value = String(view.channel); redrawPanels('channels');
+      });
+      label.appendChild(select); bar.appendChild(label);
+      label.title = 'Zero-based channel; layers with fewer channels show their last channel. Each map uses its own range.';
+    }
     const heads = Math.max(0, ...Object.values(views).flatMap(item => [item.attention, item.cross]).map(data => data ? data.heads : 0));
     const headWrap = node('label', 'Head', 'scene-head');
     headSelect = document.createElement('select');
@@ -140817,7 +140910,7 @@ three/build/three.module.js:
     const visible = current();
     return Object.assign({
       mode: view.mode, expanded: [...view.expanded], open: [...view.open], types: [...view.types],
-      head: view.head, style: view.style, active: view.active,
+      head: view.head, channel: view.channel, style: view.style, active: view.active,
     }, visible && visible.snapshot ? visible.snapshot() : {});
   }
 
@@ -140833,14 +140926,14 @@ three/build/three.module.js:
       painted: () => renderers.get('3d') ? renderers.get('3d').painted() : 0,
     };
     const three = renderers.get('3d');
-    setMode(location.hash === '#3d' && lanes.length && three && three.available() ? '3d' : '2d');
+    setMode(location.hash === '#3d' && lanes.length && three && three.available() ? '3d' : renderers.has('guide') && location.hash !== '#2d' ? 'guide' : '2d');
     if (location.hash === '#similarity' && similarityIds.length) setType('output');
   }
 
   document.addEventListener('DOMContentLoaded', start);
   window.XRAY_SCENE = {
     model, blocks, groups, lanes, view, TILE_GAP, PLATE, PLATE_GAP,
-    palette, inputKind, slabSize, patchGrid, groupSize, sourceImage, tokenCanvas,
+    palette, moduleStyle, blockStyle, groupStyle, groupCanvas, inputKind, slabSize, patchGrid, groupSize, sourceImage, tokenCanvas,
     makePanels, arrangePanels, panelDirection, widthOf, topOf, groupTop, cornersOf, framed, nudge,
     layout, linkPairs, buildLabels, refreshGroupLabels, placeLabels,
     register, activate, hover,
@@ -140914,10 +141007,11 @@ three/build/three.module.js:
       tokens.canvas.style.height = px(size.h) + 'px';
       element.appendChild(tokens.canvas);
     } else {
-      const colours = S.palette(block.lane);
-      size = Object.assign(S.slabSize(block), {w: BLOCK});
+      const colours = S.blockStyle(block);
+      size = Object.assign(S.slabSize(block), {w: S.model.edges ? 1.6 : BLOCK});
       element = button('b2d ' + block.lane, pick, title);
       Object.assign(element.style, {background: colours.face, borderColor: colours.edge});
+      if (S.model.edges) { element.classList.add('module-card'); element.append(node('span',colours.title),node('small',(block.shape||[]).slice(1).join(' × '))); }
     }
     element.dataset.block = block.id;
     element.title = title;
@@ -140932,10 +141026,11 @@ three/build/three.module.js:
 
   // A collapsed group is the same tight stack of thin plates as in 3D, seen head-on.
   function buildGroup(group) {
-    const member = objects.get(group.blocks[0]).size, size = S.groupSize(group, member), colours = S.palette(group.lane);
+    const member = objects.get(group.blocks[0]).size, size = S.groupSize(group, member), colours = S.groupStyle(group);
     const element = button('g2d ' + group.lane, {kind: 'group', id: group.id}, group.label + ' ×' + group.blocks.length);
     element.dataset.group = group.id;
-    group.blocks.forEach((_, index) => {
+    if (S.model.edges) { element.classList.add('module-card'); element.style.borderColor=colours.edge; element.appendChild(S.groupCanvas(group)); }
+    else group.blocks.forEach((_, index) => {
       const plate = node('span', undefined, 'plate');
       Object.assign(plate.style, {left: px(index * (S.PLATE + S.PLATE_GAP)) + 'px', width: px(S.PLATE) + 'px',
         background: colours.face, borderColor: colours.edge});
@@ -140983,7 +141078,7 @@ three/build/three.module.js:
     links.forEach(line => line.remove());
     linkPairs = S.linkPairs(objects);
     links = linkPairs.map(() => {
-      const line = document.createElementNS(linkLayer.namespaceURI, 'line');
+      const line = document.createElementNS(linkLayer.namespaceURI, 'path');
       linkLayer.appendChild(line);
       return line;
     });
@@ -141013,16 +141108,18 @@ three/build/three.module.js:
       const content = Math.max(...members.map(object => object.current.y + S.topOf(object)));
       const top = Math.max(content + 2 / (UNIT * camera.s), S.groupTop(members) - FRAME_GAP / (UNIT * camera.s));
       const bottom = Math.min(...members.map(object => object.current.y - object.size.h / 2
-        - (object.stack.direction < 0 ? object.stack.height : 0))) - FRAME_PAD;
+        - (object.stack.direction < 0 ? object.stack.height : 0))) - (S.model.edges ? 1.5 : FRAME_PAD);
       Object.assign(outline.style, {left: px(left) + 'px', top: px(-top) + 'px', width: px(right - left) + 'px',
-        height: px(top - bottom) + 'px', borderWidth: 1 / camera.s + 'px'});
+        height: px(top - bottom) + 'px', borderWidth: (S.model.edges ? 1.6 : 1) / camera.s + 'px'});
     });
-    linkPairs.forEach(([from, to], index) => {
-      const line = links[index];
-      line.setAttribute('x1', px(from.current.x + from.size.w / 2));
-      line.setAttribute('y1', px(-from.current.y));
-      line.setAttribute('x2', px(to.current.x - to.size.w / 2));
-      line.setAttribute('y2', px(-to.current.y));
+    linkPairs.forEach(([from, to, shortcut, detour], index) => {
+      const line = links[index], x1 = px(from.current.x + from.size.w / 2), y1 = px(-from.current.y);
+      const x2 = px(to.current.x - to.size.w / 2), y2 = px(-to.current.y);
+      const bottom = Math.max(y1 + px(from.size.h / 2), y2 + px(to.size.h / 2)) + px(shortcut ? 1.2 : 0.65);
+      line.setAttribute('d', shortcut || detour ? `M ${x1} ${y1} C ${x1} ${bottom}, ${x2} ${bottom}, ${x2} ${y2}` : `M ${x1} ${y1} L ${x2} ${y2}`);
+      line.setAttribute('fill', 'none'); line.setAttribute('stroke', shortcut ? '#b78f70' : '#a9bccb');
+      line.setAttribute('stroke-width', shortcut ? '2' : '1.2');
+      line.dataset.shortcut = String(Boolean(shortcut));
     });
     S.placeLabels(labels, plane.getBoundingClientRect(), project);
   }
@@ -141231,7 +141328,8 @@ three/build/three.module.js:
     // Outlines sit behind the links and blocks and never take clicks.
     Object.values(groups).forEach(group => {
       const outline = node('div', undefined, 'frame2d ' + group.lane);
-      outline.style.borderColor = S.palette(group.lane).edge + '73';
+      outline.style.borderColor = S.groupStyle(group).edge + 'aa';
+      if (S.model.edges) outline.classList.add('module-frame');
       outline.dataset.frame = group.id;
       outline.hidden = true;
       worldEl.insertBefore(outline, linkLayer);
@@ -141305,7 +141403,7 @@ three/build/three.module.js:
   const {blocks, groups, lanes, view} = S;
   const DEFAULT_DIRECTION = [-0.5, 0.42, 1], FOCUS_DISTANCE = 14;
   const stageEl = E('scene-stage'), holder = E('scene-canvas'), labelLayer = E('scene-labels'), note = E('scene-note');
-  const objects = new Map();
+  const objects = new Map(), frames = new Map();
   let labels = [], renderer = null, camera = null, controls = null, world = null, links = null, linkPairs = [];
   let frame = 0, tweens = [], imageTexture = null, fitted = false, needsFit = false;
 
@@ -141323,11 +141421,11 @@ three/build/three.module.js:
     return mesh;
   }
 
-  function slabParts(size, lane, pick) {
+  function slabParts(size, lane, pick, colours = S.palette(lane)) {
     const geometry = new THREE.BoxGeometry(size.w, size.h, size.d);
-    const mesh = pickable(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: S.palette(lane).face, roughness: 0.85, metalness: 0})), pick);
+    const mesh = pickable(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: colours.face, roughness: 0.85, metalness: 0})), pick);
     const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry),
-      new THREE.LineBasicMaterial({color: S.palette(lane).edge, transparent: true, opacity: 0.6}));
+      new THREE.LineBasicMaterial({color: colours.edge, transparent: true, opacity: 0.6}));
     return {meshes: [mesh], edges: [edges]};
   }
 
@@ -141390,7 +141488,7 @@ three/build/three.module.js:
       parts = {meshes: [plane(size.w, size.h, canvasTexture(tokens.canvas), null, pick)], edges: [frameLines(size.w, size.h, block.lane)]};
     } else {
       size = S.slabSize(block);
-      parts = slabParts(size, block.lane, pick);
+      parts = slabParts(size, block.lane, pick, S.blockStyle(block));
     }
     [...parts.meshes, ...parts.edges].forEach(part => node3.add(part));
     return {id: block.id, kind: 'block', lane: block.lane, node: node3, current: node3.position, visible: () => node3.visible,
@@ -141401,7 +141499,12 @@ three/build/three.module.js:
   function buildGroup(group) {
     const member = objects.get(group.blocks[0]).size, size = S.groupSize(group, member), node3 = new THREE.Group();
     const parts = {meshes: [], edges: []};
-    group.blocks.forEach((_, index) => {
+    if (S.model.edges) {
+      const box=slabParts(size,group.lane,{kind:'group',id:group.id},S.groupStyle(group));
+      const label=plane(size.w,size.h,canvasTexture(S.groupCanvas(group)),null,{kind:'group',id:group.id}); label.position.z=size.d/2+0.01;
+      parts.meshes.push(...box.meshes,label);parts.edges.push(...box.edges);
+      [...parts.meshes,...parts.edges].forEach(part=>node3.add(part));
+    } else group.blocks.forEach((_, index) => {
       const plate = slabParts({w: S.PLATE, h: member.h, d: member.d}, group.lane, {kind: 'group', id: group.id});
       [...plate.meshes, ...plate.edges].forEach(part => {
         part.position.x = -size.w / 2 + S.PLATE / 2 + index * (S.PLATE + S.PLATE_GAP);
@@ -141445,8 +141548,14 @@ three/build/three.module.js:
       links.geometry.dispose();
     }
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(linkPairs.length * 6), 3));
-    links = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({color: '#a9bccb', transparent: true, opacity: 0.8}));
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(linkPairs.length * 18), 3));
+    const colours = new Float32Array(linkPairs.length * 18);
+    linkPairs.forEach(([, , shortcut], index) => {
+      const colour = new THREE.Color(shortcut ? '#b78f70' : '#a9bccb');
+      for (let vertex = 0; vertex < 6; vertex++) colour.toArray(colours, index * 18 + vertex * 3);
+    });
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colours, 3));
+    links = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({vertexColors: true, transparent: true, opacity: 0.85}));
     world.add(links);
     updateLinks();
   }
@@ -141454,9 +141563,19 @@ three/build/three.module.js:
   function updateLinks() {
     if (!links) return;
     const array = links.geometry.attributes.position.array;
-    linkPairs.forEach(([from, to], index) => {
+    linkPairs.forEach(([from, to, shortcut, detour], index) => {
       const a = from.node.position, b = to.node.position;
-      array.set([a.x + from.size.w / 2, a.y, 0, b.x - to.size.w / 2, b.y, 0], index * 6);
+      const x1 = a.x + from.size.w / 2, x2 = b.x - to.size.w / 2;
+      const bottom = Math.min(a.y - from.size.h / 2, b.y - to.size.h / 2) - (shortcut ? 1.2 : 0.65);
+      const y1 = shortcut || detour ? bottom : a.y, y2 = shortcut || detour ? bottom : b.y;
+      array.set([x1, a.y, 0, x1, y1, 0, x1, y1, 0, x2, y2, 0, x2, y2, 0, x2, b.y, 0], index * 18);
+    });
+    frames.forEach((frame,id)=>{
+      const members=groups[id].blocks.map(id=>objects.get(id));frame.visible=view.expanded.has(id)&&members.some(member=>member.shown);
+      if(!frame.visible)return;
+      const left=Math.min(...members.map(o=>o.node.position.x-o.size.w/2))-.4,right=Math.max(...members.map(o=>o.node.position.x+o.size.w/2))+.4;
+      const top=Math.max(...members.map(o=>o.node.position.y+o.size.h/2))+.6,bottom=Math.min(...members.map(o=>o.node.position.y-o.size.h/2))-1.5;
+      frame.position.set((left+right)/2,(top+bottom)/2,-1.8);frame.scale.set(right-left,top-bottom,1);
     });
     links.geometry.attributes.position.needsUpdate = true;
     links.geometry.computeBoundingSphere();
@@ -141589,12 +141708,13 @@ three/build/three.module.js:
   function paint() {
     objects.forEach(object => {
       const active = object.id === view.active, hover = object.id === view.hover;
+      const colours = object.kind === 'group' ? S.groupStyle(groups[object.id]) : S.blockStyle(blocks[object.id]);
       object.meshes.forEach(mesh => {
         const patch = mesh.userData.pick && mesh.userData.pick.patch;
         if (mesh.material.emissive) {
-          mesh.material.emissive.set(active ? S.palette(object.lane).edge : '#000000');
+          mesh.material.emissive.set(active ? colours.edge : '#000000');
           mesh.material.emissiveIntensity = active ? 0.32 : 0;
-          mesh.material.color.set(hover && !active ? '#eef5fa' : S.palette(object.lane).face);
+          mesh.material.color.set(hover && !active ? '#eef5fa' : colours.face);
         }
         if (patch !== undefined) mesh.position.z = state.patchIndex === patch ? 0.18 : 0;
       });
@@ -141696,6 +141816,12 @@ three/build/three.module.js:
     Object.values(blocks).forEach(block => objects.set(block.id, buildBlock(block)));
     Object.values(groups).forEach(group => objects.set(group.id, buildGroup(group)));
     objects.forEach(object => world.add(object.node));
+    if(S.model.edges) Object.values(groups).forEach(group=>{
+      const frame=new THREE.Group(), colour=S.groupStyle(group).edge;
+      frame.add(new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:S.groupStyle(group).face,transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false})));
+      frame.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(1,1)),new THREE.LineBasicMaterial({color:colour,transparent:true,opacity:.7})));
+      frame.visible=false;world.add(frame);frames.set(group.id,frame);
+    });
     labels = S.buildLabels(objects, labelLayer);
     bindPointer(renderer.domElement);
     new ResizeObserver(resize).observe(holder);
@@ -141887,5 +142013,149 @@ three/build/three.module.js:
   }
 
   window.XRAY_SIMILARITY = {sync};
+})();
+</script>
+<script>// A reading view over the same recorded CNN operations: overview, residual paths and real values.
+(function () {
+  'use strict';
+  const S = window.XRAY_SCENE, backend = metadata.backend;
+  if (!['torchvision.resnet18', 'torchvision.alexnet'].includes(backend)) return;
+  const resnet = backend.endsWith('resnet18'), blocks = S.blocks, groups = S.groups;
+  const title = resnet ? 'ResNet-18' : 'AlexNet';
+  const root = node('section', undefined, 'cnn-guide'); root.id = 'cnn-guide'; root.hidden = true;
+  root.setAttribute('aria-label', title + ' 结构导览');
+  E('graph-stage').before(root);
+  const switcher = node('button', '结构导览'); switcher.id = 'view-guide'; switcher.type = 'button';
+  switcher.setAttribute('aria-pressed', 'false'); E('view-2d').before(switcher);
+  switcher.onclick = () => window.xrayScene.setMode('guide');
+  let selected = resnet ? 'layer1.0' : 'features.stage1', step = 'all';
+  const ids = Object.keys(blocks), opOf = id => operations.get(blocks[id].operations[0]);
+  const shape = id => (tensors.get(id)?.shape || []).slice(1).join(' × ');
+  const outputShape = id => shape(blocks[id].tensor);
+  const stages = resnet ? [
+    {name:'Stem', note:'初步提取特征', ids:ids.filter(id => ['conv1','bn1','relu','maxpool'].includes(id)), key:'stem'},
+    ...[1,2,3,4].map(i => ({name:'Stage ' + i, note: i === 1 ? '保持分辨率' : '首块下采样', groups:Object.keys(groups).filter(id => id.startsWith('layer'+i+'.')), key:'stage'+i})),
+    {name:'分类头',note:'空间 → 类别',ids:ids.filter(id => ['avgpool','fx_flatten','fc'].includes(id) || blocks[id].kind === 'result'),key:'head'}
+  ] : [
+    ...Object.values(groups).map((g,i) => ({name:g.id === 'classifier' ? '分类头' : '卷积阶段 '+(i+1),note:g.id === 'classifier' ? '4096 → 4096 → 1000' : '卷积 / 激活 / 池化',groups:[g.id],key:g.id})),
+    {name:'最终预测',note:'ImageNet · 1000 类',ids:ids.filter(id => blocks[id].kind === 'result'),key:'head'}
+  ];
+  const stageMembers = stage => stage.ids || stage.groups.flatMap(id => groups[id].blocks);
+  const members = key => key === 'classifier' ? [...ids.filter(id=>['avgpool','fx_flatten'].includes(id)),...groups[key].blocks] : groups[key]?.blocks || stageMembers(stages.find(stage => stage.key === key));
+  const isProjection = key => members(key).some(id => blocks[id].stage.includes('.downsample.'));
+  const section = node('div', undefined, 'guide-detail');
+  root.style.setProperty('--stage-count', String(stages.length));
+  const bar = node('div', undefined, 'guide-stages'); bar.setAttribute('aria-label','按计算顺序排列的网络阶段');
+  const intro = node('div',undefined,'guide-intro');
+  intro.append(node('div','01 / NETWORK AT A GLANCE','guide-kicker'),node('h2',title+'，从整体到一个块'));
+  intro.append(node('p',resnet ? '先看 4 个 Stage，再点击其中一个残差块。蓝色是主分支，橙色是捷径，两路在 + 处逐元素相加。' : '卷积提取局部特征，池化缩小空间尺寸，分类头把特征转成类别分数。点击阶段查看内部模块。'));
+  const input = node('div', '输入 RGB  ·  3 × 224 × 224    →    计算按编号从左到右进行；尺寸记为 C × H × W。', 'guide-input-note');
+  root.append(intro,input,bar,section);
+  const legend = node('div',undefined,'guide-legend');
+  [['Conv2d','卷积'],['BatchNorm2d','归一化'],['ReLU','激活'],['MaxPool2d','池化'],['_FunctionCall','相加'],['Linear','全连接']].filter(([type])=>type === '_FunctionCall' ? resnet : [...operations.values()].some(op=>op.type===type)).forEach(([type,label])=>{
+    const item=node('span',label); item.style.setProperty('--role',S.moduleStyle(type).edge); legend.appendChild(item);
+  });
+  root.appendChild(legend);
+  const reading=node('details',undefined,'guide-reading');
+  reading.appendChild(node('summary',resnet ? '为什么叫残差？18 层又是怎么数的？' : '怎样把特征图与真实数据对应起来？'));
+  reading.appendChild(node('p',resnet ? '普通堆叠直接学习变换 H(x)。残差块把输出写成 F(x) + x，让主分支学习相对输入的修正；相加之后再经过 ReLU。这种连接为信息和梯度提供较直接的通路，但不保证所有层都不会丢失信息。当前页面记录的是前向推理，没有展示训练梯度。' : '每个模块下面的尺寸来自这次真实运行。卷积与池化输出保留空间位置；切换到 2D / 3D，可查看 PCA 摘要与单个特征通道。通道预览平均池化至多 28 × 28，颜色按各通道自身范围缩放。'));
+  if (resnet) reading.appendChild(node('p','ResNet-18 的常见层数计法：Stem 的 1 个卷积 + 8 个 BasicBlock × 2 个主分支卷积 + 1 个全连接 = 18。BN、ReLU、池化和捷径投影不计入这个名称。这里是 BasicBlock；ResNet-50 使用 1×1 → 3×3 → 1×1 的 Bottleneck，不能直接把它当成同一种块。'));
+  const source=node('a','架构来源：torchvision 官方实现 ↗');
+  source.href='https://docs.pytorch.org/vision/stable/_modules/torchvision/models/'+(resnet?'resnet':'alexnet')+'.html';source.target='_blank';source.rel='noopener';reading.appendChild(source);
+  root.appendChild(reading);
+
+  function inspectOperation(id) { if(E('toggle-inspector').getAttribute('aria-pressed')!=='true') E('toggle-inspector').click(); selectOperation(id); }
+  function inspectTensor(id) { if(E('toggle-inspector').getAttribute('aria-pressed')!=='true') E('toggle-inspector').click(); selectTensor(id); }
+  function choose(key) { selected=key; step='all'; renderStages(); renderDetail(); section.scrollIntoView({block:'start',behavior:'smooth'}); }
+  function renderStages() {
+    bar.replaceChildren();
+    stages.forEach((stage,index)=>{
+      const card=node('div',undefined,'guide-stage'); card.style.setProperty('--stage', ['#64889c','#447eae','#458d83','#8879a8','#b08653','#9377a3'][index%6]);
+      card.append(node('div',String(index+1).padStart(2,'0')+' / '+stage.name,'guide-stage-name'),node('p',stage.note));
+      (stage.groups || [stage.key]).forEach(key=>{
+        const button=node('button',undefined,'guide-module');button.type='button'; button.dataset.guideGroup=key;
+        button.setAttribute('aria-label','查看 '+key);button.setAttribute('aria-pressed',String(selected===key));
+        button.append(node('strong',groups[key]?.label || stage.name));
+        const residual=resnet && key.startsWith('layer');
+        button.append(node('span',residual ? (isProjection(key)?'F(x) + P(x)':'F(x) + x') : '展开内部模块','guide-module-formula'));
+        button.append(node('small',outputShape(members(key).at(-1))));button.onclick=()=>choose(key);card.appendChild(button);
+      });
+      bar.appendChild(card);
+    });
+  }
+  function svgNode(tag,attrs,text) {
+    const element=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    Object.entries(attrs||{}).forEach(([key,value])=>element.setAttribute(key,String(value)));
+    if(text!==undefined)element.textContent=text;
+    return element;
+  }
+  function renderDetail() {
+    section.replaceChildren();
+    const residual=resnet && selected.startsWith('layer'), list=members(selected), projection=residual&&isProjection(selected);
+    section.append(node('div','02 / '+(residual?'BASIC BLOCK':'INSIDE THE STAGE'),'guide-kicker'));
+    const head=node('div',undefined,'guide-detail-head');
+    head.append(node('h3',selected+' · '+(residual?(projection?'投影与下采样':'恒等捷径'): '内部模块')));
+    const explore=node('button','在 3D 中定位 ↗');explore.type='button';explore.onclick=()=>{
+      window.xrayScene.setMode('3d'); const id=residual?list.find(id=>blocks[id].semantic==='residual_add'):list[0];
+      inspectOperation(blocks[id].operations[0]);window.xrayScene.focus(id);
+    };const back=node('button','网络总览 ↑');back.type='button';back.onclick=()=>root.scrollTo({top:0,behavior:'smooth'});const actions=node('div',undefined,'guide-detail-actions');actions.append(back,explore);head.appendChild(actions);section.appendChild(head);
+    if(residual) {
+      const add=list.find(id=>blocks[id].semantic==='residual_add'), addOp=opOf(add), first=opOf(list[0]);
+      section.append(node('p',projection?'输入与主分支的形状不同，捷径先经过 1×1 卷积和 BN，把尺寸对齐后才能相加。':'输入与主分支输出的形状相同，捷径直接传递 x，不额外做卷积。','guide-description'));
+      const chips=node('div',undefined,'guide-steps');
+      [['all','完整路径'],['input','① 输入 x'],['main','② 主分支 F(x)'],['shortcut','③ 捷径'],['add','④ 相加与激活']].forEach(([key,label])=>{
+        const button=node('button',label);button.type='button';button.setAttribute('aria-pressed',String(step===key));button.onclick=()=>{step=key;renderDetail();};chips.appendChild(button);
+      });section.appendChild(chips);
+      const wrap=node('div',undefined,'guide-diagram');wrap.dataset.step=step;
+      const svg=svgNode('svg',{viewBox:'0 0 1000 340',role:'group','aria-label':selected+' 残差计算图'});
+      const defs=svgNode('defs');
+      [['main','#5c89a8'],['skip','#c18442']].forEach(([id,color])=>{
+        const marker=svgNode('marker',{id:'guide-arrow-'+id,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'});marker.appendChild(svgNode('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:color}));defs.appendChild(marker);
+      });svg.appendChild(defs);
+      const path=(d,kind)=>{const line=svgNode('path',{d,fill:'none',stroke:kind==='skip'?'#c18442':'#5c89a8','stroke-width':3,'marker-end':'url(#guide-arrow-'+kind+')',class:kind==='skip'?'guide-skip-path':'guide-main-path'});svg.appendChild(line);};
+      path('M 120 142 H 154','main');path('M 266 142 H 288','main');path('M 362 142 H 382','main');path('M 454 142 H 474','main');path('M 586 142 H 608','main');path('M 682 142 H 722','main');path('M 778 142 H 820','main');
+      path('M 135 142 V 282 H '+(projection?'340':'750'), 'skip');
+      if(projection){path('M 474 282 H 510','skip');path('M 596 282 H 750 V 174','skip');}
+      else path('M 750 282 V 174','skip');
+      svg.append(svgNode('text',{x:160,y:64,class:'guide-path-title'},'主分支 F(x)'),svgNode('text',{x:160,y:242,class:'guide-path-title skip'},projection?'捷径 P(x) · 投影匹配形状':'捷径 x · 原样传递'));
+      const tile=(id,x,y,w,label,subtitle,part,tensorId)=>{
+        const block=id&&blocks[id], operation=id&&opOf(id), type=operation?.type||'input', color=S.moduleStyle(type);
+        const g=svgNode('g',{class:'guide-op '+part,role:'button',tabindex:0,'aria-label':(id?blocks[id].stage:'输入 x')+' · '+label,'data-guide-op':id||'input'});
+        g.append(svgNode('rect',{x,y,width:w,height:76,rx:type==='ReLU'?24:10,fill:color.face,stroke:color.edge,'stroke-width':1.5}));
+        g.append(svgNode('text',{x:x+w/2,y:y+25,'text-anchor':'middle',class:'guide-op-title'},label));
+        if(subtitle)g.appendChild(svgNode('text',{x:x+w/2,y:y+46,'text-anchor':'middle',class:'guide-op-sub'},subtitle));
+        g.appendChild(svgNode('text',{x:x+w/2,y:y+64,'text-anchor':'middle',class:'guide-op-shape'},(tensorId?shape(tensorId):outputShape(id)).replaceAll(' ','')));
+        const pick=()=>tensorId?inspectTensor(tensorId):inspectOperation(block.operations[0]);g.onclick=pick;g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}};svg.appendChild(g);
+      };
+      tile(null,20,104,100,'x','块输入','input',first.inputs[0]);
+      const main=list.filter(id=>!blocks[id].stage.includes('.downsample.')&&id!==add).slice(0,5);
+      const positions=[[160,106],[292,70],[386,68],[480,106],[612,70]];
+      main.forEach((id,i)=>{
+        const type=opOf(id).type, stride=projection&&i===0?'s=2':'s=1';
+        tile(id,positions[i][0],104,positions[i][1],type==='Conv2d'?'Conv 3×3':type==='BatchNorm2d'?'BN':'ReLU',type==='Conv2d'?stride:'', 'main');
+      });
+      if(projection){const shortcuts=list.filter(id=>blocks[id].stage.includes('.downsample.'));tile(shortcuts[0],340,244,134,'Conv 1×1','s=2','shortcut');tile(shortcuts[1],510,244,86,'BN','','shortcut');}
+      else svg.appendChild(svgNode('text',{x:440,y:271,'text-anchor':'middle',class:'guide-identity'},'identity · '+shape(addOp.inputs[1])));
+      const plus=svgNode('g',{class:'guide-op add',role:'button',tabindex:0,'aria-label':'Add 逐元素相加','data-guide-op':add});
+      plus.append(svgNode('circle',{cx:750,cy:142,r:26,fill:'#fff2de',stroke:'#c18442','stroke-width':2}),svgNode('text',{x:750,y:151,'text-anchor':'middle',class:'guide-plus'},'+'));
+      plus.onclick=()=>inspectOperation(addOp.id);plus.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();plus.onclick();}};svg.appendChild(plus);
+      tile(list.at(-1),826,104,124,'ReLU','输出 y','add');
+      wrap.appendChild(svg);section.appendChild(wrap);
+      const descriptions={all:'同一个 x 分成两路，先各自计算，再在 + 处汇合。点击图中任一模块，可查看这次运行的真实数值。',input:'输入 x：'+shape(first.inputs[0])+'。同一份张量同时送入主分支与捷径。',main:'F(x) = BN₂(Conv₂(ReLU(BN₁(Conv₁(x)))))。第二个 BN 后先相加，再做 ReLU。',shortcut:projection?'P(x) = BN(Conv 1×1, stride 2)。空间减半、通道翻倍，输出为 '+shape(addOp.inputs[1])+'。':'捷径直接使用 x，输出仍是 '+shape(addOp.inputs[1])+'。这里没有新的可学习层。',add:'相加的两路都是 '+shape(addOp.inputs[0])+'，逐元素相加，不是拼接；然后 y = ReLU(F(x) + '+(projection?'P(x)':'x')+')。'};
+      section.appendChild(node('p',descriptions[step],'guide-explanation'));
+      const equality=node('div',undefined,'guide-equation');equality.append(node('span','F(x)  '+shape(addOp.inputs[0])),node('b','+'),node('span',(projection?'P(x)  ':'x  ')+shape(addOp.inputs[1])),node('b','→'),node('span','y  '+outputShape(list.at(-1))));section.appendChild(equality);
+    } else {
+      const chain=node('div',undefined,'guide-chain');
+      list.forEach(id=>{const op=opOf(id), style=S.blockStyle(blocks[id]),button=node('button',undefined,'guide-chain-op');button.type='button';button.dataset.guideOp=id;button.style.setProperty('--role',style.edge);button.style.background=style.face;
+        button.append(node('strong',op.type==='Dropout'?'Dropout (eval)':op.type==='checkpoint'?'输入':style.title),node('small',blocks[id].stage),node('span',outputShape(id)));button.onclick=()=>inspectOperation(op.id);chain.appendChild(button);});section.appendChild(chain);
+      section.appendChild(node('p','每个卡片对应一次实际模块调用；点击后，右侧展示该模块的输入、输出和统计量。箭头表示计算先后。','guide-description'));
+    }
+    repaint();
+  }
+  function repaint() {
+    root.querySelectorAll('[data-guide-op]').forEach(element=>element.classList.toggle('selected', blocks[element.dataset.guideOp]?.operations.includes(state.operation)));
+  }
+  renderStages();renderDetail();
+  S.register('guide',{started:()=>true,show:()=>{root.hidden=false;return true;},hide:()=>{root.hidden=true;},repaint,relayout:()=>{},rebuildPanels:()=>{},fitAll:()=>{},focus:id=>{const group=blocks[id]?.group;if(group)choose(group);repaint();}});
 })();
 </script></body></html>
