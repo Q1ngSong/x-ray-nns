@@ -5,7 +5,7 @@
 <title>x-ray · local inference</title>
 <style>
 :root{color-scheme:light;font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f7fb;color:#213442;--paper:#fff;--wash:#f7f9fc;--line:#d9e2ea;--muted:#718291;--ink:#213442;--blue:#789ab7;--blue-soft:#e7f0f8;--teal:#79a99d;--teal-soft:#e6f2ef;--lilac:#9a91b7;--lilac-soft:#f0edf7;--peach:#c29b7d;--peach-soft:#f8eee7;--mono:ui-monospace,SFMono-Regular,Menlo,monospace}
-*{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);overflow-x:hidden}button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:inherit;padding:6px 9px}button:hover{border-color:#a9bfce;background:#f4f8fb}button:focus-visible,input:focus-visible{outline:2px solid #90afc5;outline-offset:2px}button:disabled{opacity:.4;cursor:default}.app{min-height:100vh;display:flex;flex-direction:column}.topbar{height:68px;display:flex;align-items:center;gap:18px;padding:0 24px;background:var(--paper);border-bottom:1px solid var(--line)}.brand{font-size:25px;font-weight:750;letter-spacing:-1.5px}.brand span{color:var(--blue)}.run-name{font:11px var(--mono);color:var(--muted)}.workbench{--source:270px;--inspector:330px;display:grid;grid-template-columns:var(--source) minmax(620px,1fr) var(--inspector);height:calc(100vh - 68px);overflow:hidden}.workbench.source-hidden{--source:0px}.workbench.inspector-hidden{--inspector:0px}.workbench.source-hidden>.source,.workbench.inspector-hidden>.inspector{display:none}.workbench>.source{grid-column:1}.workbench>.center{grid-column:2}.workbench>.inspector{grid-column:3}.source,.inspector{background:var(--paper);overflow:auto}.source{border-right:1px solid var(--line);padding:20px 17px}.inspector{border-left:1px solid var(--line);padding:20px 17px}.detail-panel[hidden]{display:none}.detail-panel{animation:detail-in .16s ease-out}@keyframes detail-in{from{transform:translateY(4px)}to{transform:none}}.detail-panel .inspector-head button{font-size:10px;padding:4px 7px}.inspector-empty[hidden]{display:none}.inspector-empty{display:grid;gap:7px;align-content:center;min-height:180px;padding:22px;border:1px dashed #cddbe3;border-radius:14px;background:#fbfdff;color:#617583}.inspector-empty strong{font-size:18px;letter-spacing:-.3px;color:#385260}.inspector-empty p{margin:0;font-size:11px;color:var(--muted)}.empty-kicker{font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#7b8d99}.center{min-width:0;display:flex;flex-direction:column;overflow:hidden}.panel-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 11px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#5f7484}.panel-note{font-size:11px;color:var(--muted);margin:0 0 14px}.source-block{padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--line)}.input-frame{position:relative;width:100%;aspect-ratio:1;border:1px solid #cad9e3;border-radius:12px;overflow:hidden;background:#edf3f7}.input-frame img{width:100%;height:100%;display:block;object-fit:cover}.input-frame img[hidden]{display:none}.input-frame.selectable-source{cursor:pointer}.input-frame.selectable-source:focus{outline:2px solid #90afc5;outline-offset:2px}.patch-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);pointer-events:none;opacity:.7}.patch-grid i{border-right:1px solid rgba(73,111,136,.35);border-bottom:1px solid rgba(73,111,136,.35)}.prompt{padding:10px 11px;margin:6px 0;background:#fbfcfe;border:1px solid var(--line);border-radius:9px;color:#526875;font-size:12px}.prompt:before{content:"↳";color:var(--blue);margin-right:7px}.token-list{display:grid;gap:6px;margin-top:9px}.token-row{display:flex;gap:4px;flex-wrap:wrap}.token-chip{font:10px var(--mono);padding:4px 5px;border:1px solid #d4dee5;background:#f8fafc;border-radius:5px;color:#5f7380}.token-chip.special{background:var(--lilac-soft);border-color:#d9d1e9;color:#756a92}.token-chip:hover{background:var(--blue-soft);border-color:#abc6d8}.branch-select-wrap{display:inline-flex;align-items:center;gap:7px;color:#738693;font:10px var(--mono);text-transform:uppercase;letter-spacing:.08em}.branch-select-wrap select{border:1px solid var(--line);border-radius:8px;background:#fff;color:#4b6878;padding:5px 8px;font:11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-transform:none;letter-spacing:0}.view-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:14px 22px 10px;background:#f4f7fb}.view-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}.view-head .view-switch{margin-left:auto}.architecture-wrap{flex:1;min-height:0;display:flex;flex-direction:column}.architecture-wrap[hidden]{display:none}.timeline{padding:12px 22px 17px;background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.timeline-controls{display:flex;align-items:center;gap:6px;min-width:0}.timeline-controls .primary{background:var(--blue-soft);border-color:#abc5d7;color:#466d83}.timeline-position{font:10px var(--mono);color:var(--muted);margin-left:7px;white-space:nowrap}.timeline-range{flex:1;min-width:100px;accent-color:var(--blue)}.timeline-caption{margin-top:8px;color:var(--muted);font:10px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.inspector-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.selected-name{font:15px var(--mono);margin:3px 0;color:#2f4d5c;overflow-wrap:anywhere}.selected-kind{font-size:11px;color:#5d8a82;min-height:18px}.selected-flow{margin:0 0 9px;font:10px var(--mono);color:var(--muted);overflow-wrap:anywhere}.inspector-card{padding:11px 0;border-top:1px solid var(--line)}.inspector-card h3{margin:0 0 8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7c8e99}.facts{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.fact{display:flex;justify-content:space-between;gap:7px;padding:4px 0;border-bottom:1px solid #edf1f4;font-size:10px}.fact span:first-child{color:var(--muted)}.fact span:last-child{font:10px var(--mono);text-align:right;overflow-wrap:anywhere}.preview{display:block;width:100%;height:154px;background:#eef3f6;border:1px solid #cedbe4;border-radius:9px;image-rendering:pixelated}.preview-caption{font:10px/1.45 var(--mono);color:var(--muted);margin:7px 0 0}.inspector-tokens{display:flex;gap:4px;flex-wrap:wrap;max-height:170px;overflow:auto}.inspector-tokens .token-chip{cursor:default}.connections{display:grid;gap:6px}.connections button{font:10px var(--mono);padding:4px 6px}.connections button.current{background:var(--blue-soft);border-color:#abc5d7}.flow-row{display:flex;gap:4px;flex-wrap:wrap;align-items:center}.flow-label{width:30px;font:10px var(--mono);color:var(--muted)}.preview[hidden]{display:none}.json{font:10px/1.5 var(--mono);white-space:pre-wrap;overflow:auto;max-height:220px;color:#6f818c;margin:0}.empty{font-size:11px;color:var(--muted)}@media(max-width:1120px){.workbench{--source:230px;--inspector:290px;grid-template-columns:var(--source) minmax(560px,1fr) var(--inspector)}.source,.inspector{padding-left:13px;padding-right:13px}.view-panel,.timeline{padding-left:16px;padding-right:16px}}@media(max-width:820px){.workbench{display:block;height:auto;overflow:visible}.center{overflow:visible}.source,.inspector{border:0;border-bottom:1px solid var(--line)}.architecture-wrap{overflow:auto}.timeline{position:sticky;bottom:0;z-index:2}.input-frame{max-width:320px}.timeline-controls{flex-wrap:wrap}.timeline-range{order:5;flex-basis:100%;width:100%;min-width:0}.timeline-position{margin-left:auto}}.patch-map{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:10px;padding:7px;border:1px solid #d5e2e9;border-radius:10px;background:#f5f9fb}.patch-cell{position:relative;aspect-ratio:1;border:1px solid rgba(73,111,136,.18);border-radius:4px;background:#d7e8ef;color:#466d82;padding:0;font:9px var(--mono);transition:transform .12s,border-color .12s,box-shadow .12s}.patch-cell:hover{transform:scale(1.06);z-index:1;border-color:#6f9bb3}.patch-cell.selected{border:2px solid #486f84;box-shadow:0 0 0 2px #d7e8ef;z-index:2}.patch-map-caption{margin:6px 0 0;color:var(--muted);font:10px/1.4 var(--mono)}.operation-ledger{margin:16px 0 0;padding:13px 14px;border:1px solid #dbe4eb;border-radius:12px;background:#fff}.ledger-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 9px}.ledger-head strong{font-size:12px;color:#3d5c6c}.ledger-head span{font:10px var(--mono);color:var(--muted)}.ledger-head button{margin-left:auto;font-size:10px;padding:4px 7px}.ledger-groups{display:grid;gap:7px;margin-top:10px}.ledger-group{border:1px solid #e0e8ed;border-radius:9px;background:#fbfdff;overflow:hidden}.ledger-group>summary{cursor:pointer;padding:8px 10px;font:11px var(--mono);color:#537082;list-style:none}.ledger-group>summary::-webkit-details-marker{display:none}.ledger-group>summary:before{content:'+';display:inline-block;width:15px;color:#8aa5b4}.ledger-group[open]>summary:before{content:'−'}.ledger-ops{display:grid;gap:3px;padding:0 7px 7px}.ledger-op{border-top:1px solid #edf2f5}.ledger-op>summary{cursor:pointer;padding:6px 7px;font:10px var(--mono);color:#5f7481;list-style:none}.ledger-op>summary::-webkit-details-marker{display:none}.ledger-op>summary:before{content:'›';display:inline-block;width:13px;color:#9bb3bf}.ledger-op[open]>summary:before{content:'⌄'}.ledger-op[open]>summary{color:#3f6478;background:#f3f8fb}.ledger-op-body{display:grid;gap:6px;padding:5px 7px 9px 20px;background:#fff}.ledger-io{display:grid;grid-template-columns:48px 1fr;gap:6px;align-items:start;font-size:10px}.ledger-io>span{font:10px var(--mono);color:#8a9ba5;text-transform:uppercase}.ledger-refs{display:flex;gap:4px;flex-wrap:wrap}.ledger-ref{font:10px var(--mono);padding:3px 5px;border:1px solid #d8e3e9;border-radius:5px;background:#fbfdff;color:#5e7784;cursor:pointer}.ledger-ref:hover{background:var(--blue-soft);border-color:#a9c3d4}@media(max-width:820px){.patch-map{max-width:320px}}.panel-toggles{margin-left:auto;display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.panel-toggles button{border:0;border-radius:0;padding:5px 10px;font-size:11px;color:var(--muted)}.panel-toggles button+button{border-left:1px solid var(--line)}.panel-toggles button.active{background:var(--blue-soft);color:#3d637d}.view-switch{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.view-switch button{border:0;border-radius:0;padding:5px 10px;font-size:10px}.view-switch button+button{border-left:1px solid var(--line)}.view-switch button.active{background:var(--blue-soft);color:#3d637d}
+*{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);overflow-x:hidden}button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:inherit;padding:6px 9px}button:hover{border-color:#a9bfce;background:#f4f8fb}button:focus-visible,input:focus-visible{outline:2px solid #90afc5;outline-offset:2px}button:disabled{opacity:.4;cursor:default}.app{min-height:100vh;display:flex;flex-direction:column}.topbar{height:68px;display:flex;align-items:center;gap:18px;padding:0 24px;background:var(--paper);border-bottom:1px solid var(--line)}.brand{font-size:25px;font-weight:750;letter-spacing:-1.5px}.brand span{color:var(--blue)}.run-name{font:11px var(--mono);color:var(--muted)}.workbench{--source:270px;--inspector:330px;display:grid;grid-template-columns:var(--source) minmax(620px,1fr) var(--inspector);height:calc(100vh - 68px);overflow:hidden}.workbench.source-hidden{--source:0px}.workbench.inspector-hidden{--inspector:0px}.workbench.source-hidden>.source,.workbench.inspector-hidden>.inspector{display:none}.workbench>.source{grid-column:1}.workbench>.center{grid-column:2}.workbench>.inspector{grid-column:3}.source,.inspector{background:var(--paper);overflow:auto}.source{border-right:1px solid var(--line);padding:20px 17px}.inspector{border-left:1px solid var(--line);padding:20px 17px}.detail-panel[hidden]{display:none}.detail-panel{animation:detail-in .16s ease-out}@keyframes detail-in{from{transform:translateY(4px)}to{transform:none}}.detail-panel .inspector-head button{font-size:10px;padding:4px 7px}.inspector-empty[hidden]{display:none}.inspector-empty{display:grid;gap:7px;align-content:center;min-height:180px;padding:22px;border:1px dashed #cddbe3;border-radius:14px;background:#fbfdff;color:#617583}.inspector-empty strong{font-size:18px;letter-spacing:-.3px;color:#385260}.inspector-empty p{margin:0;font-size:11px;color:var(--muted)}.empty-kicker{font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#7b8d99}.center{min-width:0;display:flex;flex-direction:column;overflow:hidden}.panel-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 11px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#5f7484}.panel-note{font-size:11px;color:var(--muted);margin:0 0 14px}.source-block{padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--line)}.input-frame{position:relative;width:100%;aspect-ratio:1;border:1px solid #cad9e3;border-radius:12px;overflow:hidden;background:#edf3f7}.input-frame img{width:100%;height:100%;display:block;object-fit:cover}.input-frame img[hidden]{display:none}.input-frame.selectable-source{cursor:pointer}.input-frame.selectable-source:focus{outline:2px solid #90afc5;outline-offset:2px}.patch-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);pointer-events:none;opacity:.7}.patch-grid i{border-right:1px solid rgba(73,111,136,.35);border-bottom:1px solid rgba(73,111,136,.35)}.prompt{padding:10px 11px;margin:6px 0;background:#fbfcfe;border:1px solid var(--line);border-radius:9px;color:#526875;font-size:12px}.prompt:before{content:"↳";color:var(--blue);margin-right:7px}.token-list{display:grid;gap:6px;margin-top:9px}.token-row{display:flex;gap:4px;flex-wrap:wrap}.token-chip{font:10px var(--mono);padding:4px 5px;border:1px solid #d4dee5;background:#f8fafc;border-radius:5px;color:#5f7380}.token-chip.special{background:var(--lilac-soft);border-color:#d9d1e9;color:#756a92}.token-chip:hover{background:var(--blue-soft);border-color:#abc6d8}.branch-select-wrap{display:inline-flex;align-items:center;gap:7px;color:#738693;font:10px var(--mono);text-transform:uppercase;letter-spacing:.08em}.branch-select-wrap select{border:1px solid var(--line);border-radius:8px;background:#fff;color:#4b6878;padding:5px 8px;font:11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-transform:none;letter-spacing:0}.view-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:14px 22px 10px;background:#f4f7fb}.view-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}.view-head .view-switch{margin-left:auto}.architecture-wrap{flex:1;min-height:0;display:flex;flex-direction:column}.architecture-wrap[hidden]{display:none}.timeline{padding:12px 22px 17px;background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.timeline-controls{display:flex;align-items:center;gap:6px;min-width:0}.timeline-controls .primary{background:var(--blue-soft);border-color:#abc5d7;color:#466d83}.timeline-position{font:10px var(--mono);color:var(--muted);margin-left:7px;white-space:nowrap}.timeline-range{flex:1;min-width:100px;accent-color:var(--blue)}.timeline-caption{margin-top:8px;color:var(--muted);font:10px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.inspector-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.selected-name{font:15px var(--mono);margin:3px 0;color:#2f4d5c;overflow-wrap:anywhere}.selected-kind{font-size:11px;color:#5d8a82;min-height:18px}.selected-flow{margin:0 0 9px;font:10px var(--mono);color:var(--muted);overflow-wrap:anywhere}.inspector-card{padding:11px 0;border-top:1px solid var(--line)}.inspector-card h3{margin:0 0 8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7c8e99}.facts{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.fact{display:flex;justify-content:space-between;gap:7px;padding:4px 0;border-bottom:1px solid #edf1f4;font-size:10px}.fact span:first-child{color:var(--muted)}.fact span:last-child{font:10px var(--mono);text-align:right;overflow-wrap:anywhere}.preview{display:block;width:100%;height:154px;background:#eef3f6;border:1px solid #cedbe4;border-radius:9px;image-rendering:pixelated}.preview-caption{font:10px/1.45 var(--mono);color:var(--muted);margin:7px 0 0}.inspector-tokens{display:flex;gap:4px;flex-wrap:wrap;max-height:170px;overflow:auto}.inspector-tokens .token-chip{cursor:default}.connections{display:grid;gap:6px}.connections button{font:10px var(--mono);padding:4px 6px}.connections button.current{background:var(--blue-soft);border-color:#abc5d7}.flow-row{display:flex;gap:4px;flex-wrap:wrap;align-items:center}.flow-label{width:30px;font:10px var(--mono);color:var(--muted)}.preview[hidden]{display:none}.json{font:10px/1.5 var(--mono);white-space:pre-wrap;overflow:auto;max-height:220px;color:#6f818c;margin:0}.empty{font-size:11px;color:var(--muted)}@media(max-width:1120px){.workbench{--source:210px;--inspector:250px;grid-template-columns:var(--source) minmax(280px,1fr) var(--inspector)}.source,.inspector{padding-left:13px;padding-right:13px}.view-panel,.timeline{padding-left:16px;padding-right:16px}}@media(max-width:820px){.workbench{display:block;height:auto;overflow:visible}.center{overflow:visible}.source,.inspector{border:0;border-bottom:1px solid var(--line)}.architecture-wrap{overflow:auto}.timeline{position:sticky;bottom:0;z-index:2}.input-frame{max-width:320px}.timeline-controls{flex-wrap:wrap}.timeline-range{order:5;flex-basis:100%;width:100%;min-width:0}.timeline-position{margin-left:auto}}.patch-map{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:10px;padding:7px;border:1px solid #d5e2e9;border-radius:10px;background:#f5f9fb}.patch-cell{position:relative;aspect-ratio:1;border:1px solid rgba(73,111,136,.18);border-radius:4px;background:#d7e8ef;color:#466d82;padding:0;font:9px var(--mono);transition:transform .12s,border-color .12s,box-shadow .12s}.patch-cell:hover{transform:scale(1.06);z-index:1;border-color:#6f9bb3}.patch-cell.selected{border:2px solid #486f84;box-shadow:0 0 0 2px #d7e8ef;z-index:2}.patch-map-caption{margin:6px 0 0;color:var(--muted);font:10px/1.4 var(--mono)}.operation-ledger{margin:16px 0 0;padding:13px 14px;border:1px solid #dbe4eb;border-radius:12px;background:#fff}.ledger-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 9px}.ledger-head strong{font-size:12px;color:#3d5c6c}.ledger-head span{font:10px var(--mono);color:var(--muted)}.ledger-head button{margin-left:auto;font-size:10px;padding:4px 7px}.ledger-groups{display:grid;gap:7px;margin-top:10px}.ledger-group{border:1px solid #e0e8ed;border-radius:9px;background:#fbfdff;overflow:hidden}.ledger-group>summary{cursor:pointer;padding:8px 10px;font:11px var(--mono);color:#537082;list-style:none}.ledger-group>summary::-webkit-details-marker{display:none}.ledger-group>summary:before{content:'+';display:inline-block;width:15px;color:#8aa5b4}.ledger-group[open]>summary:before{content:'−'}.ledger-ops{display:grid;gap:3px;padding:0 7px 7px}.ledger-op{border-top:1px solid #edf2f5}.ledger-op>summary{cursor:pointer;padding:6px 7px;font:10px var(--mono);color:#5f7481;list-style:none}.ledger-op>summary::-webkit-details-marker{display:none}.ledger-op>summary:before{content:'›';display:inline-block;width:13px;color:#9bb3bf}.ledger-op[open]>summary:before{content:'⌄'}.ledger-op[open]>summary{color:#3f6478;background:#f3f8fb}.ledger-op-body{display:grid;gap:6px;padding:5px 7px 9px 20px;background:#fff}.ledger-io{display:grid;grid-template-columns:48px 1fr;gap:6px;align-items:start;font-size:10px}.ledger-io>span{font:10px var(--mono);color:#8a9ba5;text-transform:uppercase}.ledger-refs{display:flex;gap:4px;flex-wrap:wrap}.ledger-ref{font:10px var(--mono);padding:3px 5px;border:1px solid #d8e3e9;border-radius:5px;background:#fbfdff;color:#5e7784;cursor:pointer}.ledger-ref:hover{background:var(--blue-soft);border-color:#a9c3d4}@media(max-width:820px){.patch-map{max-width:320px}}.panel-toggles{margin-left:auto;display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.panel-toggles button{border:0;border-radius:0;padding:5px 10px;font-size:11px;color:var(--muted)}.panel-toggles button+button{border-left:1px solid var(--line)}.panel-toggles button.active{background:var(--blue-soft);color:#3d637d}.view-switch{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.view-switch button{border:0;border-radius:0;padding:5px 10px;font-size:10px}.view-switch button+button{border-left:1px solid var(--line)}.view-switch button.active{background:var(--blue-soft);color:#3d637d}
 .scene-stage{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}.scene-stage[hidden]{display:none}.scene-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:26px}.scene-bar button{font-size:10px;padding:5px 8px}.scene-canvas{position:relative;flex:1;min-height:320px;background:#fbfcfe;border:1px solid #dbe4eb;border-radius:14px;overflow:hidden}.scene-canvas canvas{position:absolute;inset:0;display:block;width:100%;height:100%;outline:none}.scene-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}.scene-label{position:absolute;transform:translate(-50%,-100%);padding:2px 6px;border-radius:6px;background:rgba(255,255,255,.82);color:#4f6978;font:10px var(--mono);white-space:nowrap}.scene-label.lane{transform:translate(0,-100%);background:none;color:#7b8d99;letter-spacing:.09em;text-transform:uppercase}.scene-label.group{pointer-events:auto;cursor:pointer;border:1px solid #d3dfe6}.scene-label.group:hover{border-color:#a9c3d4;background:#fff}.scene-label.minor{background:none;color:#8a9ba5;font-size:9px;padding:0}.scene-note{margin:0;color:var(--muted);font:10px var(--mono)}.scene-bar .scene-type{border-radius:999px}.scene-bar .scene-type.active{background:var(--blue-soft);border-color:#a8c3d6;color:#3d637d}.scene-bar button:disabled{opacity:.4;cursor:default}.scene-head{display:inline-flex;align-items:center;gap:5px;margin-left:6px;color:#738693;font:10px var(--mono);text-transform:uppercase;letter-spacing:.06em}.scene-head select{border:1px solid var(--line);border-radius:8px;background:#fff;color:#4b6878;padding:4px 6px;font:10px var(--mono)}.scene-style{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.scene-head[hidden],.scene-style[hidden]{display:none}.scene-bar .scene-style button{border:0;border-radius:0}.scene-style button+button{border-left:1px solid var(--line)}.scene-style button.active{background:var(--blue-soft);color:#3d637d}.scene-bar .spacer{flex:1}.scene-bar .spacer+button{margin-left:auto}
 @media(max-width:820px){.view-panel{padding-left:0;padding-right:0}.view-head,.scene-bar,.architecture-wrap{padding-left:16px;padding-right:16px}.scene-canvas{min-height:420px}}
 .plane2d{position:relative;flex:1;min-height:320px;background:#fbfcfe;border:1px solid #dbe4eb;border-radius:14px;overflow:hidden;touch-action:none;cursor:grab;user-select:none}.plane2d.panning{cursor:grabbing}.plane-world{position:absolute;left:0;top:0;transform-origin:0 0}.plane-world [hidden]{display:none!important}.plane-links{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}.plane-links line{stroke:#a9bccb;stroke-width:1.2}.architecture-wrap .scene-note{margin-top:8px}
@@ -22,6 +22,10 @@ body.model-fullscreen{overflow:hidden}
 .center:fullscreen .architecture-wrap,.center.fullscreen-fallback .architecture-wrap{overflow:hidden}
 .center:fullscreen .timeline,.center.fullscreen-fallback .timeline{position:static;flex-shrink:0}
 #toggle-fullscreen{font-size:10px;padding:5px 10px}#toggle-fullscreen[aria-pressed=true]{background:var(--blue-soft);border-color:#a8c3d6}
+.b2d.module-card{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;font:600 12px var(--mono)}.b2d.module-card small{font:8px var(--mono);padding:0 2px;overflow-wrap:anywhere}.g2d.module-card{overflow:hidden;border-width:1.5px;border-style:solid;border-radius:10px}.g2d.module-card canvas{width:100%;height:100%;display:block}.frame2d.module-frame{border-style:solid;background:#f1f6fa80}.scene-label.group.module-label{font-weight:600;border-width:1.5px;color:#406476;background:#f8fbff}
+
+
+.guide-diagram svg{max-height:280px}
 </style>
 </head>
 <body>
@@ -32,7 +36,7 @@ body.model-fullscreen{overflow:hidden}
 <aside class="source" aria-label="Input and token source">
   <form id="run-form" class="run-form" method="post" action="/runs/new" enctype="multipart/form-data" hidden><h2 class="panel-title">New run</h2><input id="run-base" type="hidden" name="base"><label>Image <input id="run-image" type="file" name="image" accept="image/*"></label><p class="panel-note">Leave the image empty to reuse the current one.</p><div id="run-prompts" class="run-prompts"></div><div class="run-actions"><button id="add-prompt" type="button">+ Prompt</button><button id="run-submit" class="primary" type="submit">Run CLIP</button></div><p id="run-status" class="panel-note"></p></form>
   <section class="source-block"><h2 class="panel-title"><span id="image-title">01 · Source image</span> <span id="image-size" class="run-name"></span></h2><p id="image-note" class="panel-note">Visible pixels are partitioned into 32 × 32 patches.</p><div id="source-image" class="input-frame"></div><div id="patch-map" class="patch-map" aria-label="7 by 7 image patch activation map"></div><p id="patch-map-caption" class="patch-map-caption">Select a patch to inspect its recorded embedding token.</p><div id="source-extra"></div></section>
-  <section><h2 class="panel-title">02 · Prompts and tokens</h2><div id="prompt-list" class="token-list"></div></section>
+  <section id="text-source"><h2 class="panel-title">02 · Prompts and tokens</h2><div id="prompt-list" class="token-list"></div></section><section id="source-guide" hidden><h2 class="panel-title">02 · 探索这个模型</h2><div id="guide-steps"></div></section>
 </aside>
 <section id="model-view" class="center" aria-label="Model architecture and runtime">
   <div class="view-panel"><div class="view-head"><label class="branch-select-wrap">Branch <select id="branch-select" aria-label="Branch filter"><option value="all">All paths</option></select></label><div class="view-switch" role="group" aria-label="View mode"><button id="view-2d" class="active" type="button" aria-pressed="true">2D</button><button id="view-3d" type="button" aria-pressed="false">3D</button></div><button id="toggle-fullscreen" type="button" aria-controls="model-view" aria-pressed="false" title="Show the model view fullscreen">Fullscreen</button></div><div id="scene-bar" class="scene-bar" aria-label="View controls"></div>
@@ -135522,7 +135526,7 @@ function tensorButton(id){const t=tensors.get(id),b=node('button',t?id+' ['+(t.s
 function renderScene(){if(window.xrayScene)xrayScene.sync()}
 function renderLedger(){const box=E('ledger-groups'),count=E('ledger-count');if(!box||!count)return;box.replaceChildren();const grouped=new Map([...lanes,'other'].map(id=>[id,[]]));(trace.operations||[]).forEach(op=>{const branch=classify(op);(grouped.get(branch)||grouped.get('other')).push(op)});const visible=[...grouped.entries()].filter(([branch,items])=>items.length&&(state.branch==='all'||branch===state.branch));const total=visible.reduce((sum,[,items])=>sum+items.length,0);count.textContent=total+' operations · '+(trace.tensors||[]).length+' tensors';visible.forEach(([branch,items])=>{const group=document.createElement('details');group.className='ledger-group';group.open=state.branch===branch;const summary=document.createElement('summary');summary.textContent=(branch==='other'?'Supporting operations':laneLabel(branch)+' path')+' · '+items.length+' operations';group.appendChild(summary);const ops=document.createElement('div');ops.className='ledger-ops';items.forEach(op=>{const detail=document.createElement('details');detail.className='ledger-op';detail.dataset.operationId=op.id;const opSummary=document.createElement('summary');opSummary.textContent=shortStage(op)+' · '+(op.type||'operation')+' · '+op.id+' · in '+(op.inputs||[]).length+' · out '+(op.outputs||[]).length;opSummary.title=(op.module||'')+' · '+(op.name||'');detail.appendChild(opSummary);const body=document.createElement('div');body.className='ledger-op-body';const meta=node('div',(op.name||'operation')+' · '+(op.level||'module')+(op.module?' · '+op.module:''),'run-name');body.appendChild(meta);[['inputs',op.inputs||[]],['outputs',op.outputs||[]]].forEach(([kind,ids])=>{const row=document.createElement('div');row.className='ledger-io';row.appendChild(node('span',kind));const refs=document.createElement('div');refs.className='ledger-refs';if(!ids.length)refs.appendChild(node('span','none','empty'));ids.forEach(id=>{const ref=node('button',tensorRefLabel(id),'ledger-ref');ref.type='button';ref.dataset.inspectTensor=id;ref.title='Inspect '+tensorRefLabel(id);ref.onclick=event=>{event.stopPropagation();focusTensor(id)};refs.appendChild(ref)});row.appendChild(refs);body.appendChild(row)});const focus=node('button','Focus operation','ledger-ref');focus.type='button';focus.onclick=event=>{event.stopPropagation();focusOperation(op.id)};body.appendChild(focus);detail.appendChild(body);ops.appendChild(detail)});group.appendChild(ops);box.appendChild(group)})}
 function renderBranches(){const select=E('branch-select');if(!select)return;if(select.options.length===1)lanes.forEach(id=>{const option=node('option',laneLabel(id));option.value=id;select.appendChild(option)});select.value=state.branch}
-function renderSource(){const image=inputs.image||{},wrap=E('source-image');wrap.replaceChildren();const pixel=inputTensor('image_pixels');if(pixel){wrap.classList.add('selectable-source');wrap.tabIndex=0;wrap.setAttribute('role','button');wrap.title='Inspect recorded image pixels';wrap.onclick=()=>selectTensor(pixel.id);wrap.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();selectTensor(pixel.id)}}}if(image.asset_path){const path=safeAssetPath(image.asset_path);if(path){const img=node('img');img.src=path;img.alt='Recorded model input';img.onload=()=>{if(state.tensor)drawStateVisual(tensors.get(state.tensor))};wrap.appendChild(img)}}const patch=inputTensor('image_patch_tokens');if(patch){const grid=node('div',undefined,'patch-grid');for(let i=0;i<49;i++)grid.appendChild(node('i'));wrap.appendChild(grid)}E('patch-map').hidden=E('patch-map-caption').hidden=!patch;if(image.title)E('image-title').textContent='01 · '+image.title;if(image.caption)E('image-note').textContent=image.caption;E('image-size').textContent=Array.isArray(image.size)?image.size.join(' × '):'';const prompts=E('prompt-list'),labels=Array.isArray(inputs.text_labels)?inputs.text_labels:[];prompts.replaceChildren();const rows=Object.keys(inputs).map(inputTensor).filter(token=>token&&token.metadata&&token.metadata.preview&&token.metadata.preview.kind==='token_ids').flatMap(token=>{const preview=token.metadata.preview,ids=Array.isArray(preview.values)?preview.values:[];return (Array.isArray(preview.tokens)?preview.tokens:[]).map((row,index)=>({token,row,ids:Array.isArray(ids[index])?ids[index]:[]}))});(Array.isArray(inputs.text)?inputs.text:[]).forEach((value,index)=>{prompts.appendChild(node('p',(labels[index]?labels[index]+' · ':'')+String(value),'prompt'));const entry=rows[index];if(!entry)return;const line=node('div',undefined,'token-row');trimPadding(entry.row).forEach((label,position)=>{const id=entry.ids[position]??'';const chip=node('button',String(label),'token-chip'+(position===0||String(label).includes('endoftext')?' special':''));chip.type='button';chip.dataset.tokenId=String(id);chip.title='token '+position+' · id '+String(id);chip.onclick=()=>selectTensor(entry.token.id);line.appendChild(chip)});prompts.appendChild(line)});renderExtra();renderPatchMap()}
+function renderSource(){const image=inputs.image||{},wrap=E('source-image');wrap.replaceChildren();const pixel=inputTensor('image_pixels');if(pixel){wrap.classList.add('selectable-source');wrap.tabIndex=0;wrap.setAttribute('role','button');wrap.title='Inspect recorded image pixels';wrap.onclick=()=>selectTensor(pixel.id);wrap.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();selectTensor(pixel.id)}}}if(image.asset_path){const path=safeAssetPath(image.asset_path);if(path){const img=node('img');img.src=path;img.alt='Recorded model input';img.onload=()=>{if(state.tensor)drawStateVisual(tensors.get(state.tensor))};wrap.appendChild(img)}}const patch=inputTensor('image_patch_tokens');if(patch){const grid=node('div',undefined,'patch-grid');for(let i=0;i<49;i++)grid.appendChild(node('i'));wrap.appendChild(grid)}E('patch-map').hidden=E('patch-map-caption').hidden=!patch;if(image.title)E('image-title').textContent='01 · '+image.title;if(image.caption)E('image-note').textContent=image.caption;E('image-size').textContent=Array.isArray(image.size)?image.size.join(' × '):'';const prompts=E('prompt-list'),labels=Array.isArray(inputs.text_labels)?inputs.text_labels:[];prompts.replaceChildren();const rows=Object.keys(inputs).map(inputTensor).filter(token=>token&&token.metadata&&token.metadata.preview&&token.metadata.preview.kind==='token_ids').flatMap(token=>{const preview=token.metadata.preview,ids=Array.isArray(preview.values)?preview.values:[];return (Array.isArray(preview.tokens)?preview.tokens:[]).map((row,index)=>({token,row,ids:Array.isArray(ids[index])?ids[index]:[]}))});(Array.isArray(inputs.text)?inputs.text:[]).forEach((value,index)=>{prompts.appendChild(node('p',(labels[index]?labels[index]+' · ':'')+String(value),'prompt'));const entry=rows[index];if(!entry)return;const line=node('div',undefined,'token-row');trimPadding(entry.row).forEach((label,position)=>{const id=entry.ids[position]??'';const chip=node('button',String(label),'token-chip'+(position===0||String(label).includes('endoftext')?' special':''));chip.type='button';chip.dataset.tokenId=String(id);chip.title='token '+position+' · id '+String(id);chip.onclick=()=>selectTensor(entry.token.id);line.appendChild(chip)});prompts.appendChild(line)});E("text-source").hidden=!(inputs.text||[]).length;const guide=Array.isArray(inputs.guide)?inputs.guide:[];E("source-guide").hidden=!guide.length;E("guide-steps").replaceChildren(...guide.map((text,index)=>node("p",(index+1)+". "+String(text),"panel-note")));renderExtra();renderPatchMap()}
 // Extra source facts some traces carry: a final generated image and label/value pairs.
 function renderExtra(){const box=E('source-extra');box.replaceChildren();const final=inputs.final_image||{},path=safeAssetPath(final.asset_path);if(path){const figure=node('figure',undefined,'source-figure'),img=node('img');img.src=path;img.alt='Final generated image';figure.append(img,node('figcaption',String(final.caption||'')));box.appendChild(figure)}(Array.isArray(inputs.summary)?inputs.summary:[]).forEach(([key,value])=>{const row=node('div',undefined,'fact');row.append(node('span',String(key)),node('span',String(value)));box.appendChild(row)})}
 function stats(t){const s=t&&t.stats||{},m=t&&t.metadata||{};return [['shape',t&&t.shape?'['+t.shape.join(' × ')+']':'—'],['values',m.numel===undefined?'—':fmt(m.numel)],['min',fmt(s.min)],['max',fmt(s.max)],['mean',fmt(s.mean)],['std',fmt(s.std)],['norm',fmt(s.norm)]]}
@@ -139874,7 +139878,7 @@ three/build/three.module.js:
   };
   // Lanes the palette does not name take the colour of their place in the scene's lane order.
   const CYCLE = [PALETTE.text, PALETTE.model, PALETTE.vision, {face: '#f1e1e8', edge: '#a9829a'}, PALETTE.fusion];
-  const TYPES = [['hidden', 'Layer output'], ['attention', 'Attention'], ['cross', 'Cross-attention'], ['mlp', 'MLP activation'],
+  const TYPES = [['hidden', 'Layer output'], ['channels', 'Feature channels'], ['attention', 'Attention'], ['cross', 'Cross-attention'], ['mlp', 'MLP activation'],
     ['qkv', 'Q / K / V'], ['output', 'Final output']];
   // World units: slabs are thin along x (the flow axis); lanes stack along y.
   const GAP = 0.9, LAYER_GAP = 1.0, SLAB = 0.3, PLATE = 0.07, PLATE_GAP = 0.05, LANE_GAP = 2.4, TILE_GAP = 0.05;
@@ -139883,7 +139887,7 @@ three/build/three.module.js:
   const FONT = 'ui-monospace, SFMono-Regular, Menlo, monospace';
   const ATTENTION_RAMP = [[247, 249, 252], [46, 84, 122]], MLP_RAMP = [[241, 246, 244], [47, 110, 96]];
   const view = {mode: '2d', expanded: new Set(), open: new Set(), types: new Set(['hidden', 'output']),
-    head: 'avg', style: 'matrix', active: null, hover: null};
+    channel: 0, head: 'avg', style: 'matrix', active: null, hover: null};
   const similarityIds = Object.keys(views).filter(id => views[id].output?.similarity);
   if (similarityIds.length) view.types.delete('output');
   const renderers = new Map(), decoded = new Map(), imageWaiters = [];
@@ -139896,6 +139900,74 @@ three/build/three.module.js:
     const index = lanes.findIndex(item => item.id === lane);
     return PALETTE[lane] || (index < 0 ? PALETTE.model : CYCLE[index % CYCLE.length]);
   };
+  // CNN module roles keep the same visual vocabulary in 2D and 3D.
+  function moduleStyle(type) {
+    const styles = {
+      Conv2d: ['#dcebf8', '#648faf', 'Conv'], BatchNorm2d: ['#e6eaf3', '#8794b1', 'BN'],
+      ReLU: ['#fff1ce', '#c49b48', 'ReLU'], MaxPool2d: ['#dbf0e9', '#589d87', 'MaxPool'],
+      AdaptiveAvgPool2d: ['#dcf1ea', '#589d87', 'AvgPool'], Linear: ['#eadff3', '#997ab0', 'Linear'],
+      Dropout: ['#f0e9f3', '#ad95b7', 'Dropout'], _FunctionCall: ['#fff0db', '#c18a4b', 'Add (+)'],
+    };
+    const [face, edge, title] = styles[type] || ['#edf2f5', '#8da4b1', type];
+    return {face, edge, title};
+  }
+  function blockStyle(block) {
+    if (!model.edges) return palette(block.lane);
+    const type = operations.get(block.operations[0])?.type || block.label;
+    const style = moduleStyle(type);
+    if (type === '_FunctionCall' && block.semantic !== 'residual_add') return {...moduleStyle('Flatten'), title: 'Flatten'};
+    if (block.kind === 'result') return {...moduleStyle('Linear'), title: 'Scores'};
+    return style;
+  }
+  function groupStyle(group) {
+    const index = Math.max(0, Number(group.id.match(/^(?:layer|features\.stage)([1-4])/)?.[1] || (group.id === 'classifier' ? 3 : 1)) - 1);
+    const colours = [['#e7f1fb','#648faf'],['#e5f3ee','#629d89'],['#f0eaf7','#9a84b6'],['#fcf0dd','#bb955d']];
+    return model.edges ? {face:colours[index][0],edge:colours[index][1]} : palette(group.lane);
+  }
+  function groupCanvas(group) {
+    const canvas = document.createElement('canvas'); canvas.width = 420; canvas.height = 320;
+    const ctx = canvas.getContext('2d'), colours = groupStyle(group);
+    const residual = !group.items && group.blocks.some(id => blocks[id].semantic === 'residual_add');
+    const children = group.items?.filter(item => item.group) || [];
+    const projection = group.blocks.some(id => blocks[id].stage.includes('.downsample.'));
+    const last = blocks[group.blocks.at(-1)], first = blocks[group.blocks[0]];
+    const input = tensors.get(operations.get(first.operations[0])?.inputs[0]);
+    const shape = dims => (dims || []).slice(1).join(' × ');
+    ctx.fillStyle = colours.face; ctx.fillRect(0, 0, 420, 320);
+    ctx.fillStyle = colours.edge; ctx.fillRect(0, 0, 420, 7);
+    ctx.fillStyle = '#304f62'; ctx.font = '600 40px ' + FONT; ctx.fillText(group.label, 22, 51);
+    ctx.font = '20px ' + FONT;
+    ctx.fillText(children.length ? children.length + ' × BasicBlock' : residual ? 'Residual block' : group.id === 'stem' ? 'Conv · BN · ReLU · Pool' : group.id === 'classifier' ? 'Pool · Flatten · Linear' : 'Convolution features', 22, 82);
+    ctx.strokeStyle = colours.edge; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(22, 148); ctx.lineTo(390, 148); ctx.stroke();
+    const chip = (x, y, w, label) => {
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, 48); ctx.strokeRect(x, y, w, 48);
+      ctx.fillStyle = '#3e5d70'; ctx.font = '20px ' + FONT; ctx.textAlign = 'center';
+      ctx.fillText(label, x + w / 2, y + 31); ctx.textAlign = 'left';
+    };
+    if (children.length) {
+      children.forEach((item, index) => chip(30 + index * 190, 124, 160, 'Block ' + (index + 1)));
+      ctx.font = '18px ' + FONT; ctx.fillText(projection ? '1st block: projection ↓2' : 'Identity shortcuts', 22, 218);
+    } else if (residual) {
+      chip(65, 124, 200, 'F(x): 2 × Conv');
+      ctx.strokeStyle = '#b17d40'; ctx.beginPath(); ctx.moveTo(32, 148); ctx.lineTo(32, 210); ctx.lineTo(350, 210); ctx.lineTo(350, 148); ctx.stroke();
+      ctx.fillStyle = '#fff4df'; ctx.beginPath(); ctx.arc(350, 148, 23, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#9a692e'; ctx.font = '28px ' + FONT; ctx.fillText('+', 341, 158);
+      ctx.fillStyle = colours.face; ctx.fillRect(62, 195, 245, 27);
+      ctx.fillStyle = '#9a692e'; ctx.font = '18px ' + FONT; ctx.fillText(projection ? '1×1 Conv + BN, s=2' : 'Identity: x', 72, 215);
+    } else {
+      const types = [...new Set(group.blocks.filter(id => blocks[id].kind === 'module').map(id => blockStyle(blocks[id]).title))];
+      chip(35, 124, 350, types.slice(0, 3).join(' → '));
+      ctx.font = '18px ' + FONT;
+      const output = views[last.id]?.output;
+      ctx.fillText(output?.labels ? 'Top 1: ' + output.labels[0] : group.blocks.length + ' recorded operations', 22, 218);
+    }
+    ctx.fillStyle = '#526d7d'; ctx.font = '24px ' + FONT;
+    ctx.fillText(shape(input?.shape) + ' →', 22, 252);
+    ctx.fillText(shape(last.shape), 22, 281);
+    ctx.fillStyle = colours.edge; ctx.font = '20px ' + FONT; ctx.textAlign = 'right'; ctx.fillText('Expand +', 398, 306);
+    return canvas;
+  }
   // The first flow lane (and the fusion lane) stacks panels upwards, every other lane downwards.
   const panelDirection = lane => flowLanes.findIndex(item => item.id === lane) > 0 ? -1 : 1;
   const widthOf = object => Math.max(object.size.w, object.stack.width);
@@ -139930,8 +140002,9 @@ three/build/three.module.js:
     return {rows, cols, tile, size: {w: 2.6, h: rows * tile + TILE_GAP * (rows - 1), d: 0.04}};
   }
 
-  // A collapsed group is a tight stack of thin plates, one per member layer.
+  // CNN groups fold to labelled modules; other groups keep one thin plate per member.
   function groupSize(group, member) {
+    if (model.edges) return {w: 4.2, h: 3.2, d: 1.2};
     const count = group.blocks.length;
     return {w: count * PLATE + (count - 1) * PLATE_GAP, h: member.h, d: member.d};
   }
@@ -140267,6 +140340,24 @@ three/build/three.module.js:
       };
       return spec;
     },
+    channels: (data, block) => {
+      const [h, w] = data.grid, values = bytesOf(data.data);
+      const cell = Math.max(1, Math.floor(170 / Math.max(h, w)));
+      const spec = {key: 'channels', tensor: data.tensor, width: Math.max(260, PAD * 2 + w * cell), height: TITLE + h * cell + 48};
+      spec.draw = ctx => {
+        const ch = Math.min(view.channel, data.channels - 1);
+        frameCanvas(ctx, spec, blockName(block) + ' · channel ' + ch, data.channels + ' channels · sample ' + data.sample);
+        for (let row = 0; row < h; row++) for (let col = 0; col < w; col++) {
+          const t = values[ch * h * w + row * w + col] / 255;
+          ctx.fillStyle = 'rgb(' + Math.round(247 - 201 * t) + ',' + Math.round(249 - 165 * t) + ',' + Math.round(252 - 130 * t) + ')';
+          ctx.fillRect(PAD + col * cell, TITLE + row * cell, cell, cell);
+        }
+        ctx.fillStyle = '#5f7481'; ctx.font = '10px ' + FONT;
+        ctx.fillText('range ' + Number(data.low[ch]).toPrecision(3) + ' → ' + Number(data.high[ch]).toPrecision(3), PAD, TITLE + h * cell + 18);
+        ctx.fillText(data.original_grid.join('×') + ' → ' + data.grid.join('×') + ' · average pooled', PAD, TITLE + h * cell + 34);
+      };
+      return spec;
+    },
     output: (data, block) => {
       const prompts = Array.isArray(inputs.text) ? inputs.text : [];
       if (data.threshold !== undefined) {
@@ -140294,18 +140385,18 @@ three/build/three.module.js:
         const probs = data.probs[0] || [], logits = data.values[0] || [];
         const spec = {key: 'output', tensor: data.tensor, width: 330, height: TITLE + probs.length * 24 + PAD};
         spec.draw = ctx => {
-          frameCanvas(ctx, spec, blockName(block) + ' · similarity', 'softmax');
+          frameCanvas(ctx, spec, blockName(block) + (data.labels ? ' · top 5' : ' · similarity'), data.labels ? 'softmax over ' + data.class_count + ' classes' : 'softmax');
           probs.forEach((p, j) => {
             const y = TITLE + j * 24;
             ctx.fillStyle = '#4f6978';
             ctx.font = '10px ' + FONT;
-            ctx.fillText(String(prompts[j] || 'prompt ' + (j + 1)).slice(0, 22), PAD, y + 12);
+            ctx.fillText(String((data.labels || prompts)[j] || 'prompt ' + (j + 1)).slice(0, 22), PAD, y + 12);
             ctx.fillStyle = '#f0e8e0';
             ctx.fillRect(150, y + 3, 90, 10);
             ctx.fillStyle = '#c29b7d';
             ctx.fillRect(150, y + 3, 90 * p, 10);
             ctx.fillStyle = '#765b48';
-            ctx.fillText(Math.round(p * 100) + '% · ' + Number(logits[j]).toFixed(1), 248, y + 12);
+            ctx.fillText((p * 100).toFixed(data.labels ? 1 : 0) + '% · ' + Number(logits[j]).toFixed(1), 248, y + 12);
           });
         };
         return spec;
@@ -140390,18 +140481,29 @@ three/build/three.module.js:
   const laneShown = lane => state.branch === 'all' || lane.id === state.branch;
   const blockShown = id => state.branch === 'all' || blocks[id].lane === state.branch;
 
-  // The object that stands for a block: itself, or its group while the group is collapsed.
+  const groupItems = group => group.items || group.blocks.map(block => ({block}));
+
+  // Resolve through every ancestor so an edge always lands on its visible folded boundary.
   function unitOf(objects, id) {
-    const block = blocks[id];
-    return objects.get(block.group && !view.expanded.has(block.group) ? block.group : id);
+    let visible = id, parent = blocks[id].group;
+    while (parent) {
+      if (!view.expanded.has(parent)) visible = parent;
+      parent = groups[parent].parent;
+    }
+    return objects.get(visible);
   }
 
-  // The visible objects of a lane in order: blocks, collapsed groups, or an expanded group's members.
+  function itemUnits(objects, item) {
+    if (!item.group || !view.expanded.has(item.group)) return [objects.get(item.group || item.block)];
+    return groupItems(groups[item.group]).flatMap(child => itemUnits(objects, child));
+  }
+
+  function groupMembers(objects, group) {
+    return groupItems(group).flatMap(item => itemUnits(objects, item)).filter(object => object.shown);
+  }
+
   function laneUnits(objects, lane) {
-    return lane.items.flatMap(item => {
-      if (!item.group) return [objects.get(item.block)];
-      return view.expanded.has(item.group) ? groups[item.group].blocks.map(id => objects.get(id)) : [objects.get(item.group)];
-    });
+    return lane.items.flatMap(item => itemUnits(objects, item));
   }
 
   // Flow lanes stack from the top, spaced so that open panels clear the next lane. A lane fed by an
@@ -140410,9 +140512,7 @@ three/build/three.module.js:
   // follow at the end, level with the lanes that feed them.
   function layout(objects) {
     const flow = flowLanes.filter(laneShown), merge = mergeLanes.filter(laneShown), links = model.links || [];
-    lanes.filter(lane => !laneShown(lane)).forEach(lane => lane.items.forEach(item => {
-      (item.group ? [item.group, ...groups[item.group].blocks] : [item.block]).forEach(id => { objects.get(id).shown = false; });
-    }));
+    objects.forEach(object => { object.shown = false; });
     // How far a lane reaches above (``up``) or below its centre line, panels included.
     const reach = (lane, up) => Math.max(0.25, ...laneUnits(objects, lane).map(unit =>
       unit.size.h / 2 + ((unit.stack.direction > 0) === up ? unit.stack.height : 0)));
@@ -140448,30 +140548,21 @@ three/build/three.module.js:
 
   function extent(objects, item) {
     if (!item.group) return widthOf(objects.get(item.block));
-    const group = groups[item.group], count = group.blocks.length;
-    return view.expanded.has(group.id)
-      ? group.blocks.reduce((sum, id) => sum + widthOf(objects.get(id)), 0) + (count - 1) * LAYER_GAP
-      : objects.get(group.id).size.w;
+    if (!view.expanded.has(item.group)) return objects.get(item.group).size.w;
+    const children = groupItems(groups[item.group]);
+    return children.reduce((sum, child) => sum + extent(objects, child), 0) + (children.length - 1) * LAYER_GAP + (model.edges ? 1.2 : 0);
   }
 
-  function placeItem(objects, item, x, y) {
-    if (!item.group) {
-      const object = objects.get(item.block);
-      object.target.x = x;
-      object.target.y = y;
-      object.shown = true;
-      return;
-    }
-    const group = groups[item.group], box = objects.get(group.id), expanded = view.expanded.has(group.id);
-    box.target.x = x;
-    box.target.y = y;
-    box.shown = !expanded;
-    let cursor = x - extent(objects, item) / 2;
-    group.blocks.forEach(id => {
-      const member = objects.get(id), width = widthOf(member);
-      member.shown = expanded;
-      member.target.x = expanded ? cursor + width / 2 : x;
-      member.target.y = y;
+  function placeItem(objects, item, x, y, visible = true) {
+    const object = objects.get(item.group || item.block);
+    object.target.x = x; object.target.y = y;
+    const expanded = item.group && view.expanded.has(item.group);
+    object.shown = visible && !expanded;
+    if (!item.group) return;
+    let cursor = x - extent(objects, item) / 2 + (model.edges ? 0.6 : 0);
+    groupItems(groups[item.group]).forEach(child => {
+      const width = extent(objects, child);
+      placeItem(objects, child, visible && expanded ? cursor + width / 2 : x, y, visible && expanded);
       cursor += width + LAYER_GAP;
     });
   }
@@ -140479,6 +140570,19 @@ three/build/three.module.js:
   // Links join consecutive visible units in a lane, plus the recorded cross-lane Tensor links.
   function linkPairs(objects) {
     const pairs = [];
+    if (model.edges) {
+      const seen = new Set();
+      model.edges.forEach(edge => {
+        if (!blockShown(edge.from) || !blockShown(edge.to)) return;
+        const from = unitOf(objects, edge.from), to = unitOf(objects, edge.to);
+        const key = from.id + ':' + to.id;
+        if (from === to || seen.has(key)) return;
+        seen.add(key);
+        const chain = laneUnits(objects, lanes.find(lane => lane.id === from.lane));
+        pairs.push([from, to, edge.shortcut, from.lane === to.lane && chain.indexOf(to) > chain.indexOf(from) + 1]);
+      });
+      return pairs;
+    }
     lanes.filter(laneShown).forEach(lane => {
       const chain = laneUnits(objects, lane);
       chain.slice(1).forEach((unit, index) => pairs.push([chain[index], unit]));
@@ -140496,7 +140600,7 @@ three/build/three.module.js:
   // World-space corners of an object with its panel stack (and room above for its label).
   function cornersOf(object) {
     const t = object.target, s = object.size, half = widthOf(object) / 2, list = [];
-    const top = topOf(object) + 1.0, bottom = -s.h / 2 - (object.stack.direction < 0 ? object.stack.height : 0);
+    const top = topOf(object) + (model.edges ? 2.0 : 1.0), bottom = -s.h / 2 - (object.stack.direction < 0 ? object.stack.height : 0) - (model.edges ? 1.9 : 0);
     [-half, half].forEach(x => [bottom, top].forEach(y => [-s.d / 2, s.d / 2].forEach(z => list.push({x: t.x + x, y: t.y + y, z}))));
     return list;
   }
@@ -140530,7 +140634,7 @@ three/build/three.module.js:
 
   const above = (object, lift) => ({x: object.current.x, y: object.current.y + topOf(object) + lift, z: 0});
   // World y of an expanded group's label: above its tallest layer, panels included.
-  const groupTop = members => members[0].current.y + Math.max(...members.map(topOf)) + 0.7;
+  const groupTop = members => Math.max(...members.map(object => object.current.y + topOf(object))) + 0.7;
 
   // Static labels name lanes, groups, inputs and results; other blocks are named only
   // while hovered or active, which keeps the default view to a handful of words.
@@ -140545,14 +140649,16 @@ three/build/three.module.js:
     });
     Object.values(groups).forEach(group => {
       const element = addLabel(list, layer, '', () => {
-        const members = group.blocks.map(id => objects.get(id)), box = objects.get(group.id);
+        const members = groupMembers(objects, group), box = objects.get(group.id);
         if (!view.expanded.has(group.id)) return box.visible() ? above(box, 0.7) : null;
+        if (!members.length) return null;
         const first = members[0].current, last = members[members.length - 1].current;
-        return {x: (first.x + last.x) / 2, y: groupTop(members), z: 0};
+        return {x: (first.x + last.x) / 2, y: groupTop(members) + (group.items?.some(item => item.group) ? 0.8 : 0), z: 0};
       }, 1, 'group', () => toggleGroup(group.id));
       element.dataset.group = group.id;
+      if (model.edges) { element.classList.add('module-label'); element.style.borderColor=groupStyle(group).edge; }
       objects.get(group.id).labelElement = element;
-      group.blocks.forEach(id => addLabel(list, layer, blocks[id].label, () => {
+      groupItems(group).filter(item => item.block).forEach(({block: id}) => addLabel(list, layer, blocks[id].label, () => {
         const object = objects.get(id);
         return object.visible() ? above(object, 0.25) : null;
       }, 3, 'minor'));
@@ -140571,7 +140677,7 @@ three/build/three.module.js:
   function refreshGroupLabels(objects) {
     Object.values(groups).forEach(group => {
       const element = objects.get(group.id).labelElement;
-      element.textContent = group.label + ' ×' + group.blocks.length + (view.expanded.has(group.id) ? '  −' : '  +');
+      element.textContent = group.label + ' ×' + groupItems(group).length + (view.expanded.has(group.id) ? '  −' : '  +');
       element.setAttribute('aria-expanded', String(view.expanded.has(group.id)));
     });
   }
@@ -140610,6 +140716,10 @@ three/build/three.module.js:
     if (view.expanded.has(id)) view.expanded.delete(id);
     else view.expanded.add(id);
     started().forEach(renderer => renderer.relayout(false));
+    if (model.edges && current()) {
+      if (view.expanded.has(id)) current().focusGroup(id);
+      else current().fitAll();
+    }
     sync();
   }
 
@@ -140690,10 +140800,12 @@ three/build/three.module.js:
   function focus(id) {
     const block = blocks[id];
     if (!block) return;
-    if (block.group && !view.expanded.has(block.group)) {
-      view.expanded.add(block.group);
-      started().forEach(renderer => renderer.relayout(false));
+    let parent = block.group, changed = false;
+    while (parent) {
+      if (!view.expanded.has(parent)) { view.expanded.add(parent); changed = true; }
+      parent = groups[parent].parent;
     }
+    if (changed) started().forEach(renderer => renderer.relayout(false));
     sync();
     const renderer = current();
     if (renderer && renderer.focus) renderer.focus(id);
@@ -140739,6 +140851,7 @@ three/build/three.module.js:
     view.mode = mode;
     document.querySelector('.center').classList.toggle('mode-3d', mode === '3d');
     [['view-2d', mode === '2d'], ['view-3d', mode === '3d']].forEach(([id, on]) => {
+      if (!E(id)) return;
       E(id).classList.toggle('active', on);
       E(id).setAttribute('aria-pressed', String(on));
     });
@@ -140766,6 +140879,18 @@ three/build/three.module.js:
       typeButtons.set(key, button);
       bar.appendChild(button);
     });
+    const channels = Math.max(0, ...Object.values(views).map(item => item.channels?.channels || 0));
+    if (channels) {
+      const label = node('label', 'Channel ', 'scene-head'), select = node('input');
+      select.type = 'number'; select.min = '0'; select.max = String(channels - 1); select.value = '0';
+      select.setAttribute('aria-label', 'Feature channel'); select.style.width = '60px';
+      select.addEventListener('input', () => {
+        view.channel = Math.max(0, Math.min(channels - 1, Math.trunc(Number(select.value) || 0)));
+        select.value = String(view.channel); redrawPanels('channels');
+      });
+      label.appendChild(select); bar.appendChild(label);
+      label.title = 'Zero-based channel; layers with fewer channels show their last channel. Each map uses its own range.';
+    }
     const heads = Math.max(0, ...Object.values(views).flatMap(item => [item.attention, item.cross]).map(data => data ? data.heads : 0));
     const headWrap = node('label', 'Head', 'scene-head');
     headSelect = document.createElement('select');
@@ -140817,7 +140942,7 @@ three/build/three.module.js:
     const visible = current();
     return Object.assign({
       mode: view.mode, expanded: [...view.expanded], open: [...view.open], types: [...view.types],
-      head: view.head, style: view.style, active: view.active,
+      head: view.head, channel: view.channel, style: view.style, active: view.active,
     }, visible && visible.snapshot ? visible.snapshot() : {});
   }
 
@@ -140840,9 +140965,9 @@ three/build/three.module.js:
   document.addEventListener('DOMContentLoaded', start);
   window.XRAY_SCENE = {
     model, blocks, groups, lanes, view, TILE_GAP, PLATE, PLATE_GAP,
-    palette, inputKind, slabSize, patchGrid, groupSize, sourceImage, tokenCanvas,
+    palette, moduleStyle, blockStyle, groupStyle, groupCanvas, inputKind, slabSize, patchGrid, groupSize, sourceImage, tokenCanvas,
     makePanels, arrangePanels, panelDirection, widthOf, topOf, groupTop, cornersOf, framed, nudge,
-    layout, linkPairs, buildLabels, refreshGroupLabels, placeLabels,
+    layout, linkPairs, groupMembers, groupItems, buildLabels, refreshGroupLabels, placeLabels,
     register, activate, hover,
   };
 })();
@@ -140914,10 +141039,11 @@ three/build/three.module.js:
       tokens.canvas.style.height = px(size.h) + 'px';
       element.appendChild(tokens.canvas);
     } else {
-      const colours = S.palette(block.lane);
-      size = Object.assign(S.slabSize(block), {w: BLOCK});
+      const colours = S.blockStyle(block);
+      size = Object.assign(S.slabSize(block), {w: S.model.edges ? 1.6 : BLOCK});
       element = button('b2d ' + block.lane, pick, title);
       Object.assign(element.style, {background: colours.face, borderColor: colours.edge});
+      if (S.model.edges) { element.classList.add('module-card'); element.append(node('span',colours.title),node('small',(block.shape||[]).slice(1).join(' × '))); }
     }
     element.dataset.block = block.id;
     element.title = title;
@@ -140932,10 +141058,11 @@ three/build/three.module.js:
 
   // A collapsed group is the same tight stack of thin plates as in 3D, seen head-on.
   function buildGroup(group) {
-    const member = objects.get(group.blocks[0]).size, size = S.groupSize(group, member), colours = S.palette(group.lane);
-    const element = button('g2d ' + group.lane, {kind: 'group', id: group.id}, group.label + ' ×' + group.blocks.length);
+    const member = objects.get(group.blocks[0]).size, size = S.groupSize(group, member), colours = S.groupStyle(group);
+    const element = button('g2d ' + group.lane, {kind: 'group', id: group.id}, group.label + ' ×' + S.groupItems(group).length);
     element.dataset.group = group.id;
-    group.blocks.forEach((_, index) => {
+    if (S.model.edges) { element.classList.add('module-card'); element.style.borderColor=colours.edge; element.appendChild(S.groupCanvas(group)); }
+    else group.blocks.forEach((_, index) => {
       const plate = node('span', undefined, 'plate');
       Object.assign(plate.style, {left: px(index * (S.PLATE + S.PLATE_GAP)) + 'px', width: px(S.PLATE) + 'px',
         background: colours.face, borderColor: colours.edge});
@@ -140983,7 +141110,7 @@ three/build/three.module.js:
     links.forEach(line => line.remove());
     linkPairs = S.linkPairs(objects);
     links = linkPairs.map(() => {
-      const line = document.createElementNS(linkLayer.namespaceURI, 'line');
+      const line = document.createElementNS(linkLayer.namespaceURI, 'path');
       linkLayer.appendChild(line);
       return line;
     });
@@ -141004,25 +141131,28 @@ three/build/three.module.js:
     // Expanded groups keep a light dashed outline, one screen pixel wide, around their layers and
     // opened panels; its top edge stops just under the group label.
     frames.forEach((outline, id) => {
-      const members = groups[id].blocks.map(member => objects.get(member)).filter(object => object.shown);
+      const members = S.groupMembers(objects, groups[id]);
+      const parent = groups[id].items?.some(item => item.group), padding = parent ? 0.65 : FRAME_PAD;
       outline.hidden = !view.expanded.has(id) || !members.length;
       if (outline.hidden) return;
-      const left = Math.min(...members.map(object => object.current.x - S.widthOf(object) / 2)) - FRAME_PAD;
-      const right = Math.max(...members.map(object => object.current.x + S.widthOf(object) / 2)) + FRAME_PAD;
+      const left = Math.min(...members.map(object => object.current.x - S.widthOf(object) / 2)) - padding;
+      const right = Math.max(...members.map(object => object.current.x + S.widthOf(object) / 2)) + padding;
       // Near the minimum zoom the label gap would cut into the tallest layer, so keep 2 pixels above it.
       const content = Math.max(...members.map(object => object.current.y + S.topOf(object)));
-      const top = Math.max(content + 2 / (UNIT * camera.s), S.groupTop(members) - FRAME_GAP / (UNIT * camera.s));
+      const top = Math.max(content + 2 / (UNIT * camera.s), S.groupTop(members) + (parent ? 0.8 : 0) - FRAME_GAP / (UNIT * camera.s));
       const bottom = Math.min(...members.map(object => object.current.y - object.size.h / 2
-        - (object.stack.direction < 0 ? object.stack.height : 0))) - FRAME_PAD;
+        - (object.stack.direction < 0 ? object.stack.height : 0))) - (S.model.edges ? (parent ? 1.9 : 1.5) : FRAME_PAD);
       Object.assign(outline.style, {left: px(left) + 'px', top: px(-top) + 'px', width: px(right - left) + 'px',
-        height: px(top - bottom) + 'px', borderWidth: 1 / camera.s + 'px'});
+        height: px(top - bottom) + 'px', borderWidth: (S.model.edges ? 1.6 : 1) / camera.s + 'px'});
     });
-    linkPairs.forEach(([from, to], index) => {
-      const line = links[index];
-      line.setAttribute('x1', px(from.current.x + from.size.w / 2));
-      line.setAttribute('y1', px(-from.current.y));
-      line.setAttribute('x2', px(to.current.x - to.size.w / 2));
-      line.setAttribute('y2', px(-to.current.y));
+    linkPairs.forEach(([from, to, shortcut, detour], index) => {
+      const line = links[index], x1 = px(from.current.x + from.size.w / 2), y1 = px(-from.current.y);
+      const x2 = px(to.current.x - to.size.w / 2), y2 = px(-to.current.y);
+      const bottom = Math.max(y1 + px(from.size.h / 2), y2 + px(to.size.h / 2)) + px(shortcut ? 1.2 : 0.65);
+      line.setAttribute('d', shortcut || detour ? `M ${x1} ${y1} C ${x1} ${bottom}, ${x2} ${bottom}, ${x2} ${y2}` : `M ${x1} ${y1} L ${x2} ${y2}`);
+      line.setAttribute('fill', 'none'); line.setAttribute('stroke', shortcut ? '#b78f70' : '#a9bccb');
+      line.setAttribute('stroke-width', shortcut ? '2' : '1.2');
+      line.dataset.shortcut = String(Boolean(shortcut));
     });
     S.placeLabels(labels, plane.getBoundingClientRect(), project);
   }
@@ -141087,8 +141217,8 @@ three/build/three.module.js:
 
   // Frame everything shown: fit its bounds into the plane, centred. Clicks never call this; they
   // keep the zoom (see ``hold``).
-  function fit(animate) {
-    const corners = S.framed(objects).flatMap(S.cornersOf);
+  function fit(animate, selection) {
+    const corners = (selection || S.framed(objects)).flatMap(S.cornersOf);
     if (!corners.length) return;
     const xs = corners.map(corner => px(corner.x)), ys = corners.map(corner => px(-corner.y));
     const [left, right, top, bottom] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
@@ -141231,7 +141361,8 @@ three/build/three.module.js:
     // Outlines sit behind the links and blocks and never take clicks.
     Object.values(groups).forEach(group => {
       const outline = node('div', undefined, 'frame2d ' + group.lane);
-      outline.style.borderColor = S.palette(group.lane).edge + '73';
+      outline.style.borderColor = S.groupStyle(group).edge + 'aa';
+      if (S.model.edges) outline.classList.add('module-frame');
       outline.dataset.frame = group.id;
       outline.hidden = true;
       worldEl.insertBefore(outline, linkLayer);
@@ -141292,7 +141423,7 @@ three/build/three.module.js:
     started: () => ready,
     hide: () => { stageEl.hidden = true; },
     repaint: () => { if (ready) paint(); },
-    fitAll: () => fit(true),
+    focusGroup: id => fit(true, S.groupMembers(objects, groups[id])), fitAll: () => fit(true),
   });
 })();
 </script>
@@ -141305,7 +141436,7 @@ three/build/three.module.js:
   const {blocks, groups, lanes, view} = S;
   const DEFAULT_DIRECTION = [-0.5, 0.42, 1], FOCUS_DISTANCE = 14;
   const stageEl = E('scene-stage'), holder = E('scene-canvas'), labelLayer = E('scene-labels'), note = E('scene-note');
-  const objects = new Map();
+  const objects = new Map(), frames = new Map();
   let labels = [], renderer = null, camera = null, controls = null, world = null, links = null, linkPairs = [];
   let frame = 0, tweens = [], imageTexture = null, fitted = false, needsFit = false;
 
@@ -141323,11 +141454,11 @@ three/build/three.module.js:
     return mesh;
   }
 
-  function slabParts(size, lane, pick) {
+  function slabParts(size, lane, pick, colours = S.palette(lane)) {
     const geometry = new THREE.BoxGeometry(size.w, size.h, size.d);
-    const mesh = pickable(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: S.palette(lane).face, roughness: 0.85, metalness: 0})), pick);
+    const mesh = pickable(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: colours.face, roughness: 0.85, metalness: 0})), pick);
     const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry),
-      new THREE.LineBasicMaterial({color: S.palette(lane).edge, transparent: true, opacity: 0.6}));
+      new THREE.LineBasicMaterial({color: colours.edge, transparent: true, opacity: 0.6}));
     return {meshes: [mesh], edges: [edges]};
   }
 
@@ -141390,7 +141521,7 @@ three/build/three.module.js:
       parts = {meshes: [plane(size.w, size.h, canvasTexture(tokens.canvas), null, pick)], edges: [frameLines(size.w, size.h, block.lane)]};
     } else {
       size = S.slabSize(block);
-      parts = slabParts(size, block.lane, pick);
+      parts = slabParts(size, block.lane, pick, S.blockStyle(block));
     }
     [...parts.meshes, ...parts.edges].forEach(part => node3.add(part));
     return {id: block.id, kind: 'block', lane: block.lane, node: node3, current: node3.position, visible: () => node3.visible,
@@ -141401,7 +141532,12 @@ three/build/three.module.js:
   function buildGroup(group) {
     const member = objects.get(group.blocks[0]).size, size = S.groupSize(group, member), node3 = new THREE.Group();
     const parts = {meshes: [], edges: []};
-    group.blocks.forEach((_, index) => {
+    if (S.model.edges) {
+      const box=slabParts(size,group.lane,{kind:'group',id:group.id},S.groupStyle(group));
+      const label=plane(size.w,size.h,canvasTexture(S.groupCanvas(group)),null,{kind:'group',id:group.id}); label.position.z=size.d/2+0.01;
+      parts.meshes.push(...box.meshes,label);parts.edges.push(...box.edges);
+      [...parts.meshes,...parts.edges].forEach(part=>node3.add(part));
+    } else group.blocks.forEach((_, index) => {
       const plate = slabParts({w: S.PLATE, h: member.h, d: member.d}, group.lane, {kind: 'group', id: group.id});
       [...plate.meshes, ...plate.edges].forEach(part => {
         part.position.x = -size.w / 2 + S.PLATE / 2 + index * (S.PLATE + S.PLATE_GAP);
@@ -141445,8 +141581,14 @@ three/build/three.module.js:
       links.geometry.dispose();
     }
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(linkPairs.length * 6), 3));
-    links = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({color: '#a9bccb', transparent: true, opacity: 0.8}));
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(linkPairs.length * 18), 3));
+    const colours = new Float32Array(linkPairs.length * 18);
+    linkPairs.forEach(([, , shortcut], index) => {
+      const colour = new THREE.Color(shortcut ? '#b78f70' : '#a9bccb');
+      for (let vertex = 0; vertex < 6; vertex++) colour.toArray(colours, index * 18 + vertex * 3);
+    });
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colours, 3));
+    links = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({vertexColors: true, transparent: true, opacity: 0.85}));
     world.add(links);
     updateLinks();
   }
@@ -141454,9 +141596,20 @@ three/build/three.module.js:
   function updateLinks() {
     if (!links) return;
     const array = links.geometry.attributes.position.array;
-    linkPairs.forEach(([from, to], index) => {
+    linkPairs.forEach(([from, to, shortcut, detour], index) => {
       const a = from.node.position, b = to.node.position;
-      array.set([a.x + from.size.w / 2, a.y, 0, b.x - to.size.w / 2, b.y, 0], index * 6);
+      const x1 = a.x + from.size.w / 2, x2 = b.x - to.size.w / 2;
+      const bottom = Math.min(a.y - from.size.h / 2, b.y - to.size.h / 2) - (shortcut ? 1.2 : 0.65);
+      const y1 = shortcut || detour ? bottom : a.y, y2 = shortcut || detour ? bottom : b.y;
+      array.set([x1, a.y, 0, x1, y1, 0, x1, y1, 0, x2, y2, 0, x2, y2, 0, x2, b.y, 0], index * 18);
+    });
+    frames.forEach((frame,id)=>{
+      const members=S.groupMembers(objects,groups[id]), parent=groups[id].items?.some(item=>item.group);frame.visible=view.expanded.has(id)&&members.length>0;
+      if(!frame.visible)return;
+      const pad = parent ? 0.7 : 0.4;
+      const left=Math.min(...members.map(o=>o.node.position.x-S.widthOf(o)/2))-pad,right=Math.max(...members.map(o=>o.node.position.x+S.widthOf(o)/2))+pad;
+      const top=Math.max(...members.map(o=>o.node.position.y+S.topOf(o)))+(parent?1.4:.6),bottom=Math.min(...members.map(o=>o.node.position.y-o.size.h/2))-(parent?1.9:1.5);
+      frame.position.set((left+right)/2,(top+bottom)/2,parent?-2:-1.8);frame.scale.set(right-left,top-bottom,1);
     });
     links.geometry.attributes.position.needsUpdate = true;
     links.geometry.computeBoundingSphere();
@@ -141500,10 +141653,10 @@ three/build/three.module.js:
   }
 
   // Frame everything shown along the current viewing direction (or the default one): centre the
-  // content across the view, then back off until each corner fits the frustum. Clicks never call
-  // this; they keep the zoom (see ``hold``).
-  function fit(animate, resetDirection) {
-    const corners = S.framed(objects).flatMap(S.cornersOf).map(corner => new THREE.Vector3(corner.x, corner.y, corner.z));
+  // content across the view, then back off until each corner fits the frustum. CNN groups may
+  // frame their members; opening a value panel keeps the zoom (see ``hold``).
+  function fit(animate, resetDirection, selection) {
+    const corners = (selection || S.framed(objects)).flatMap(S.cornersOf).map(corner => new THREE.Vector3(corner.x, corner.y, corner.z));
     if (!corners.length) return;
     const back = camera.position.clone().sub(controls.target);
     if (resetDirection || !fitted || back.lengthSq() < 1e-6) back.set(...DEFAULT_DIRECTION);
@@ -141589,12 +141742,13 @@ three/build/three.module.js:
   function paint() {
     objects.forEach(object => {
       const active = object.id === view.active, hover = object.id === view.hover;
+      const colours = object.kind === 'group' ? S.groupStyle(groups[object.id]) : S.blockStyle(blocks[object.id]);
       object.meshes.forEach(mesh => {
         const patch = mesh.userData.pick && mesh.userData.pick.patch;
         if (mesh.material.emissive) {
-          mesh.material.emissive.set(active ? S.palette(object.lane).edge : '#000000');
+          mesh.material.emissive.set(active ? colours.edge : '#000000');
           mesh.material.emissiveIntensity = active ? 0.32 : 0;
-          mesh.material.color.set(hover && !active ? '#eef5fa' : S.palette(object.lane).face);
+          mesh.material.color.set(hover && !active ? '#eef5fa' : colours.face);
         }
         if (patch !== undefined) mesh.position.z = state.patchIndex === patch ? 0.18 : 0;
       });
@@ -141696,6 +141850,12 @@ three/build/three.module.js:
     Object.values(blocks).forEach(block => objects.set(block.id, buildBlock(block)));
     Object.values(groups).forEach(group => objects.set(group.id, buildGroup(group)));
     objects.forEach(object => world.add(object.node));
+    if(S.model.edges) Object.values(groups).forEach(group=>{
+      const frame=new THREE.Group(), colour=S.groupStyle(group).edge;
+      frame.add(new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:S.groupStyle(group).face,transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false})));
+      frame.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(1,1)),new THREE.LineBasicMaterial({color:colour,transparent:true,opacity:.7})));
+      frame.visible=false;world.add(frame);frames.set(group.id,frame);
+    });
     labels = S.buildLabels(objects, labelLayer);
     bindPointer(renderer.domElement);
     new ResizeObserver(resize).observe(holder);
@@ -141800,6 +141960,7 @@ three/build/three.module.js:
     available: () => lanes.length > 0 && !E('view-3d').disabled,
     hide: () => { stageEl.hidden = true; },
     repaint: () => { if (renderer) paint(); },
+    focusGroup: id => fit(true, false, S.groupMembers(objects, groups[id])),
     fitAll: () => fit(true, true),
   });
 })();
@@ -141888,4 +142049,5 @@ three/build/three.module.js:
 
   window.XRAY_SIMILARITY = {sync};
 })();
-</script></body></html>
+</script>
+</body></html>

@@ -5,6 +5,34 @@
     "subtitle": "一张猫的照片，三条文本提示",
     "description": "图片和文字如何走过两个编码器，汇合成相似度？逐层展开视觉与文本分支，查看注意力、中间激活与最终结果。",
     "preview": "assets/readme/hero-3d.webp",
-    "tags": ["图像 × 文本", "24 encoder layers", "2D / 3D"]
+    "tags": [
+      "图像 × 文本",
+      "24 encoder layers",
+      "2D / 3D"
+    ]
+  },
+  {
+    "slug": "alexnet-cat",
+    "title": "AlexNet",
+    "subtitle": "从卷积特征到 1000 类预测",
+    "description": "一张猫的照片走过经典 CNN：展开卷积、池化与全连接层，切换特征通道，观察空间分辨率如何缩小，最后查看 ImageNet 分类结果。",
+    "preview": "assets/readme/alexnet-example.webp",
+    "tags": [
+      "经典 CNN",
+      "5 convolution layers",
+      "Feature channels"
+    ]
+  },
+  {
+    "slug": "resnet18-cat",
+    "title": "ResNet-18",
+    "subtitle": "沿着残差连接，追踪两路信息的相加",
+    "description": "逐个展开残差块，查看主分支、恒等捷径与下采样投影。每个 Add 节点都保留真实的两个输入，2D 与 3D 共用同一份执行记录。",
+    "preview": "assets/readme/resnet18-example.webp",
+    "tags": [
+      "8 residual blocks",
+      "Identity / projection",
+      "2D / 3D"
+    ]
   }
 ]

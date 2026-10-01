@@ -65,10 +65,11 @@
       tokens.canvas.style.height = px(size.h) + 'px';
       element.appendChild(tokens.canvas);
     } else {
-      const colours = S.palette(block.lane);
-      size = Object.assign(S.slabSize(block), {w: BLOCK});
+      const colours = S.blockStyle(block);
+      size = Object.assign(S.slabSize(block), {w: S.model.edges ? 1.6 : BLOCK});
       element = button('b2d ' + block.lane, pick, title);
       Object.assign(element.style, {background: colours.face, borderColor: colours.edge});
+      if (S.model.edges) { element.classList.add('module-card'); element.append(node('span',colours.title),node('small',(block.shape||[]).slice(1).join(' × '))); }
     }
     element.dataset.block = block.id;
     element.title = title;
@@ -83,10 +84,11 @@
 
   // A collapsed group is the same tight stack of thin plates as in 3D, seen head-on.
   function buildGroup(group) {
-    const member = objects.get(group.blocks[0]).size, size = S.groupSize(group, member), colours = S.palette(group.lane);
-    const element = button('g2d ' + group.lane, {kind: 'group', id: group.id}, group.label + ' ×' + group.blocks.length);
+    const member = objects.get(group.blocks[0]).size, size = S.groupSize(group, member), colours = S.groupStyle(group);
+    const element = button('g2d ' + group.lane, {kind: 'group', id: group.id}, group.label + ' ×' + S.groupItems(group).length);
     element.dataset.group = group.id;
-    group.blocks.forEach((_, index) => {
+    if (S.model.edges) { element.classList.add('module-card'); element.style.borderColor=colours.edge; element.appendChild(S.groupCanvas(group)); }
+    else group.blocks.forEach((_, index) => {
       const plate = node('span', undefined, 'plate');
       Object.assign(plate.style, {left: px(index * (S.PLATE + S.PLATE_GAP)) + 'px', width: px(S.PLATE) + 'px',
         background: colours.face, borderColor: colours.edge});
@@ -134,7 +136,7 @@
     links.forEach(line => line.remove());
     linkPairs = S.linkPairs(objects);
     links = linkPairs.map(() => {
-      const line = document.createElementNS(linkLayer.namespaceURI, 'line');
+      const line = document.createElementNS(linkLayer.namespaceURI, 'path');
       linkLayer.appendChild(line);
       return line;
     });
@@ -155,25 +157,28 @@
     // Expanded groups keep a light dashed outline, one screen pixel wide, around their layers and
     // opened panels; its top edge stops just under the group label.
     frames.forEach((outline, id) => {
-      const members = groups[id].blocks.map(member => objects.get(member)).filter(object => object.shown);
+      const members = S.groupMembers(objects, groups[id]);
+      const parent = groups[id].items?.some(item => item.group), padding = parent ? 0.65 : FRAME_PAD;
       outline.hidden = !view.expanded.has(id) || !members.length;
       if (outline.hidden) return;
-      const left = Math.min(...members.map(object => object.current.x - S.widthOf(object) / 2)) - FRAME_PAD;
-      const right = Math.max(...members.map(object => object.current.x + S.widthOf(object) / 2)) + FRAME_PAD;
+      const left = Math.min(...members.map(object => object.current.x - S.widthOf(object) / 2)) - padding;
+      const right = Math.max(...members.map(object => object.current.x + S.widthOf(object) / 2)) + padding;
       // Near the minimum zoom the label gap would cut into the tallest layer, so keep 2 pixels above it.
       const content = Math.max(...members.map(object => object.current.y + S.topOf(object)));
-      const top = Math.max(content + 2 / (UNIT * camera.s), S.groupTop(members) - FRAME_GAP / (UNIT * camera.s));
+      const top = Math.max(content + 2 / (UNIT * camera.s), S.groupTop(members) + (parent ? 0.8 : 0) - FRAME_GAP / (UNIT * camera.s));
       const bottom = Math.min(...members.map(object => object.current.y - object.size.h / 2
-        - (object.stack.direction < 0 ? object.stack.height : 0))) - FRAME_PAD;
+        - (object.stack.direction < 0 ? object.stack.height : 0))) - (S.model.edges ? (parent ? 1.9 : 1.5) : FRAME_PAD);
       Object.assign(outline.style, {left: px(left) + 'px', top: px(-top) + 'px', width: px(right - left) + 'px',
-        height: px(top - bottom) + 'px', borderWidth: 1 / camera.s + 'px'});
+        height: px(top - bottom) + 'px', borderWidth: (S.model.edges ? 1.6 : 1) / camera.s + 'px'});
     });
-    linkPairs.forEach(([from, to], index) => {
-      const line = links[index];
-      line.setAttribute('x1', px(from.current.x + from.size.w / 2));
-      line.setAttribute('y1', px(-from.current.y));
-      line.setAttribute('x2', px(to.current.x - to.size.w / 2));
-      line.setAttribute('y2', px(-to.current.y));
+    linkPairs.forEach(([from, to, shortcut, detour], index) => {
+      const line = links[index], x1 = px(from.current.x + from.size.w / 2), y1 = px(-from.current.y);
+      const x2 = px(to.current.x - to.size.w / 2), y2 = px(-to.current.y);
+      const bottom = Math.max(y1 + px(from.size.h / 2), y2 + px(to.size.h / 2)) + px(shortcut ? 1.2 : 0.65);
+      line.setAttribute('d', shortcut || detour ? `M ${x1} ${y1} C ${x1} ${bottom}, ${x2} ${bottom}, ${x2} ${y2}` : `M ${x1} ${y1} L ${x2} ${y2}`);
+      line.setAttribute('fill', 'none'); line.setAttribute('stroke', shortcut ? '#b78f70' : '#a9bccb');
+      line.setAttribute('stroke-width', shortcut ? '2' : '1.2');
+      line.dataset.shortcut = String(Boolean(shortcut));
     });
     S.placeLabels(labels, plane.getBoundingClientRect(), project);
   }
@@ -238,8 +243,8 @@
 
   // Frame everything shown: fit its bounds into the plane, centred. Clicks never call this; they
   // keep the zoom (see ``hold``).
-  function fit(animate) {
-    const corners = S.framed(objects).flatMap(S.cornersOf);
+  function fit(animate, selection) {
+    const corners = (selection || S.framed(objects)).flatMap(S.cornersOf);
     if (!corners.length) return;
     const xs = corners.map(corner => px(corner.x)), ys = corners.map(corner => px(-corner.y));
     const [left, right, top, bottom] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
@@ -382,7 +387,8 @@
     // Outlines sit behind the links and blocks and never take clicks.
     Object.values(groups).forEach(group => {
       const outline = node('div', undefined, 'frame2d ' + group.lane);
-      outline.style.borderColor = S.palette(group.lane).edge + '73';
+      outline.style.borderColor = S.groupStyle(group).edge + 'aa';
+      if (S.model.edges) outline.classList.add('module-frame');
       outline.dataset.frame = group.id;
       outline.hidden = true;
       worldEl.insertBefore(outline, linkLayer);
@@ -443,6 +449,6 @@
     started: () => ready,
     hide: () => { stageEl.hidden = true; },
     repaint: () => { if (ready) paint(); },
-    fitAll: () => fit(true),
+    focusGroup: id => fit(true, S.groupMembers(objects, groups[id])), fitAll: () => fit(true),
   });
 })();

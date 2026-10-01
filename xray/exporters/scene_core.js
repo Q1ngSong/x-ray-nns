@@ -13,7 +13,7 @@
   };
   // Lanes the palette does not name take the colour of their place in the scene's lane order.
   const CYCLE = [PALETTE.text, PALETTE.model, PALETTE.vision, {face: '#f1e1e8', edge: '#a9829a'}, PALETTE.fusion];
-  const TYPES = [['hidden', 'Layer output'], ['attention', 'Attention'], ['cross', 'Cross-attention'], ['mlp', 'MLP activation'],
+  const TYPES = [['hidden', 'Layer output'], ['channels', 'Feature channels'], ['attention', 'Attention'], ['cross', 'Cross-attention'], ['mlp', 'MLP activation'],
     ['qkv', 'Q / K / V'], ['output', 'Final output']];
   // World units: slabs are thin along x (the flow axis); lanes stack along y.
   const GAP = 0.9, LAYER_GAP = 1.0, SLAB = 0.3, PLATE = 0.07, PLATE_GAP = 0.05, LANE_GAP = 2.4, TILE_GAP = 0.05;
@@ -22,7 +22,7 @@
   const FONT = 'ui-monospace, SFMono-Regular, Menlo, monospace';
   const ATTENTION_RAMP = [[247, 249, 252], [46, 84, 122]], MLP_RAMP = [[241, 246, 244], [47, 110, 96]];
   const view = {mode: '2d', expanded: new Set(), open: new Set(), types: new Set(['hidden', 'output']),
-    head: 'avg', style: 'matrix', active: null, hover: null};
+    channel: 0, head: 'avg', style: 'matrix', active: null, hover: null};
   const similarityIds = Object.keys(views).filter(id => views[id].output?.similarity);
   if (similarityIds.length) view.types.delete('output');
   const renderers = new Map(), decoded = new Map(), imageWaiters = [];
@@ -35,6 +35,74 @@
     const index = lanes.findIndex(item => item.id === lane);
     return PALETTE[lane] || (index < 0 ? PALETTE.model : CYCLE[index % CYCLE.length]);
   };
+  // CNN module roles keep the same visual vocabulary in 2D and 3D.
+  function moduleStyle(type) {
+    const styles = {
+      Conv2d: ['#dcebf8', '#648faf', 'Conv'], BatchNorm2d: ['#e6eaf3', '#8794b1', 'BN'],
+      ReLU: ['#fff1ce', '#c49b48', 'ReLU'], MaxPool2d: ['#dbf0e9', '#589d87', 'MaxPool'],
+      AdaptiveAvgPool2d: ['#dcf1ea', '#589d87', 'AvgPool'], Linear: ['#eadff3', '#997ab0', 'Linear'],
+      Dropout: ['#f0e9f3', '#ad95b7', 'Dropout'], _FunctionCall: ['#fff0db', '#c18a4b', 'Add (+)'],
+    };
+    const [face, edge, title] = styles[type] || ['#edf2f5', '#8da4b1', type];
+    return {face, edge, title};
+  }
+  function blockStyle(block) {
+    if (!model.edges) return palette(block.lane);
+    const type = operations.get(block.operations[0])?.type || block.label;
+    const style = moduleStyle(type);
+    if (type === '_FunctionCall' && block.semantic !== 'residual_add') return {...moduleStyle('Flatten'), title: 'Flatten'};
+    if (block.kind === 'result') return {...moduleStyle('Linear'), title: 'Scores'};
+    return style;
+  }
+  function groupStyle(group) {
+    const index = Math.max(0, Number(group.id.match(/^(?:layer|features\.stage)([1-4])/)?.[1] || (group.id === 'classifier' ? 3 : 1)) - 1);
+    const colours = [['#e7f1fb','#648faf'],['#e5f3ee','#629d89'],['#f0eaf7','#9a84b6'],['#fcf0dd','#bb955d']];
+    return model.edges ? {face:colours[index][0],edge:colours[index][1]} : palette(group.lane);
+  }
+  function groupCanvas(group) {
+    const canvas = document.createElement('canvas'); canvas.width = 420; canvas.height = 320;
+    const ctx = canvas.getContext('2d'), colours = groupStyle(group);
+    const residual = !group.items && group.blocks.some(id => blocks[id].semantic === 'residual_add');
+    const children = group.items?.filter(item => item.group) || [];
+    const projection = group.blocks.some(id => blocks[id].stage.includes('.downsample.'));
+    const last = blocks[group.blocks.at(-1)], first = blocks[group.blocks[0]];
+    const input = tensors.get(operations.get(first.operations[0])?.inputs[0]);
+    const shape = dims => (dims || []).slice(1).join(' × ');
+    ctx.fillStyle = colours.face; ctx.fillRect(0, 0, 420, 320);
+    ctx.fillStyle = colours.edge; ctx.fillRect(0, 0, 420, 7);
+    ctx.fillStyle = '#304f62'; ctx.font = '600 40px ' + FONT; ctx.fillText(group.label, 22, 51);
+    ctx.font = '20px ' + FONT;
+    ctx.fillText(children.length ? children.length + ' × BasicBlock' : residual ? 'Residual block' : group.id === 'stem' ? 'Conv · BN · ReLU · Pool' : group.id === 'classifier' ? 'Pool · Flatten · Linear' : 'Convolution features', 22, 82);
+    ctx.strokeStyle = colours.edge; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(22, 148); ctx.lineTo(390, 148); ctx.stroke();
+    const chip = (x, y, w, label) => {
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, 48); ctx.strokeRect(x, y, w, 48);
+      ctx.fillStyle = '#3e5d70'; ctx.font = '20px ' + FONT; ctx.textAlign = 'center';
+      ctx.fillText(label, x + w / 2, y + 31); ctx.textAlign = 'left';
+    };
+    if (children.length) {
+      children.forEach((item, index) => chip(30 + index * 190, 124, 160, 'Block ' + (index + 1)));
+      ctx.font = '18px ' + FONT; ctx.fillText(projection ? '1st block: projection ↓2' : 'Identity shortcuts', 22, 218);
+    } else if (residual) {
+      chip(65, 124, 200, 'F(x): 2 × Conv');
+      ctx.strokeStyle = '#b17d40'; ctx.beginPath(); ctx.moveTo(32, 148); ctx.lineTo(32, 210); ctx.lineTo(350, 210); ctx.lineTo(350, 148); ctx.stroke();
+      ctx.fillStyle = '#fff4df'; ctx.beginPath(); ctx.arc(350, 148, 23, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#9a692e'; ctx.font = '28px ' + FONT; ctx.fillText('+', 341, 158);
+      ctx.fillStyle = colours.face; ctx.fillRect(62, 195, 245, 27);
+      ctx.fillStyle = '#9a692e'; ctx.font = '18px ' + FONT; ctx.fillText(projection ? '1×1 Conv + BN, s=2' : 'Identity: x', 72, 215);
+    } else {
+      const types = [...new Set(group.blocks.filter(id => blocks[id].kind === 'module').map(id => blockStyle(blocks[id]).title))];
+      chip(35, 124, 350, types.slice(0, 3).join(' → '));
+      ctx.font = '18px ' + FONT;
+      const output = views[last.id]?.output;
+      ctx.fillText(output?.labels ? 'Top 1: ' + output.labels[0] : group.blocks.length + ' recorded operations', 22, 218);
+    }
+    ctx.fillStyle = '#526d7d'; ctx.font = '24px ' + FONT;
+    ctx.fillText(shape(input?.shape) + ' →', 22, 252);
+    ctx.fillText(shape(last.shape), 22, 281);
+    ctx.fillStyle = colours.edge; ctx.font = '20px ' + FONT; ctx.textAlign = 'right'; ctx.fillText('Expand +', 398, 306);
+    return canvas;
+  }
   // The first flow lane (and the fusion lane) stacks panels upwards, every other lane downwards.
   const panelDirection = lane => flowLanes.findIndex(item => item.id === lane) > 0 ? -1 : 1;
   const widthOf = object => Math.max(object.size.w, object.stack.width);
@@ -69,8 +137,9 @@
     return {rows, cols, tile, size: {w: 2.6, h: rows * tile + TILE_GAP * (rows - 1), d: 0.04}};
   }
 
-  // A collapsed group is a tight stack of thin plates, one per member layer.
+  // CNN groups fold to labelled modules; other groups keep one thin plate per member.
   function groupSize(group, member) {
+    if (model.edges) return {w: 4.2, h: 3.2, d: 1.2};
     const count = group.blocks.length;
     return {w: count * PLATE + (count - 1) * PLATE_GAP, h: member.h, d: member.d};
   }
@@ -406,6 +475,24 @@
       };
       return spec;
     },
+    channels: (data, block) => {
+      const [h, w] = data.grid, values = bytesOf(data.data);
+      const cell = Math.max(1, Math.floor(170 / Math.max(h, w)));
+      const spec = {key: 'channels', tensor: data.tensor, width: Math.max(260, PAD * 2 + w * cell), height: TITLE + h * cell + 48};
+      spec.draw = ctx => {
+        const ch = Math.min(view.channel, data.channels - 1);
+        frameCanvas(ctx, spec, blockName(block) + ' · channel ' + ch, data.channels + ' channels · sample ' + data.sample);
+        for (let row = 0; row < h; row++) for (let col = 0; col < w; col++) {
+          const t = values[ch * h * w + row * w + col] / 255;
+          ctx.fillStyle = 'rgb(' + Math.round(247 - 201 * t) + ',' + Math.round(249 - 165 * t) + ',' + Math.round(252 - 130 * t) + ')';
+          ctx.fillRect(PAD + col * cell, TITLE + row * cell, cell, cell);
+        }
+        ctx.fillStyle = '#5f7481'; ctx.font = '10px ' + FONT;
+        ctx.fillText('range ' + Number(data.low[ch]).toPrecision(3) + ' → ' + Number(data.high[ch]).toPrecision(3), PAD, TITLE + h * cell + 18);
+        ctx.fillText(data.original_grid.join('×') + ' → ' + data.grid.join('×') + ' · average pooled', PAD, TITLE + h * cell + 34);
+      };
+      return spec;
+    },
     output: (data, block) => {
       const prompts = Array.isArray(inputs.text) ? inputs.text : [];
       if (data.threshold !== undefined) {
@@ -433,18 +520,18 @@
         const probs = data.probs[0] || [], logits = data.values[0] || [];
         const spec = {key: 'output', tensor: data.tensor, width: 330, height: TITLE + probs.length * 24 + PAD};
         spec.draw = ctx => {
-          frameCanvas(ctx, spec, blockName(block) + ' · similarity', 'softmax');
+          frameCanvas(ctx, spec, blockName(block) + (data.labels ? ' · top 5' : ' · similarity'), data.labels ? 'softmax over ' + data.class_count + ' classes' : 'softmax');
           probs.forEach((p, j) => {
             const y = TITLE + j * 24;
             ctx.fillStyle = '#4f6978';
             ctx.font = '10px ' + FONT;
-            ctx.fillText(String(prompts[j] || 'prompt ' + (j + 1)).slice(0, 22), PAD, y + 12);
+            ctx.fillText(String((data.labels || prompts)[j] || 'prompt ' + (j + 1)).slice(0, 22), PAD, y + 12);
             ctx.fillStyle = '#f0e8e0';
             ctx.fillRect(150, y + 3, 90, 10);
             ctx.fillStyle = '#c29b7d';
             ctx.fillRect(150, y + 3, 90 * p, 10);
             ctx.fillStyle = '#765b48';
-            ctx.fillText(Math.round(p * 100) + '% · ' + Number(logits[j]).toFixed(1), 248, y + 12);
+            ctx.fillText((p * 100).toFixed(data.labels ? 1 : 0) + '% · ' + Number(logits[j]).toFixed(1), 248, y + 12);
           });
         };
         return spec;
@@ -529,18 +616,29 @@
   const laneShown = lane => state.branch === 'all' || lane.id === state.branch;
   const blockShown = id => state.branch === 'all' || blocks[id].lane === state.branch;
 
-  // The object that stands for a block: itself, or its group while the group is collapsed.
+  const groupItems = group => group.items || group.blocks.map(block => ({block}));
+
+  // Resolve through every ancestor so an edge always lands on its visible folded boundary.
   function unitOf(objects, id) {
-    const block = blocks[id];
-    return objects.get(block.group && !view.expanded.has(block.group) ? block.group : id);
+    let visible = id, parent = blocks[id].group;
+    while (parent) {
+      if (!view.expanded.has(parent)) visible = parent;
+      parent = groups[parent].parent;
+    }
+    return objects.get(visible);
   }
 
-  // The visible objects of a lane in order: blocks, collapsed groups, or an expanded group's members.
+  function itemUnits(objects, item) {
+    if (!item.group || !view.expanded.has(item.group)) return [objects.get(item.group || item.block)];
+    return groupItems(groups[item.group]).flatMap(child => itemUnits(objects, child));
+  }
+
+  function groupMembers(objects, group) {
+    return groupItems(group).flatMap(item => itemUnits(objects, item)).filter(object => object.shown);
+  }
+
   function laneUnits(objects, lane) {
-    return lane.items.flatMap(item => {
-      if (!item.group) return [objects.get(item.block)];
-      return view.expanded.has(item.group) ? groups[item.group].blocks.map(id => objects.get(id)) : [objects.get(item.group)];
-    });
+    return lane.items.flatMap(item => itemUnits(objects, item));
   }
 
   // Flow lanes stack from the top, spaced so that open panels clear the next lane. A lane fed by an
@@ -549,9 +647,7 @@
   // follow at the end, level with the lanes that feed them.
   function layout(objects) {
     const flow = flowLanes.filter(laneShown), merge = mergeLanes.filter(laneShown), links = model.links || [];
-    lanes.filter(lane => !laneShown(lane)).forEach(lane => lane.items.forEach(item => {
-      (item.group ? [item.group, ...groups[item.group].blocks] : [item.block]).forEach(id => { objects.get(id).shown = false; });
-    }));
+    objects.forEach(object => { object.shown = false; });
     // How far a lane reaches above (``up``) or below its centre line, panels included.
     const reach = (lane, up) => Math.max(0.25, ...laneUnits(objects, lane).map(unit =>
       unit.size.h / 2 + ((unit.stack.direction > 0) === up ? unit.stack.height : 0)));
@@ -587,30 +683,21 @@
 
   function extent(objects, item) {
     if (!item.group) return widthOf(objects.get(item.block));
-    const group = groups[item.group], count = group.blocks.length;
-    return view.expanded.has(group.id)
-      ? group.blocks.reduce((sum, id) => sum + widthOf(objects.get(id)), 0) + (count - 1) * LAYER_GAP
-      : objects.get(group.id).size.w;
+    if (!view.expanded.has(item.group)) return objects.get(item.group).size.w;
+    const children = groupItems(groups[item.group]);
+    return children.reduce((sum, child) => sum + extent(objects, child), 0) + (children.length - 1) * LAYER_GAP + (model.edges ? 1.2 : 0);
   }
 
-  function placeItem(objects, item, x, y) {
-    if (!item.group) {
-      const object = objects.get(item.block);
-      object.target.x = x;
-      object.target.y = y;
-      object.shown = true;
-      return;
-    }
-    const group = groups[item.group], box = objects.get(group.id), expanded = view.expanded.has(group.id);
-    box.target.x = x;
-    box.target.y = y;
-    box.shown = !expanded;
-    let cursor = x - extent(objects, item) / 2;
-    group.blocks.forEach(id => {
-      const member = objects.get(id), width = widthOf(member);
-      member.shown = expanded;
-      member.target.x = expanded ? cursor + width / 2 : x;
-      member.target.y = y;
+  function placeItem(objects, item, x, y, visible = true) {
+    const object = objects.get(item.group || item.block);
+    object.target.x = x; object.target.y = y;
+    const expanded = item.group && view.expanded.has(item.group);
+    object.shown = visible && !expanded;
+    if (!item.group) return;
+    let cursor = x - extent(objects, item) / 2 + (model.edges ? 0.6 : 0);
+    groupItems(groups[item.group]).forEach(child => {
+      const width = extent(objects, child);
+      placeItem(objects, child, visible && expanded ? cursor + width / 2 : x, y, visible && expanded);
       cursor += width + LAYER_GAP;
     });
   }
@@ -618,6 +705,19 @@
   // Links join consecutive visible units in a lane, plus the recorded cross-lane Tensor links.
   function linkPairs(objects) {
     const pairs = [];
+    if (model.edges) {
+      const seen = new Set();
+      model.edges.forEach(edge => {
+        if (!blockShown(edge.from) || !blockShown(edge.to)) return;
+        const from = unitOf(objects, edge.from), to = unitOf(objects, edge.to);
+        const key = from.id + ':' + to.id;
+        if (from === to || seen.has(key)) return;
+        seen.add(key);
+        const chain = laneUnits(objects, lanes.find(lane => lane.id === from.lane));
+        pairs.push([from, to, edge.shortcut, from.lane === to.lane && chain.indexOf(to) > chain.indexOf(from) + 1]);
+      });
+      return pairs;
+    }
     lanes.filter(laneShown).forEach(lane => {
       const chain = laneUnits(objects, lane);
       chain.slice(1).forEach((unit, index) => pairs.push([chain[index], unit]));
@@ -635,7 +735,7 @@
   // World-space corners of an object with its panel stack (and room above for its label).
   function cornersOf(object) {
     const t = object.target, s = object.size, half = widthOf(object) / 2, list = [];
-    const top = topOf(object) + 1.0, bottom = -s.h / 2 - (object.stack.direction < 0 ? object.stack.height : 0);
+    const top = topOf(object) + (model.edges ? 2.0 : 1.0), bottom = -s.h / 2 - (object.stack.direction < 0 ? object.stack.height : 0) - (model.edges ? 1.9 : 0);
     [-half, half].forEach(x => [bottom, top].forEach(y => [-s.d / 2, s.d / 2].forEach(z => list.push({x: t.x + x, y: t.y + y, z}))));
     return list;
   }
@@ -669,7 +769,7 @@
 
   const above = (object, lift) => ({x: object.current.x, y: object.current.y + topOf(object) + lift, z: 0});
   // World y of an expanded group's label: above its tallest layer, panels included.
-  const groupTop = members => members[0].current.y + Math.max(...members.map(topOf)) + 0.7;
+  const groupTop = members => Math.max(...members.map(object => object.current.y + topOf(object))) + 0.7;
 
   // Static labels name lanes, groups, inputs and results; other blocks are named only
   // while hovered or active, which keeps the default view to a handful of words.
@@ -684,14 +784,16 @@
     });
     Object.values(groups).forEach(group => {
       const element = addLabel(list, layer, '', () => {
-        const members = group.blocks.map(id => objects.get(id)), box = objects.get(group.id);
+        const members = groupMembers(objects, group), box = objects.get(group.id);
         if (!view.expanded.has(group.id)) return box.visible() ? above(box, 0.7) : null;
+        if (!members.length) return null;
         const first = members[0].current, last = members[members.length - 1].current;
-        return {x: (first.x + last.x) / 2, y: groupTop(members), z: 0};
+        return {x: (first.x + last.x) / 2, y: groupTop(members) + (group.items?.some(item => item.group) ? 0.8 : 0), z: 0};
       }, 1, 'group', () => toggleGroup(group.id));
       element.dataset.group = group.id;
+      if (model.edges) { element.classList.add('module-label'); element.style.borderColor=groupStyle(group).edge; }
       objects.get(group.id).labelElement = element;
-      group.blocks.forEach(id => addLabel(list, layer, blocks[id].label, () => {
+      groupItems(group).filter(item => item.block).forEach(({block: id}) => addLabel(list, layer, blocks[id].label, () => {
         const object = objects.get(id);
         return object.visible() ? above(object, 0.25) : null;
       }, 3, 'minor'));
@@ -710,7 +812,7 @@
   function refreshGroupLabels(objects) {
     Object.values(groups).forEach(group => {
       const element = objects.get(group.id).labelElement;
-      element.textContent = group.label + ' ×' + group.blocks.length + (view.expanded.has(group.id) ? '  −' : '  +');
+      element.textContent = group.label + ' ×' + groupItems(group).length + (view.expanded.has(group.id) ? '  −' : '  +');
       element.setAttribute('aria-expanded', String(view.expanded.has(group.id)));
     });
   }
@@ -749,6 +851,10 @@
     if (view.expanded.has(id)) view.expanded.delete(id);
     else view.expanded.add(id);
     started().forEach(renderer => renderer.relayout(false));
+    if (model.edges && current()) {
+      if (view.expanded.has(id)) current().focusGroup(id);
+      else current().fitAll();
+    }
     sync();
   }
 
@@ -829,10 +935,12 @@
   function focus(id) {
     const block = blocks[id];
     if (!block) return;
-    if (block.group && !view.expanded.has(block.group)) {
-      view.expanded.add(block.group);
-      started().forEach(renderer => renderer.relayout(false));
+    let parent = block.group, changed = false;
+    while (parent) {
+      if (!view.expanded.has(parent)) { view.expanded.add(parent); changed = true; }
+      parent = groups[parent].parent;
     }
+    if (changed) started().forEach(renderer => renderer.relayout(false));
     sync();
     const renderer = current();
     if (renderer && renderer.focus) renderer.focus(id);
@@ -878,6 +986,7 @@
     view.mode = mode;
     document.querySelector('.center').classList.toggle('mode-3d', mode === '3d');
     [['view-2d', mode === '2d'], ['view-3d', mode === '3d']].forEach(([id, on]) => {
+      if (!E(id)) return;
       E(id).classList.toggle('active', on);
       E(id).setAttribute('aria-pressed', String(on));
     });
@@ -905,6 +1014,18 @@
       typeButtons.set(key, button);
       bar.appendChild(button);
     });
+    const channels = Math.max(0, ...Object.values(views).map(item => item.channels?.channels || 0));
+    if (channels) {
+      const label = node('label', 'Channel ', 'scene-head'), select = node('input');
+      select.type = 'number'; select.min = '0'; select.max = String(channels - 1); select.value = '0';
+      select.setAttribute('aria-label', 'Feature channel'); select.style.width = '60px';
+      select.addEventListener('input', () => {
+        view.channel = Math.max(0, Math.min(channels - 1, Math.trunc(Number(select.value) || 0)));
+        select.value = String(view.channel); redrawPanels('channels');
+      });
+      label.appendChild(select); bar.appendChild(label);
+      label.title = 'Zero-based channel; layers with fewer channels show their last channel. Each map uses its own range.';
+    }
     const heads = Math.max(0, ...Object.values(views).flatMap(item => [item.attention, item.cross]).map(data => data ? data.heads : 0));
     const headWrap = node('label', 'Head', 'scene-head');
     headSelect = document.createElement('select');
@@ -956,7 +1077,7 @@
     const visible = current();
     return Object.assign({
       mode: view.mode, expanded: [...view.expanded], open: [...view.open], types: [...view.types],
-      head: view.head, style: view.style, active: view.active,
+      head: view.head, channel: view.channel, style: view.style, active: view.active,
     }, visible && visible.snapshot ? visible.snapshot() : {});
   }
 
@@ -979,9 +1100,9 @@
   document.addEventListener('DOMContentLoaded', start);
   window.XRAY_SCENE = {
     model, blocks, groups, lanes, view, TILE_GAP, PLATE, PLATE_GAP,
-    palette, inputKind, slabSize, patchGrid, groupSize, sourceImage, tokenCanvas,
+    palette, moduleStyle, blockStyle, groupStyle, groupCanvas, inputKind, slabSize, patchGrid, groupSize, sourceImage, tokenCanvas,
     makePanels, arrangePanels, panelDirection, widthOf, topOf, groupTop, cornersOf, framed, nudge,
-    layout, linkPairs, buildLabels, refreshGroupLabels, placeLabels,
+    layout, linkPairs, groupMembers, groupItems, buildLabels, refreshGroupLabels, placeLabels,
     register, activate, hover,
   };
 })();

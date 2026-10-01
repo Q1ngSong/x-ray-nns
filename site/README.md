@@ -23,3 +23,13 @@ The generated website snapshot is tracked at the repository root on `main`. To p
 The public trace omits machine-local model paths, source locations, and unavailable raw-tensor storage references. Model weights and raw `.pt` files are excluded. The original local recording is unchanged. To add a case, prepare its reviewed trace, scene and assets in a new sample directory and add its card to `examples.json`.
 
 The cat photograph is scikit-image's `chelsea.png`, photographed by Stéfan van der Walt and released under CC0. The viewer and project are MIT; the generated site includes the project's LICENSE and Three.js license.
+
+## CNN samples
+
+`alexnet-cat` and `resnet18-cat` use the same public cat image, official torchvision ImageNet-1K V1 weights and preprocessing, and real CPU evaluation. Each recording checks its logits against the unmodified model (maximum absolute error 0.0 in both published examples). The ResNet recording includes all eight actual residual additions and both identity and projection shortcuts.
+
+The sample pages offer spatial PCA, individual feature channels and ImageNet top-five predictions. Channel maps use average pooling to at most 28×28 and individual min/max scaling; top-five probabilities are computed over all 1000 classes. Model weights, local paths and raw `.pt` files are excluded from the public samples.
+
+Recreate the full local recordings with the `cnn-run` commands in the repository README, then curate their trace/scene/assets into these sample directories. `examples.json` includes all three cases in the normal static build.
+
+CNN pages open as folded modules in the 2D view. ResNet stages expand into residual blocks, then into recorded operations and shortcut edges. Stem and classifier fold as modules too. Both 2D and 3D share expansion state, semantic colours and group boundaries; clicking an operation opens its real recorded values. Collapse all returns to the complete architecture.

@@ -43,6 +43,8 @@ def build_scene(trace: InferenceTrace, bundle: Path) -> dict[str, Any]:
         ``image`` (centre-crop PNG data URL, or ``None``) and ``views`` (block →
         intermediate-value payloads, see ``_views``).
 
+    变更: 2026-10-01 CNN 折叠 Stem、Classifier，Stage 内嵌残差组；叶节点和真实边不变。
+    变更: 2026-10-01 支持 CNN 的真实分支连线与残差 shortcut 标记；旧 trace 的布局不变。
     变更: 2026-09-24 块可由 ``label`` 命名、由 ``group`` 归入指定组（原先只按编号兄弟分组）；新增 ``links``，
         跨通道连线改按真实 Tensor 流向给出，原先由页面把各通道末尾连到结果通道。
     变更: 2026-09-24 通道先按输出被别的通道首次使用的先后排，原先只按首个事件；CLIP 仍是 vision、text、fusion。
@@ -125,8 +127,66 @@ def build_scene(trace: InferenceTrace, bundle: Path) -> dict[str, Any]:
 
     scene = {"lanes": lanes, "blocks": blocks, "groups": groups, "op_blocks": op_blocks, "links": links,
              "image": _input_image(trace.inputs.get("image"), bundle)}
+    if trace.metadata.get("capture", {}).get("dataflow_edges"):
+        edges = []
+        seen = set()
+        for operation in trace.operations:
+            target = op_blocks.get(operation.id)
+            for index, tensor_id in enumerate(operation.inputs):
+                source = op_blocks.get(tensors[tensor_id].producer)
+                if source and target and source != target and (source, target) not in seen:
+                    seen.add((source, target))
+                    edges.append({"from": source, "to": target,
+                                  "shortcut": ((operation.metadata or {}).get("semantic_type") == "residual_add" and index == 1)
+                                              or ".downsample." in str((operation.metadata or {}).get("stage", ""))})
+        scene["edges"] = edges
+    if trace.metadata.get("backend") in ("torchvision.resnet18", "torchvision.alexnet"):
+        _cnn_hierarchy(scene, trace.metadata["backend"])
     scene["views"] = _views(trace, bundle, scene)
     return scene
+
+
+def _cnn_hierarchy(scene: dict[str, Any], backend: str) -> None:
+    """CNN stages: nest residual groups and fold the stem and classifier. [主线]
+
+    Args:
+        scene: Mutable scene; leaf blocks and recorded edges remain unchanged.
+        backend: Recorded torchvision architecture; only AlexNet and ResNet-18 call here.
+    """
+    groups, blocks = scene["groups"], scene["blocks"]
+    for lane in scene["lanes"]:
+        keyed = []
+        for item in lane["items"]:
+            group_id = item.get("group")
+            block = blocks.get(item.get("block"))
+            if group_id and re.fullmatch(r"layer[1-4]\.\d+", group_id):
+                parent = group_id.split(".")[0]
+            elif group_id == "classifier" or (block and block["kind"] != "input"):
+                parent = "classifier"
+                if backend == "torchvision.resnet18" and block and block["stage"] in ("conv1", "bn1", "relu", "maxpool"):
+                    parent = "stem"
+            else:
+                parent = None
+            keyed.append((parent, item))
+        items = []
+        for parent, entries in groupby(keyed, key=lambda entry: entry[0]):
+            children = [item for _, item in entries]
+            if parent is None:
+                items.extend(children)
+                continue
+            leaves = [block_id for child in children for block_id in
+                      (groups[child["group"]]["blocks"] if "group" in child else [child["block"]])]
+            nested = parent.startswith("layer")
+            groups[parent] = {"id": parent, "lane": lane["id"], "label": "Stage " + parent[-1] if nested else parent.title(),
+                              "blocks": leaves, "items": children if nested else [{"block": key} for key in leaves]}
+            if nested:
+                for child in children:
+                    groups[child["group"]]["parent"] = parent
+            else:
+                for key in leaves:
+                    blocks[key]["group"] = parent
+            items.append({"group": parent})
+        lane["items"] = items
 
 
 def _links(trace: InferenceTrace, tensors: Mapping[str, TensorRecord], operations: Mapping[str, Any],
@@ -185,6 +245,7 @@ def _views(trace: InferenceTrace, bundle: Path, scene: Mapping[str, Any]) -> dic
         dict[str, dict[str, Any]] — block id → ``hidden`` / ``attention`` / ``cross`` / ``mlp`` /
         ``qkv`` (``q``, ``k``, ``v``) / ``output`` payloads; empty without torch.
 
+    变更: 2026-10-01 CNN 增加逐通道空间图（至多 28×28、逐通道归一化）与全类别 softmax 的 top-five。
     变更: 2026-10-01 新录制的 CLIP 输出附带相似度计算视图；旧 trace 与缺少原始向量的运行保持原样。
     变更: 2026-09-24 4 维模块输出按空间位置出 ``hidden``（带 ``grid``、不带 ``norm``），新增 ``cross``；
         结果运算的 ``threshold`` / ``detected`` / ``score_type`` 随 ``output`` 带出。原有 3 维输出与各面板不变。
@@ -216,6 +277,16 @@ def _views(trace: InferenceTrace, bundle: Path, scene: Mapping[str, Any]) -> dic
         if kind in ("hidden", "q", "k", "v"):
             grid = [int(side) for side in value.shape[-2:]] if value.dim() == 4 else None
             if grid:
+                if kind == "hidden" and trace.metadata.get("capture", {}).get("feature_channels"):
+                    maps = torch.nn.functional.adaptive_avg_pool2d(value[0], (min(28, grid[0]), min(28, grid[1])))
+                    low = maps.amin(dim=(-2, -1), keepdim=True)
+                    high = maps.amax(dim=(-2, -1), keepdim=True)
+                    scaled = ((maps - low) / (high - low).clamp_min(1e-12) * 255).round().to(torch.uint8)
+                    views.setdefault(block_id, {})["channels"] = {
+                        "tensor": tensor_id, "channels": int(maps.shape[0]), "grid": list(maps.shape[-2:]),
+                        "original_grid": grid, "sample": 0,
+                        "low": low.flatten().tolist(), "high": high.flatten().tolist(),
+                        "data": base64.b64encode(bytes(scaled.flatten().tolist())).decode("ascii")}
                 value = value.flatten(2).transpose(1, 2)
             states = value.reshape(-1, value.shape[-2], value.shape[-1]) if value.dim() >= 2 else value.reshape(1, 1, -1)
             token_states.setdefault((blocks[block_id]["lane"], kind, int(states.shape[-1])), []).append(
@@ -228,7 +299,16 @@ def _views(trace: InferenceTrace, bundle: Path, scene: Mapping[str, Any]) -> dic
             views.setdefault(block_id, {})["mlp"] = _mlp_view(tensor_id, value)
         else:
             meta = operations[blocks[block_id]["operations"][0]].metadata or {}
-            view = _output_view(tensor_id, value, blocks[block_id]["semantic"] == "similarity_logits")
+            classification = blocks[block_id]["semantic"] == "classification_logits"
+            view = _output_view(tensor_id, value, classification or blocks[block_id]["semantic"] == "similarity_logits")
+            if classification:
+                probabilities = value.softmax(dim=-1)
+                indices = probabilities[0].topk(min(5, value.shape[-1])).indices.tolist()
+                labels = meta.get("labels", [])
+                view.update({"values": [[float(value[0, index]) for index in indices]],
+                             "probs": [[float(probabilities[0, index]) for index in indices]],
+                             "labels": [labels[index] if index < len(labels) else str(index) for index in indices],
+                             "class_indices": indices, "class_count": int(value.shape[-1])})
             view.update({key: meta[key] for key in ("threshold", "detected", "score_type") if key in meta})
             if meta.get("similarity"):
                 detail = _similarity_view(meta["similarity"], records, root, value)

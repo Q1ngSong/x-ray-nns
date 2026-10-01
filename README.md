@@ -112,6 +112,41 @@ xray clip-run \
   --output runs/clip/cat
 ```
 
+## CNN 与 ResNet 示例
+
+现在也可以录制 **AlexNet** 和 **ResNet-18** 的真实 ImageNet 推理。页面直接在 **2D / 3D** 中显示折叠模型：展开 Stage 看残差块，再展开残差块看 Conv、BN、ReLU、Add 与真实跳连；点击运算查看数值。两个视图共享展开状态，可随时收起回到整体结构。
+
+2D / 3D 播放器与导览共用同一份运行记录：
+
+- 展开卷积、池化、全连接层或残差块，查看实际输出形状、Tensor 与时间线。
+- `Layer output` 显示空间特征的 PCA 摘要；`Feature channels` 显示单个通道，可用 `Channel` 切换。通道图按各自范围着色，大图平均池化到至多 28×28；原始 Tensor 保存在本地录制中。
+- ResNet 的棕色连线表示捷径。展开 `layer1.0` 看恒等捷径，展开 `layer2.0` 看投影与下采样；`Add (+)` 的详情列出两路输入和相加结果。
+- 最后显示 ImageNet 前五类预测，softmax 的分母包含全部 1000 类，前五项没有重新归一化。
+
+安装 CNN 运行依赖（使用与 PyTorch 匹配的 torchvision）：
+
+```bash
+python -m pip install -e ".[cnn]"
+```
+
+将官方权重保存在 `models/torchvision/<模型>/`：
+[AlexNet ImageNet-1K V1](https://download.pytorch.org/models/alexnet-owt-7be5be79.pth)、
+[ResNet-18 ImageNet-1K V1](https://download.pytorch.org/models/resnet18-f37072fd.pth)。录制时只读取本地权重，校验官方 SHA-256 前缀，不自动下载。
+
+```bash
+xray cnn-run --architecture alexnet \
+  --model models/torchvision/alexnet/alexnet-owt-7be5be79.pth \
+  --image cat.png --output runs/alexnet/cat
+
+xray cnn-run --architecture resnet18 \
+  --model models/torchvision/resnet18/resnet18-f37072fd.pth \
+  --image cat.png --output runs/resnet18/cat
+```
+
+输出目录须为新目录或空目录。两种模型均使用官方 V1 预处理，在 CPU 上执行，并验证录制图与原始模型的 logits 一致。FX 将这两种模型的 residual add 与 flatten 暴露给 hooks；这不表示已经捕获任意模型的全部底层算子。输入图保存为模型实际看到的 224×224 裁剪，便于与空间特征对照。
+
+公开样例在 `site/samples/alexnet-cat/` 和 `site/samples/resnet18-cat/`，只包含可分享的 trace、预计算视图与图片。与已有 CLIP 样例一起通过 `site/build.py` 构建，网页回放无需安装模型。AlexNet 使用 torchvision 的官方变体；[架构说明](https://docs.pytorch.org/vision/stable/models/generated/torchvision.models.alexnet.html)。
+
 ## 🗂️ 目录约定
 
 | 目录 | 放什么 | 入库 |
@@ -210,7 +245,7 @@ runs/clip/cat/
 
 ## 🗺️ 现状
 
-目前内置 CLIP ViT-B/32（图像、文本两个编码器加相似度）。录制器用的是通用的 PyTorch forward hook，Trace 格式也不绑定具体模型。想看看别的模型里发生了什么？欢迎开 issue 或者提 PR。
+目前内置 CLIP ViT-B/32（图像、文本两个编码器加相似度）、AlexNet 和 ResNet-18（ImageNet 图像分类）。录制器用的是通用的 PyTorch forward hook，Trace 格式也不绑定具体模型。想看看别的模型里发生了什么？欢迎开 issue 或者提 PR。
 
 如果 x-ray 帮你看懂了某一层，欢迎点个 ⭐。
 
