@@ -152,8 +152,14 @@ def _cnn_hierarchy(scene: dict[str, Any], backend: str) -> None:
     Args:
         scene: Mutable scene; leaf blocks and recorded edges remain unchanged.
         backend: Recorded torchvision architecture; only AlexNet and ResNet-18 call here.
+
+    变更: 2026-10-01 AlexNet 卷积组显示短名称；保留完整 Conv/ReLU/Pool 成员。
     """
     groups, blocks = scene["groups"], scene["blocks"]
+    if backend == "torchvision.alexnet":
+        for key, group in groups.items():
+            if key.startswith("features.stage"):
+                group["label"] = "Conv " + key.removeprefix("features.stage")
     for lane in scene["lanes"]:
         keyed = []
         for item in lane["items"]:

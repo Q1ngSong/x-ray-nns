@@ -38,7 +38,7 @@
   <div class="case-preview"><img src="assets/readme/alexnet-example.webp" alt="AlexNet 结构与中间值回放" width="1600" height="900" loading="lazy"></div>
   <div class="case-body"><div class="case-meta"><span>EXAMPLE 02</span><span>RECORDED INFERENCE</span></div>
     <h3>AlexNet</h3><p class="case-subtitle">从卷积特征到 1000 类预测</p>
-    <p class="case-description">一张猫的照片走过经典 CNN：展开卷积、池化与全连接层，切换特征通道，观察空间分辨率如何缩小，最后查看 ImageNet 分类结果。</p><div class="case-tags"><span>经典 CNN</span><span>5 convolution layers</span><span>Feature channels</span></div>
+    <p class="case-description">逐个展开五层卷积，查看卷积核、步长与池化如何改变空间尺寸；切换真实特征通道，再沿三层全连接走到 ImageNet 分类结果。</p><div class="case-tags"><span>经典 CNN</span><span>5 convolution layers</span><span>Feature channels</span></div>
     <div class="case-cta">打开交互示例 <span aria-hidden="true">↗</span></div>
   </div>
 </a>
@@ -134,7 +134,7 @@ python -m pip install -e &quot;.[clip]&quot;
   --output runs/clip/cat
 </code></pre>
 <h2>CNN 与 ResNet 示例</h2>
-<p>现在也可以录制 <strong>AlexNet</strong> 和 <strong>ResNet-18</strong> 的真实 ImageNet 推理。页面直接在 <strong>2D / 3D</strong> 中显示折叠模型：展开 Stage 看残差块，再展开残差块看 Conv、BN、ReLU、Add 与真实跳连；点击运算查看数值。两个视图共享展开状态，可随时收起回到整体结构。</p>
+<p>现在也可以录制 <strong>AlexNet</strong> 和 <strong>ResNet-18</strong> 的真实 ImageNet 推理。页面直接在 <strong>2D / 3D</strong> 中显示折叠模型：展开 Stage 看残差块，再展开残差块看 Conv、BN、ReLU、Add 与真实跳连；点击运算查看数值。两个视图共享展开状态，可随时收起回到整体结构。 AlexNet 按五层卷积分组，模块卡片标出卷积核、步长和 padding；分类头展示三个全连接层。</p>
 <p>2D / 3D 播放器与导览共用同一份运行记录：</p>
 <ul>
 <li>展开卷积、池化、全连接层或残差块，查看实际输出形状、Tensor 与时间线。</li>
