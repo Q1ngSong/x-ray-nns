@@ -15,7 +15,7 @@
     "slug": "alexnet-cat",
     "title": "AlexNet",
     "subtitle": "从卷积特征到 1000 类预测",
-    "description": "一张猫的照片走过经典 CNN：展开卷积、池化与全连接层，切换特征通道，观察空间分辨率如何缩小，最后查看 ImageNet 分类结果。",
+    "description": "逐个展开五层卷积，查看卷积核、步长与池化如何改变空间尺寸；切换真实特征通道，再沿三层全连接走到 ImageNet 分类结果。",
     "preview": "assets/readme/alexnet-example.webp",
     "tags": [
       "经典 CNN",

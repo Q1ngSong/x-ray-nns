@@ -46,10 +46,13 @@ def prepare_cnn(model: nn.Module) -> tuple[Any, dict[str, dict[str, Any]]]:
         model: Torchvision AlexNet or ResNet in evaluation mode, without attached hooks.
     Returns:
         Executable GraphModule and per-call scene annotations.
+
+    变更: 2026-10-01 AlexNet 按五个 Conv 划分阶段，记录真实 kernel/stride/padding；计算不变。
     """
     graph = torch.fx.symbolic_trace(model)
     annotations: dict[str, dict[str, Any]] = {}
     seen: set[str] = set()
+    feature_stage = 0
     for node in graph.graph.nodes:
         if node.op in ("placeholder", "output", "get_attr"):
             continue
@@ -78,14 +81,20 @@ def prepare_cnn(model: nn.Module) -> tuple[Any, dict[str, dict[str, Any]]]:
         else:
             raise ValueError(f"unsupported CNN node: {node.op}")
         meta: dict[str, Any] = {"selected": True, "branch": "model", "stage": original,
-                                "label": label, "description": f"{original} · {label}",
+                                "label": label, "description": f"{original} · {module}",
                                 "semantic_type": "feature_map" if isinstance(module, nn.Conv2d) else None}
+        if isinstance(module, (nn.Conv2d, nn.MaxPool2d)):
+            meta["spatial"] = {}
+            for key in ("kernel_size", "stride", "padding"):
+                value = getattr(module, key)
+                meta["spatial"][key] = list(value) if isinstance(value, tuple) else [value, value]
         if scope:
             meta["group"] = scope
             meta["label"] = "Add (+)" if label == "Residual add" else original.removeprefix(scope + ".")
         elif original.startswith("features."):
-            index = int(original.split(".")[1])
-            meta["group"] = "features.stage" + str(1 if index <= 2 else 2 if index <= 5 else 3)
+            if isinstance(module, nn.Conv2d):
+                feature_stage += 1
+            meta["group"] = "features.stage" + str(feature_stage)
             meta["label"] = f"{original.split('.')[-1]} {label}"
         elif original.startswith("classifier."):
             meta["group"] = "classifier"
@@ -102,6 +111,8 @@ def prepare_cnn(model: nn.Module) -> tuple[Any, dict[str, dict[str, Any]]]:
 def run_cnn(architecture: str, model_path: str | Path, image_path: str | Path,
             output_dir: str | Path) -> Path:
     """Record a pretrained AlexNet/ResNet-18 CPU forward and export offline playback. [主线]
+
+    变更: 2026-10-01 AlexNet 引导文字对应五个独立卷积组及池化尺寸。
 
     Args:
         architecture: `alexnet` or `resnet18`, using torchvision ImageNet-1K V1 preprocessing.
@@ -159,8 +170,8 @@ def run_cnn(architecture: str, model_path: str | Path, image_path: str | Path,
         trace = recorder.build(inputs={"image": {"asset_path": "assets/input-image.png", "size": [224, 224], "caption": "ImageNet preprocessing: resize to 256, centre crop to 224 × 224, then normalize RGB."},
                                       "image_pixels": {"tensor_id": image_id},
                                       "summary": [["Architecture", architecture], ["Weights", "ImageNet-1K V1"], ["Input", "224 × 224 centre crop"]],
-                                      "guide": (["展开 features.stage1，点击 Conv2d，打开 Feature channels 并切换通道。",
-                                                 "继续查看池化后的空间尺寸，再展开 classifier 查看全连接层。"] if architecture == "alexnet" else
+                                      "guide": (["展开 Conv 1：11×11 卷积用 stride 4 将 224×224 变成 55×55，MaxPool 再缩到 27×27。",
+                                                 "Conv 2 的池化得到 13×13；Conv 3、4 保持空间大小，Conv 5 后池化为 6×6。"] if architecture == "alexnet" else
                                                 ["先展开 Stage 1，再展开 layer1.0：棕色跳连把输入送到 Add (+)，与主分支相加。",
                                                  "先展开 Stage 2，再展开 layer2.0：downsample 用投影匹配通道与空间尺寸，再做残差相加。"])
                                                 + ["Layer output 的颜色是空间特征的 PCA 摘要；Feature channels 显示单个通道。",

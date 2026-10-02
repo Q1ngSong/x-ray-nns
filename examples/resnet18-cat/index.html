@@ -30075,14 +30075,15 @@ three/build/three.module.js:
   function blockStyle(block) {
     if (!model.edges) return palette(block.lane);
     const type = operations.get(block.operations[0])?.type || block.label;
-    const style = moduleStyle(type);
+    const style = moduleStyle(type), spatial = operations.get(block.operations[0])?.metadata?.spatial;
+    if (spatial) style.caption = spatial.kernel_size.join('×') + ' · s' + spatial.stride[0] + ' · p' + spatial.padding[0];
     if (type === '_FunctionCall' && block.semantic !== 'residual_add') return {...moduleStyle('Flatten'), title: 'Flatten'};
     if (block.kind === 'result') return {...moduleStyle('Linear'), title: 'Scores'};
     return style;
   }
   function groupStyle(group) {
-    const index = Math.max(0, Number(group.id.match(/^(?:layer|features\.stage)([1-4])/)?.[1] || (group.id === 'classifier' ? 3 : 1)) - 1);
-    const colours = [['#e7f1fb','#648faf'],['#e5f3ee','#629d89'],['#f0eaf7','#9a84b6'],['#fcf0dd','#bb955d']];
+    const index = Math.max(0, Number(group.id.match(/^(?:layer|features\.stage)([1-5])/)?.[1] || (group.id === 'classifier' ? 3 : 1)) - 1);
+    const colours = [['#e7f1fb','#648faf'],['#e5f3ee','#629d89'],['#f0eaf7','#9a84b6'],['#fcf0dd','#bb955d'],['#f8e7ed','#ad7a8f']];
     return model.edges ? {face:colours[index][0],edge:colours[index][1]} : palette(group.lane);
   }
   function groupCanvas(group) {
@@ -30093,12 +30094,14 @@ three/build/three.module.js:
     const projection = group.blocks.some(id => blocks[id].stage.includes('.downsample.'));
     const last = blocks[group.blocks.at(-1)], first = blocks[group.blocks[0]];
     const input = tensors.get(operations.get(first.operations[0])?.inputs[0]);
+    const spatial = operations.get(first.operations[0])?.metadata?.spatial;
+    const dense = group.blocks.filter(id => operations.get(blocks[id].operations[0])?.type === 'Linear');
     const shape = dims => (dims || []).slice(1).join(' × ');
     ctx.fillStyle = colours.face; ctx.fillRect(0, 0, 420, 320);
     ctx.fillStyle = colours.edge; ctx.fillRect(0, 0, 420, 7);
     ctx.fillStyle = '#304f62'; ctx.font = '600 40px ' + FONT; ctx.fillText(group.label, 22, 51);
     ctx.font = '20px ' + FONT;
-    ctx.fillText(children.length ? children.length + ' × BasicBlock' : residual ? 'Residual block' : group.id === 'stem' ? 'Conv · BN · ReLU · Pool' : group.id === 'classifier' ? 'Pool · Flatten · Linear' : 'Convolution features', 22, 82);
+    ctx.fillText(children.length ? children.length + ' × BasicBlock' : residual ? 'Residual block' : group.id === 'stem' ? 'Conv · BN · ReLU · Pool' : group.id === 'classifier' ? 'Pool · Flatten · ' + (dense.length > 1 ? dense.length + '×' : '') + 'Linear' : spatial ? last.shape[1] + ' output channels' : 'Convolution features', 22, 82);
     ctx.strokeStyle = colours.edge; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(22, 148); ctx.lineTo(390, 148); ctx.stroke();
     const chip = (x, y, w, label) => {
@@ -30118,10 +30121,15 @@ three/build/three.module.js:
       ctx.fillStyle = '#9a692e'; ctx.font = '18px ' + FONT; ctx.fillText(projection ? '1×1 Conv + BN, s=2' : 'Identity: x', 72, 215);
     } else {
       const types = [...new Set(group.blocks.filter(id => blocks[id].kind === 'module').map(id => blockStyle(blocks[id]).title))];
-      chip(35, 124, 350, types.slice(0, 3).join(' → '));
+      if (dense.length > 1) {
+        dense.forEach((id, index) => {
+          chip(30 + index * 128, 124, 105, 'FC ' + (index + 1));
+          ctx.font = '18px ' + FONT; ctx.fillText(String(blocks[id].shape.at(-1)), 52 + index * 128, 193);
+        });
+      } else chip(35, 124, 350, types.slice(0, 3).join(' → '));
       ctx.font = '18px ' + FONT;
       const output = views[last.id]?.output;
-      ctx.fillText(output?.labels ? 'Top 1: ' + output.labels[0] : group.blocks.length + ' recorded operations', 22, 218);
+      ctx.fillText(output?.labels ? 'Top 1: ' + output.labels[0] : spatial ? spatial.kernel_size.join('×') + ' · stride ' + spatial.stride[0] + ' · pad ' + spatial.padding[0] : group.blocks.length + ' recorded operations', 22, 218);
     }
     ctx.fillStyle = '#526d7d'; ctx.font = '24px ' + FONT;
     ctx.fillText(shape(input?.shape) + ' →', 22, 252);
@@ -31204,7 +31212,11 @@ three/build/three.module.js:
       size = Object.assign(S.slabSize(block), {w: S.model.edges ? 1.6 : BLOCK});
       element = button('b2d ' + block.lane, pick, title);
       Object.assign(element.style, {background: colours.face, borderColor: colours.edge});
-      if (S.model.edges) { element.classList.add('module-card'); element.append(node('span',colours.title),node('small',(block.shape||[]).slice(1).join(' × '))); }
+      if (S.model.edges) {
+        element.classList.add('module-card');
+        element.append(node('span', colours.title), node('small', (block.shape || []).slice(1).join(' × ')));
+        if (colours.caption) element.appendChild(node('small', colours.caption));
+      }
     }
     element.dataset.block = block.id;
     element.title = title;

@@ -69,7 +69,11 @@
       size = Object.assign(S.slabSize(block), {w: S.model.edges ? 1.6 : BLOCK});
       element = button('b2d ' + block.lane, pick, title);
       Object.assign(element.style, {background: colours.face, borderColor: colours.edge});
-      if (S.model.edges) { element.classList.add('module-card'); element.append(node('span',colours.title),node('small',(block.shape||[]).slice(1).join(' × '))); }
+      if (S.model.edges) {
+        element.classList.add('module-card');
+        element.append(node('span', colours.title), node('small', (block.shape || []).slice(1).join(' × ')));
+        if (colours.caption) element.appendChild(node('small', colours.caption));
+      }
     }
     element.dataset.block = block.id;
     element.title = title;
